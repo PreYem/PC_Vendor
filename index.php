@@ -25,7 +25,8 @@
               class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Category
               List</a>
             <a href="Category/Categories_Add.php"
-              class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">- New
+              
+              class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">+ New
               Category</a>
           </div>
           <div class="flex">
@@ -58,7 +59,7 @@
         <!-- Authentication Links -->
         <?php
         session_start(); // Start or resume session
-        
+
         // Debugging session variable
 
         // Conditional display of login/logout links
