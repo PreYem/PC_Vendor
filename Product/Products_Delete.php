@@ -36,6 +36,11 @@ if (!empty($_GET["id"])) {
     $pdostmtDeleteSpecs = $connexion->prepare($queryDeleteSpecs);
     $pdostmtDeleteSpecs->execute(["productId" => $productId]);
 
+
+    $Delete_From_Cart = "DELETE FROM ShoppingCart WHERE Product_ID = :productId";
+    $pdostmtDeleteCart = $connexion->prepare($Delete_From_Cart);
+    $pdostmtDeleteCart->execute(["productId" => $productId]);
+
     // Then delete the product
     $queryDeleteProduct = "DELETE FROM Products WHERE Product_ID = :productId";
     $pdostmtDeleteProduct = $connexion->prepare($queryDeleteProduct);
