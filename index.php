@@ -25,7 +25,7 @@
               class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Category
               List</a>
             <a href="Category/Categories_Add.php"
-              class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">+ New
+              class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">New
               Category</a>
           </div>
           <div class="flex">
