@@ -85,7 +85,7 @@ CREATE TABLE `orderitems` (
   KEY `Product_ID` (`Product_ID`),
   CONSTRAINT `orderitems_ibfk_1` FOREIGN KEY (`Order_ID`) REFERENCES `orders` (`Order_ID`),
   CONSTRAINT `orderitems_ibfk_2` FOREIGN KEY (`Product_ID`) REFERENCES `products` (`Product_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,7 +94,7 @@ CREATE TABLE `orderitems` (
 
 LOCK TABLES `orderitems` WRITE;
 /*!40000 ALTER TABLE `orderitems` DISABLE KEYS */;
-INSERT INTO `orderitems` VALUES (5,18,16,12,500.00),(6,18,17,3,600.00);
+INSERT INTO `orderitems` VALUES (20,25,16,2,500.00),(21,25,17,2,600.00),(22,25,22,1,6000.00),(23,26,16,1,500.00),(24,26,17,1,600.00),(25,26,22,1,6000.00),(26,27,17,1,600.00),(27,27,16,1,500.00),(28,28,16,1,500.00);
 /*!40000 ALTER TABLE `orderitems` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +118,7 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`Order_ID`),
   KEY `User_ID` (`User_ID`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,7 +127,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (18,'2024-05-22 00:14:15',7800.00,'TEST','Pending','Bank Transfer','0202020202','TEST',1);
+INSERT INTO `orders` VALUES (25,'2024-05-23 00:56:13',8200.00,'Casa','Cancelled by User','PayPal','0202020202','',1),(26,'2024-05-23 01:20:06',7100.00,'eaeae','Cancelled by User','Credit Card','0202020202','',1),(27,'2024-05-23 01:20:26',1100.00,'aerarar','Cancelled by User','Credit Card','0202020202','',1),(28,'2024-05-23 01:22:38',500.00,'aeae','Cancelled by User','Credit Card','0202020202','eaeae',1);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -159,7 +159,7 @@ CREATE TABLE `products` (
   CONSTRAINT `products_ibfk_2` FOREIGN KEY (`SubCategory_ID`) REFERENCES `subcategories` (`SubCategory_ID`),
   CONSTRAINT `products_ibfk_3` FOREIGN KEY (`Manufacturer_ID`) REFERENCES `manufacturers` (`Manufacturer_ID`),
   CONSTRAINT `chk_buying_price` CHECK ((`Buying_Price` <= `Selling_Price`))
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -168,7 +168,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (16,'RTX 2060',14,1,'aaaaaaaaaa',1,0.00,500.00,9999,'Visible','2024-05-13 23:09:09','Product_Pictures/Stocking with Yubel Eyes 02.jpeg'),(17,'aeaeae',14,1,'',1,0.00,600.00,5,'Visible','2024-05-16 23:56:51','Product_Pictures/Default_Product_Picture.jpg');
+INSERT INTO `products` VALUES (16,'RTX 2060',14,1,'aaaaaaaaaa',1,0.00,500.00,9999,'Visible','2024-05-13 23:09:09','Product_Pictures/Stocking with Yubel Eyes 02.jpeg'),(17,'aeaeae',14,1,'',1,0.00,600.00,5,'Visible','2024-05-16 23:56:51','Product_Pictures/Default_Product_Picture.jpg'),(22,'m4tt72',14,1,'aeaeaeae',1,0.00,6000.00,5,'Visible','2024-05-22 23:46:42','Product_Pictures/Untitled.png');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -214,7 +214,7 @@ CREATE TABLE `shoppingcart` (
   KEY `Product_ID` (`Product_ID`),
   CONSTRAINT `shoppingcart_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`),
   CONSTRAINT `shoppingcart_ibfk_2` FOREIGN KEY (`Product_ID`) REFERENCES `products` (`Product_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -223,7 +223,7 @@ CREATE TABLE `shoppingcart` (
 
 LOCK TABLES `shoppingcart` WRITE;
 /*!40000 ALTER TABLE `shoppingcart` DISABLE KEYS */;
-INSERT INTO `shoppingcart` VALUES (86,1,16,12),(87,1,17,3);
+INSERT INTO `shoppingcart` VALUES (111,1,16,1);
 /*!40000 ALTER TABLE `shoppingcart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -298,4 +298,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-22 12:02:41
+-- Dump completed on 2024-05-23  2:34:57
