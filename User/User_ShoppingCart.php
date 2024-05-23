@@ -85,7 +85,11 @@
                 ':OrderItem_UnitPrice' => $item['Selling_Price'] // Assuming this field exists in the shopping cart data
             ]);
         }
-        header("Location: ../Product/Products_List.php");
+
+        $removeAllFromCart = "DELETE FROM ShoppingCart WHERE User_ID = :User_ID";
+        $pdostmt = $connexion->prepare($removeAllFromCart);
+        $pdostmt->execute([':User_ID' => $User_ID]);
+        header("Location: User_OrderStatus.php");
     }
     ?>
 
@@ -129,7 +133,10 @@
         <a href="../User/User_Logout.php" class="text-blue-500 hover:underline">Logout</a>
     </div>
     <a href="../Product/Products_List.php" class="text-blue-500 hover:underline mb-4 inline-block">Products List</a>
+    <a href="User_OrderStatus.php" class="text-blue-500 hover:underline mb-4 inline-block">Pending Orders</a>
+    <?php if ($Shopping_Cart) { ?> 
     <section class="overflow-x-auto">
+        
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-200 text-left">
@@ -190,7 +197,7 @@
                             </td>
                             <td class="py-2">
                                 <textarea name="Order_ShippingAddress" class="border border-gray-300 p-2 w-full rounded"
-                                    placeholder="Address where you'd like your items delivered"></textarea>
+                                    placeholder="Address where you'd like your items delivered" required></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -199,7 +206,7 @@
                                     Method</label>
                             </td>
                             <td class="py-2">
-                                <select name="Order_PaymentMethod" class="border border-gray-300 p-2 w-full rounded">
+                                <select name="Order_PaymentMethod" class="border border-gray-300 p-2 w-full rounded" >
                                     <option value="Credit Card">Credit Card</option>
                                     <option value="PayPal">PayPal</option>
                                     <option value="Bank Transfer">Bank Transfer</option>
@@ -215,7 +222,7 @@
                             <td class="py-2">
                                 <input type="tel" name="Order_PhoneNumber"
                                     class="border border-gray-300 p-2 w-full rounded" placeholder="Example: 0714876397"
-                                    pattern="^([0-9]{2}){4}[0-9]{2}$">
+                                    pattern="^([0-9]{2}){4}[0-9]{2}$" required>
                             </td>
                         </tr>
                         <tr>
@@ -224,7 +231,7 @@
                             </td>
                             <td class="py-2">
                                 <textarea name="Order_Notes" class="border border-gray-300 p-2 w-full rounded"
-                                    placeholder="Any additional info you'd like to request/provide regarding your order"></textarea>
+                                    placeholder="(Optional) : Any additional info you'd like to request/provide regarding your order."></textarea>
                             </td>
                         </tr>
                     </table>
@@ -236,7 +243,11 @@
                             class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Clear</button>
                     </div>
                 </form>
+                
             </section>
+            <?php } else {?>
+                <h1>Your Shopping Cart is empty</h1>
+                <?php } ?>
         </div>
     </section>
 

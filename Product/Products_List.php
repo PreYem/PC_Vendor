@@ -97,6 +97,16 @@
         }
     }
 
+    $Order_Pending = "SELECT Order_ID FROM Orders WHERE User_ID = :userId";
+    $pdostmt = $connexion->prepare($Order_Pending);
+    $pdostmt->execute([':userId' => $userId]);
+    
+    // Fetch the number of rows
+    $Order_Count = $pdostmt->rowCount();
+    
+    // If you need to fetch the data as well
+    $orders = $pdostmt->fetchAll(PDO::FETCH_ASSOC);
+
 
     $query = "SELECT P.Product_ID, P.Date_Created, P.Product_Name, C.Category_Name, S.SubCategory_Name, M.Manufacturer_Name, P.Selling_Price, P.Buying_Price , 
                 P.Product_Quantity, P.Product_Picture, P.Product_Desc, P.Product_Visibility
@@ -151,6 +161,12 @@
     <a href="../index.php" style="background-color: Green">Main Page</a>
     <a href="Products_Add.php" style="background-color: Blue; padding: 0px 4px; display: inline-block; ">+</a>
     <a href="../User/User_ShoppingCart.php">My Cart</a>
+
+    <?php if($Order_Pending) { ?> <a href="../User/User_OrderStatus.php">Your Pending Orders (<?php echo $Order_Count ?>)</a> <?php } ?>
+
+
+
+    
 
     <select id="sortSelect" onchange="sortProducts()">
         <option value="none">Sort By</option>
