@@ -12,9 +12,6 @@
 </head>
 
 <body>
-  <h1>Testing a Branch</h1>
-  <h2>Tesing a second branch</h2>
-
 
   <div class="bg-gray-800 py-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
