@@ -17,7 +17,7 @@
     
     session_start(); // Start or resume existing session
     
-    
+
     // Check if user is logged in and has the appropriate role
     if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
         // User is not logged in, redirect to login page
@@ -36,7 +36,7 @@
     if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
         $userRole = $row['User_Role'];
         $User_Username = $row['User_Username'];
-        $User_FullName = $row['User_FirstName']. ' ' .  $row['User_LastName'];
+        $User_FullName = $row['User_FirstName'] . ' ' . $row['User_LastName'];
 
         if ($userRole === 'Owner') {
             $showUserManagement = true; // Flag to show the "User Management" button/link
@@ -97,13 +97,14 @@
         }
     }
 
-    $Order_Pending = "SELECT Order_ID FROM Orders WHERE User_ID = :userId";
+    $Order_Status = 'Cancelled by User';
+    $Order_Pending = "SELECT Order_ID FROM Orders WHERE User_ID = :userId AND Order_Status != :Order_Status ";
     $pdostmt = $connexion->prepare($Order_Pending);
-    $pdostmt->execute([':userId' => $userId]);
-    
+    $pdostmt->execute([':userId' => $userId, ':Order_Status' => $Order_Status]);
+
     // Fetch the number of rows
     $Order_Count = $pdostmt->rowCount();
-    
+
     // If you need to fetch the data as well
     $orders = $pdostmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -122,6 +123,17 @@
 
     $current_time = time(); // This will give you the current time as a Unix timestamp
     
+    $Shopping_Query = "SELECT sc.CartItem_ID, sc.Product_ID, sc.Quantity, p.Product_Name, p.Selling_Price, p.Product_Picture
+    FROM ShoppingCart sc
+    JOIN Products p ON sc.Product_ID = p.Product_ID
+    WHERE sc.User_ID = :User_ID";
+
+$pdostmt_shopping = $connexion->prepare($Shopping_Query);
+$pdostmt_shopping->execute([':User_ID' => $userId]);
+$Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
+
+// Counting the rows
+$Cart_Count = $pdostmt_shopping->rowCount();
 
 
 
@@ -160,13 +172,14 @@
 
     <a href="../index.php" style="background-color: Green">Main Page</a>
     <a href="Products_Add.php" style="background-color: Blue; padding: 0px 4px; display: inline-block; ">+</a>
-    <a href="../User/User_ShoppingCart.php">My Cart</a>
+    <a href="../User/User_ShoppingCart.php">Shopping Cart [<?php echo $Cart_Count ?>]</a>
 
-    <?php if($Order_Pending) { ?> <a href="../User/User_OrderStatus.php">Your Pending Orders (<?php echo $Order_Count ?>)</a> <?php } ?>
+    <?php if ($Order_Pending) { ?> <a href="../User/User_OrderStatus.php">You have
+            <?php echo $Order_Count ?> Pending Order(s)</a> <?php } ?>
 
 
 
-    
+
 
     <select id="sortSelect" onchange="sortProducts()">
         <option value="none">Sort By</option>
@@ -179,8 +192,8 @@
     <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="Search for products...">
     <div id="User_Management">
         <span>Currently Logged as :
-            <span id="UserFirstLastName" ><b><?php echo $User_FullName ?></b></span>
-             <b>(<?php echo $userRole ?>)</b>
+            <span id="UserFirstLastName"><b><?php echo $User_FullName ?></b></span>
+            <b>(<?php echo $userRole ?>)</b>
         </span>
         <?php
 
@@ -258,8 +271,8 @@
                     // 1 Day = 720 Minutes
                     // 1 Week = 10080 Minutes
                     // 1 Month = 43800 Minutes
+            
 
-                    
                     // Determine product status based on time difference
                     if ($time_difference_minutes < 1) {
                         $product_status = 'NEW PRODUCT <br>'; // Product is considered new
@@ -267,7 +280,7 @@
                         $product_status = ''; // Product is not considered new
                     }
 
-                   
+
 
 
 
@@ -335,7 +348,7 @@
                             <a href="Products_Delete.php?id=<?php echo $ligne["Product_ID"] ?>"
                                 onclick="return confirm('Are you sure you want to delete this product?\n*Disclaimer* : This action is irreversible')">Delete</a><br>
                             <a href="Add_To_Cart.php?id=<?php echo $ligne["Product_ID"]; ?>">Add to Cart
-                        </a>
+                            </a>
 
 
                     </tr>

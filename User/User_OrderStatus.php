@@ -89,51 +89,50 @@
     <h1 class="text-3xl font-bold mb-6">Your Pending Orders</h1>
     <a href="../Product/Products_List.php" class="text-blue-500 hover:underline mb-4 inline-block">Products List</a>
     <section>
-        <?php foreach ($orders as $orderId => $order):
-            $Date = date('Y-m-d', strtotime($order['Order_Date'])) . ' <b>at</b> ' . date('H:i:s', strtotime($order['Order_Date']));
-            ?>
-            <div class="bg-white shadow-md rounded-lg p-6 mb-6 order-container">
-                <h4 class="text-lg font-semibold mb-4">Order Number : <?php echo $orderId; ?></h4>
-                <p class="text-gray-600 mb-2">Order made at : <?php echo $Date; ?></p>
-                <!-- Details section -->
-                <div class="order-details">
-                    <?php foreach ($order['Products'] as $product): ?>
-                        <div class="flex items-center border-b py-4">
-                            <div class="flex-shrink-0 mr-4">
-                                <img src="../Product/<?php echo $product['Product_Picture']; ?>" alt="Product Image"
-                                    class="w-16 h-16 rounded-lg">
-                            </div>
-                            <div>
-                                <p class="font-semibold"><?php echo $product['Product_Name']; ?></p>
-                                <p class="text-gray-600 mb-1">Quantity : <?php echo $product['OrderItem_Quantity']; ?></p>
-                                <p class="text-gray-600 mb-1">Price Per Unit :
-                                    <?php echo formatNumber($product['OrderItem_UnitPrice']); ?> Dhs
-                                </p>
-                                <p class="text-gray-600 mb-1">Total:
-                                    <?php echo formatNumber($product['OrderItem_Quantity'] * $product['OrderItem_UnitPrice']); ?>
-                                    Dhs
-                                </p>
-                            </div>
+    <?php foreach ($orders as $orderId => $order):
+        $Date = date('Y-m-d', strtotime($order['Order_Date'])) . ' <b>at</b> ' . date('H:i:s', strtotime($order['Order_Date']));
+        ?>
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6 order-container <?php echo ($order['Order_Status'] === 'Cancelled by User') ? 'bg-red-100' : ''; ?>">
+            <h4 class="text-lg font-semibold mb-4">Order Number : <?php echo $orderId; ?></h4>
+            <p class="text-gray-600 mb-2">Order made at : <?php echo $Date; ?></p>
+            <!-- Details section -->
+            <div class="order-details">
+                <?php foreach ($order['Products'] as $product): ?>
+                    <div class="flex items-center border-b py-4">
+                        <div class="flex-shrink-0 mr-4">
+                            <img src="../Product/<?php echo $product['Product_Picture']; ?>" alt="Product Image"
+                                class="w-16 h-16 rounded-lg">
                         </div>
-                    <?php endforeach; ?>
+                        <div>
+                            <p class="font-semibold"><?php echo $product['Product_Name']; ?></p>
+                            <p class="text-gray-600 mb-1">Quantity : <?php echo $product['OrderItem_Quantity']; ?></p>
+                            <p class="text-gray-600 mb-1">Price Per Unit :
+                                <?php echo formatNumber($product['OrderItem_UnitPrice']); ?> Dhs
+                            </p>
+                            <p class="text-gray-600 mb-1">Total:
+                                <?php echo formatNumber($product['OrderItem_Quantity'] * $product['OrderItem_UnitPrice']); ?>
+                                Dhs
+                            </p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
 
-                </div>
-                <p class="text-gray-600 mt-4 status-paragraph">Status : <?php echo $order['Order_Status']; ?></p>
-                <p class="text-gray-600">Total Amount : <?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs</p>
-                <?php if ($order['Order_Status'] == 'Pending') { ?>
+            </div>
+            <p class="text-gray-600 mt-4 status-paragraph">Status : <?php echo $order['Order_Status']; ?></p>
+            <p class="text-gray-600">Total Amount : <?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs</p>
+            <?php if ($order['Order_Status'] == 'Pending') { ?>
 
-                    <a href="User_CancelOrder.php?id=<?php echo $orderId; ?>" class="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
-    Cancel Order
+                <a href="User_CancelOrder.php?id=<?php echo $orderId; ?>" class="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+Cancel Order
 </a>
 
 
-                <?php } ?>
-            </div>
+            <?php } ?>
+        </div>
 
 
-        <?php endforeach; ?>
-    </section>
-
+    <?php endforeach; ?>
+</section>
 
     <!-- JavaScript for expanding/collapsing -->
     <script>
