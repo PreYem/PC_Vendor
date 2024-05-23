@@ -24,7 +24,7 @@
     $Error_Message = '';
     if (!empty($_POST)) {
         $ManufacturerName = $_POST["Manufacturer_Name"];
-        $ManufacturerId = $_POST["Manufacturer_ID"];
+        $Manufacturer_ID = $_POST["Manufacturer_ID"];
         $ManufacturerDesc = $_POST["Manufacturer_Desc"]; // Added Manufacturer_Desc variable
     
         $lowercaseManufacturer = strtolower($ManufacturerName);
@@ -33,7 +33,7 @@
         $pdostmtCheck = $connexion->prepare($queryCheck);
         $pdostmtCheck->execute([
             "LowercaseManufacturer" => $lowercaseManufacturer,
-            "Manufacturer_ID" => $ManufacturerId
+            "Manufacturer_ID" => $Manufacturer_ID
         ]);
 
         $existingManufacturer = $pdostmtCheck->fetch(PDO::FETCH_ASSOC);
@@ -45,7 +45,7 @@
             $pdostmtUpdate->execute([
                 "Manufacturer_Name" => $ManufacturerName,
                 "Manufacturer_Desc" => $ManufacturerDesc, // Added Manufacturer_Desc binding
-                "Manufacturer_ID" => $ManufacturerId
+                "Manufacturer_ID" => $Manufacturer_ID
             ]);
 
             $pdostmtUpdate->closeCursor();
