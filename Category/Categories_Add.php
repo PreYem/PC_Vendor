@@ -53,7 +53,7 @@
 
     $Error_Message = '';
 
-    if (!empty($_POST["Category_Name"]) && !empty($_POST["Category_Desc"])) {
+    if (!empty($_POST["Category_Name"])) {
         $categoryName = $_POST["Category_Name"];
         $categoryDesc = $_POST["Category_Desc"];
 
@@ -107,7 +107,7 @@
                         Description:</label>
                     <textarea name="Category_Desc"
                         class="mt-1 p-2 block w-full border border-gray-300 rounded-md h-32 resize-none focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter Category Description" required></textarea>
+                        placeholder="Enter Category Description"></textarea>
                 </div>
 
                 <div class="flex items-center space-x-4">

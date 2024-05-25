@@ -38,7 +38,7 @@
             $_SESSION['User_Role'] = $user['User_Role'];
 
 
-            header("Location: ../Product/Products_List.php");
+            header("Location: ../index.php");
             exit;
         } else {
 

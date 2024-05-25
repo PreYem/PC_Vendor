@@ -16,24 +16,24 @@
     }
 
 
-    $userId = $_SESSION['User_ID'];
-    $query = "SELECT User_Role, User_Username FROM Users WHERE User_ID = :userId";
+    $User_ID = $_SESSION['User_ID'];
+    $query = "SELECT User_Role, User_Username FROM Users WHERE User_ID = :User_ID";
     $pdostmt = $connexion->prepare($query);
-    $pdostmt->execute([':userId' => $userId]);
+    $pdostmt->execute([':User_ID' => $User_ID]);
 
 
 
     if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
-        $userRole = $row['User_Role'];
+        $User_Role = $row['User_Role'];
         $User_Username = $row['User_Username'];
 
-        if ($userRole === 'Owner') {
+        if ($User_Role === 'Owner') {
             $showUserManagement = true;
         } else {
             $showUserManagement = false;
         }
 
-        if ($userRole !== 'Owner' && $userRole !== 'Admin') {
+        if ($User_Role !== 'Owner' && $User_Role !== 'Admin') {
             header("Location: ../../User/User_Unauthorized.html");
             exit;
         }

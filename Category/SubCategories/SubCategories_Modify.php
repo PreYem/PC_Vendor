@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../../Logo.png" type="image/x-icon">
-    <title>Edit Sub Category</title>
+    
     <?php
     include_once ("../../DB_Connexion.php");
     $Error_Message = '' ;
@@ -45,16 +45,21 @@
     }
     ;
 
-
     if (!empty($_GET["id"])) {
         $SubCategory_ID = $_GET["id"];
-        $SubCategoryQuery = "SELECT SubCategory_ID , SubCategory_Name , SubCategory_Desc , Category_ID FROM SubCategories WHERE SubCategory_ID = :SubCategory_ID";
+        $SubCategoryQuery = "SELECT SubCategory_ID, SubCategory_Name, SubCategory_Desc, Category_ID FROM SubCategories WHERE SubCategory_ID = :SubCategory_ID";
         $pdostmt = $connexion->prepare($SubCategoryQuery);
         $pdostmt->execute(["SubCategory_ID" => $SubCategory_ID]);
         $ligne = $pdostmt->fetch(PDO::FETCH_ASSOC);
         $pdostmt->closeCursor();
-    }
-
+    
+        // Set the page title dynamically
+        echo '<title>' . $ligne['SubCategory_Name'] . '</title>';
+    } else {
+        // Set a default title if $_GET["id"] is empty
+        echo '<title>Edit Subcategory</title>';
+    } ;
+    
 
     if (!empty($_POST)) {
         $SubCategory_ID = $_GET["id"];
@@ -101,6 +106,8 @@
     }
     ;
 
+    
+
 
 
 
@@ -108,30 +115,32 @@
 
 </head>
 
-<body>
-    <section>
-        <table style="border : 2px black solid">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <section class="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <table class="w-full border-collapse">
             <form action="" method="POST" enctype="multipart/form-data">
-                <tr>
-                    <td>
-                        <label for="SubCategory_ID">SubCategory ID</label>
+                <tr class="border-b">
+                    <td class="py-2 px-4">
+                        <label for="SubCategory_ID" class="font-semibold">SubCategory ID</label>
                     </td>
-                    <td>
-                        <span>
-                            <?php echo $ligne['SubCategory_ID'] ?>
-                        </span>
+                    <td class="py-2 px-4">
+                        <span class="text-gray-700"><?php echo $ligne['SubCategory_ID'] ?></span>
                     </td>
-
                 </tr>
-                <tr>
-                    <td><label for="SubCategory_Name">Sub Category Name:</label></td>
-                    <td><input type="text" name="SubCategory_Name" placeholder="Your Sub Category Name"
-                            value="<?php echo $ligne['SubCategory_Name'] ?>"></td>
+                <tr class="border-b">
+                    <td class="py-2 px-4">
+                        <label for="SubCategory_Name" class="font-semibold">Sub Category Name:</label>
+                    </td>
+                    <td class="py-2 px-4">
+                        <input type="text" name="SubCategory_Name" class="w-full p-2 border border-gray-300 rounded" placeholder="Your Sub Category Name" value="<?php echo $ligne['SubCategory_Name'] ?>">
+                    </td>
                 </tr>
-                <tr>
-                    <td><label for="Category_Name">Main Category:</label></td>
-                    <td>
-                        <select name="Category_Name" required>
+                <tr class="border-b">
+                    <td class="py-2 px-4">
+                        <label for="Category_Name" class="font-semibold">Main Category:</label>
+                    </td>
+                    <td class="py-2 px-4">
+                        <select name="Category_Name" class="w-full p-2 border border-gray-300 rounded" required>
                             <?php
                             $queryCategories = "SELECT Category_Name, Category_ID FROM Categories ORDER BY Category_ID";
                             $pdostmtCategories = $connexion->prepare($queryCategories);
@@ -145,27 +154,29 @@
                         </select>
                     </td>
                 </tr>
-                <tr>
-                    <td><label for="SubCategory_Desc">Sub Category Description:</label></td>
-                    <td><textarea name="SubCategory_Desc" cols="30" rows="10"
-                            placeholder="Write a few lines describing the sub category"><?php echo $ligne['SubCategory_Desc'] ?></textarea>
+                <tr class="border-b">
+                    <td class="py-2 px-4">
+                        <label for="SubCategory_Desc" class="font-semibold">Sub Category Description:</label>
+                    </td>
+                    <td class="py-2 px-4">
+                        <textarea name="SubCategory_Desc" class="w-full p-2 border border-gray-300 rounded" cols="30" rows="10" placeholder="Write a few lines describing the sub category"><?php echo $ligne['SubCategory_Desc'] ?></textarea>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2">
-                        <button type="submit" class="Btn">Save Changes</button>
-                        <button type="reset" class="Btn">Clear</button>
-                        <a href="SubCategories_List.php">List Sub Categories</a>
+                    <td colspan="2" class="py-4 text-center">
+                        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200">Save Changes</button>
+                        <button type="reset" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-700 transition duration-200 ml-2">Clear</button>
+                        <a href="SubCategories_List.php" class="text-blue-500 hover:underline ml-2">List Sub Categories</a>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2">
+                    <td colspan="2" class="py-2 text-center text-red-500">
                         <span><?php echo $Error_Message ?></span>
                     </td>
                 </tr>
             </form>
         </table>
     </section>
-</body> 
+</body>
 
 </html>
