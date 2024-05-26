@@ -21,13 +21,13 @@
 
     include_once ("../DB_Connexion.php");
 
-    session_start(); // Start or resume existing session
-    
-    // Check if user is logged in and has the appropriate role
+    session_start();
+
+
     if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
-        // User is not logged in, redirect to login page
+
         header("Location: ../User/User_SignIn.php");
-        exit; // Ensure script stops after redirection
+        exit;
     }
 
     // Retrieve the user's role from the database based on User_ID stored in session
@@ -131,14 +131,13 @@
                         "productId" => $productId
                     ]);
                 } else {
-                    // Handle upload failure if needed
+
                     echo "File upload failed.";
                 }
             }
 
 
-            // Remove deleted specifications from the database
-// Remove deleted specifications from the database
+
             $deletedSpecs = isset($_POST['deletedSpecs']) ? json_decode($_POST['deletedSpecs']) : [];
             if (!empty($deletedSpecs)) {
                 $placeholders = implode(',', array_fill(0, count($deletedSpecs), '?'));
@@ -208,7 +207,7 @@
     <h1>Modify Product</h1>
     <a href="Products_List.php">List Products</a>
     <?php
-    include_once ("../DB_Connexion.php");
+
 
     if (!empty($_GET["id"])) {
         $productId = $_GET["id"];
@@ -225,16 +224,50 @@
         $pdostmtCategory->execute(["categoryId" => $product['Category_ID']]);
         $category = $pdostmtCategory->fetch(PDO::FETCH_ASSOC);
 
+        $CurrentCategoryName = $category['Category_Name'];
+
+
+        $querySub = "SELECT SubCategory_ID FROM Products WHERE Product_ID = :productId";
+        $pdostmtSub = $connexion->prepare($querySub);
+        $pdostmtSub->execute(["productId" => $product['Product_ID']]);
+        $sub = $pdostmtSub->fetch(PDO::FETCH_ASSOC);
+        $CurrentSubCat_ID = $sub['SubCategory_ID'];
+
+        $querySubName = "SELECT SubCategory_Name FROM SubCategories WHERE SubCategory_ID  = :CurrentSubCat_ID";
+        $pdostmtSubName = $connexion->prepare($querySubName);
+        $pdostmtSubName->execute(["CurrentSubCat_ID" => $CurrentSubCat_ID]);
+        $subName = $pdostmtSubName->fetch(PDO::FETCH_ASSOC);
+        $CurrentSubCat_Name = $subName['SubCategory_Name'];
+
+        $CurrentManufacturer_ID = "SELECT Manufacturer_ID FROM Products WHERE Product_ID = :productId";
+        $pdostmtManufacturer_ID = $connexion->prepare($CurrentManufacturer_ID);
+        $pdostmtManufacturer_ID->execute(["productId" => $product['Product_ID']]);
+        $Manufacturer_ID = $pdostmtManufacturer_ID->fetch(PDO::FETCH_ASSOC);
+        $CurrentManufacturer_ID = $Manufacturer_ID['Manufacturer_ID'];
+
+        $CurrentManufacturer_Name = "SELECT Manufacturer_Name FROM Manufacturers WHERE Manufacturer_ID = :CurrentManufacturer_ID";
+        $pdostmtManufacturer_Name = $connexion->prepare($CurrentManufacturer_Name);
+        $pdostmtManufacturer_Name->execute(["CurrentManufacturer_ID" => $CurrentManufacturer_ID]);
+        $Manufacturer_Name = $pdostmtManufacturer_Name->fetch(PDO::FETCH_ASSOC);
+
+        $CurrentManufacturer_Name = $Manufacturer_Name['Manufacturer_Name'];
+
+
+
         // Retrieve specifications for the product
         $querySpecifications = "SELECT * FROM ProductSpecifications WHERE Product_ID = :productId";
         $pdostmtSpecifications = $connexion->prepare($querySpecifications);
         $pdostmtSpecifications->execute(["productId" => $productId]);
         $specifications = $pdostmtSpecifications->fetchAll(PDO::FETCH_ASSOC);
+
+
+
     }
     ?>
     <form action="" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="Product_ID" value="<?php echo $product['Product_ID']; ?>">
         <table>
+            <span> </span>
             <tr>
                 <td><label for="Product_Name">Product Name:</label></td>
                 <td><input type="text" name="Product_Name" value="<?php echo $product['Product_Name']; ?>">
@@ -243,7 +276,8 @@
             <tr>
                 <td><label for="Category_Name">Category:</label></td>
                 <td>
-                    <select name="Category_Name">
+
+                    <select name="Category_Name" required>
                         <?php
                         $queryCategories = "SELECT Category_Name FROM Categories";
                         $pdostmtCategories = $connexion->prepare($queryCategories);
@@ -251,11 +285,19 @@
                         $categories = $pdostmtCategories->fetchAll(PDO::FETCH_COLUMN);
 
                         foreach ($categories as $category) {
-                            echo "<option value=\"$category\">$category</option>";
+                            $selected = ''; // Initially, no option is selected
+                            if ($category == $CurrentCategoryName) {
+                                $selected = 'selected'; // If current option is "ABC", mark it as selected
+                            }
+                            echo "<option value=\"$category\" $selected>$category</option>";
                         }
                         ?>
                     </select>
+
+
+
                 </td>
+
             </tr>
 
             <tr>
@@ -269,29 +311,37 @@
                         $SubCategories = $pdostmtSubCategories->fetchAll(PDO::FETCH_COLUMN);
 
                         foreach ($SubCategories as $SubCategory) {
-                            echo "<option value=\"$SubCategory\">$SubCategory</option>";
+                            $selected = '';
+                            if ($SubCategory == $CurrentSubCat_Name) {
+                                $selected = 'selected';
+                            }
+                            echo "<option value=\"$SubCategory\" $selected>$SubCategory</option>";
                         }
                         ?>
                     </select>
                 </td>
             </tr>
-
-
             <tr>
                 <td><label for="Manufacturer_Name">Manufacturer:</label></td>
                 <td>
                     <select name="Manufacturer_Name">
                         <?php
+
                         $queryManufacturers = "SELECT Manufacturer_Name FROM Manufacturers";
                         $pdostmtManufacturers = $connexion->prepare($queryManufacturers);
                         $pdostmtManufacturers->execute();
                         $Manufacturers = $pdostmtManufacturers->fetchAll(PDO::FETCH_COLUMN);
 
                         foreach ($Manufacturers as $Manufacturer) {
-                            echo "<option value=\"$Manufacturer\">$Manufacturer</option>";
+                            $selected = '';
+                            if ($Manufacturer == $CurrentManufacturer_Name) {
+                                $selected = 'selected';
+                            }
+                            echo "<option value=\"$Manufacturer\" $selected>$Manufacturer</option>";
                         }
                         ?>
                     </select>
+
                 </td>
             </tr>
 

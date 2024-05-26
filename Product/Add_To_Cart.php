@@ -75,7 +75,7 @@ if (!empty($_GET["id"])) {
 
 
     
-     header("Location: Products_List.php");
+     header("Location: ../index.php");
     
      exit;
     

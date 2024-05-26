@@ -266,7 +266,7 @@
             <select name="Category_Name" required
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <?php
-                $queryCategories = "SELECT Category_Name FROM Categories";
+                $queryCategories = "SELECT Category_Name FROM Categories ORDER BY Category_ID";
                 $pdostmtCategories = $connexion->prepare($queryCategories);
                 $pdostmtCategories->execute();
                 $categories = $pdostmtCategories->fetchAll(PDO::FETCH_COLUMN);
@@ -283,7 +283,7 @@
             <select name="SubCategory_Name" required
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <?php
-                $querySubCategories = "SELECT SubCategory_Name FROM SubCategories";
+                $querySubCategories = "SELECT SubCategory_Name FROM SubCategories ORDER BY SubCategory_ID";
                 $pdostmtSubCategories = $connexion->prepare($querySubCategories);
                 $pdostmtSubCategories->execute();
                 $SubCategories = $pdostmtSubCategories->fetchAll(PDO::FETCH_COLUMN);
@@ -300,7 +300,7 @@
             <select name="Manufacturer_Name" required
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <?php
-                $queryManufacturers = "SELECT Manufacturer_Name FROM Manufacturers";
+                $queryManufacturers = "SELECT Manufacturer_Name FROM Manufacturers ORDER BY Manufacturer_ID";
                 $pdostmtManufacturers = $connexion->prepare($queryManufacturers);
                 $pdostmtManufacturers->execute();
                 $Manufacturers = $pdostmtManufacturers->fetchAll(PDO::FETCH_COLUMN);
