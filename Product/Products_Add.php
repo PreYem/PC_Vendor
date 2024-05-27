@@ -218,7 +218,7 @@
                     }
                 }
 
-                header("Location: Products_Add.php");
+                header("Location: ../index.php");
 
 
 

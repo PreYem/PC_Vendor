@@ -185,7 +185,7 @@
             }
 
             $pdostmtUpdate->closeCursor();
-            header("Location: Products_List.php");
+            header("Location: ../index.php");
             exit();
         } else {
             // Display error message if a product with the same name already exists

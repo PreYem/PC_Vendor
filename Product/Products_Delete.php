@@ -1,13 +1,13 @@
 <?php
 include_once ("../DB_Connexion.php");
 
-session_start(); 
+session_start();
 
 
 if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 
     header("Location: ../User/User_SignIn.php");
-    exit; 
+    exit;
 }
 
 
@@ -23,7 +23,7 @@ if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
     if ($userRole !== 'Owner' && $userRole !== 'Admin') {
 
         header("Location: ../User/User_Unauthorized.html");
-        exit; 
+        exit;
     }
 }
 ;
@@ -47,12 +47,11 @@ if (!empty($_GET["id"])) {
     $pdostmtDeleteProduct->execute(["productId" => $productId]);
 
     // Redirect back to the product list page
-    header("Location: Products_List.php");
+    header("Location: ../index.php");
     exit();
 } else {
     // If no product ID is provided, redirect back to the product list page
-    header("Location: Products_List.php");
-    exit();
+    echo "Error";
 }
 
 
