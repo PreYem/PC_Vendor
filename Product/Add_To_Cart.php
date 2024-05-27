@@ -1,7 +1,18 @@
 <?php
 include_once ("../DB_Connexion.php");
 
+function formatNumber($number)
+{
+    return number_format($number, 0, '', ' ');
+}
+
 session_start();
+
+if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
+    // User is not logged in, redirect to login page
+    header("Location: ../User/User_SignIn.php");
+    exit; // Ensure script stops after redirection
+}
 
 $User_ID = $_SESSION['User_ID'];
 $query = "SELECT User_Role FROM Users WHERE User_ID = :User_ID";

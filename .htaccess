@@ -1,0 +1,6 @@
+RewriteEngine On
+
+# Redirect all non-existent files and directories to 404.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /PC_Vendor/User/User_Unauthorized.html [L]

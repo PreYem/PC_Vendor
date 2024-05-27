@@ -55,28 +55,6 @@
     <?php
 
     $count = 0;
-    include_once ("../DB_Connexion.php");
-
-    $query = "select Category_Name from Categories";
-
-    $pdostmt = $connexion->prepare($query);
-    $pdostmt->execute();
-
-    ?>
-    <?php
-    $count = 0;
-    include_once ("../DB_Connexion.php");
-
-    $queryManufacturer = "select Manufacturer_ID,Manufacturer_Name from Manufacturers";
-
-    $pdostmt = $connexion->prepare($queryManufacturer);
-    $pdostmt->execute();
-
-    ?>
-
-    <?php
-    include_once ("../DB_Connexion.php");
-
     $Error_Message = '';
 
     if (!empty($_POST)) {
@@ -128,41 +106,36 @@
                 if (!empty($_FILES['Product_Picture']['name'])) {
                     $uploadedFileName = $_FILES['Product_Picture']['name'];
                     $uploadedFileTmpName = $_FILES['Product_Picture']['tmp_name'];
+                    $fileExtension = substr($uploadedFileName, -4);
 
-                    // Specify the folder where you want to save the uploaded images
                     $uploadFolder = 'Product_Pictures/';
-                    // Construct the file path where the image will be saved
-                    $targetFilePath = $uploadFolder . $uploadedFileName;
-
-                    // Move the uploaded file to the specified folder
+                    $pattern = '/[^\w\-\.]/';
+                    $cleanedProductName = preg_replace($pattern, '_', $productName);
+                    $uniqueFileName = uniqid() . '_' . $cleanedProductName . $fileExtension;
+                    $targetFilePath = $uploadFolder . $uniqueFileName;
                     if (move_uploaded_file($uploadedFileTmpName, $targetFilePath)) {
-                        // File upload successful, proceed with database insertion
-                        // Set the product picture column to the file path
                         $productPicture = $targetFilePath;
                     } else {
-                        // Error handling for failed file upload
                         $Error_Message = 'Failed to upload image. Please try again.';
                     }
                 } else {
-                    // Handle case when no image is uploaded
+
                     $defaultImagePath = 'Product_Pictures/Default_Product_Picture.jpg';
                     $productPicture = $defaultImagePath;
                 }
 
 
-                // Assuming you have the current date and time in separate variables
                 date_default_timezone_set('UTC');
 
-                // Get current date and time in UTC
+
                 $currentDateTimeUTC = new DateTime();
 
-                // Set the time zone to Morocco/Casablanca
+
                 $currentDateTimeUTC->setTimezone(new DateTimeZone('Africa/Casablanca'));
 
-                // Format the current date and time for database storage (YYYY-MM-DD HH:MM:SS)
+
                 $detailedDateTimeForDB = $currentDateTimeUTC->format('Y-m-d H:i:s');
 
-                // Format the current date and time for display on the webpage
                 $detailedDateTimeForDisplay = $currentDateTimeUTC->format('Y-m-d \a\t H:i:s');
 
                 $insertProductQuery = "INSERT INTO Products (Product_Name, Category_ID, SubCategory_ID, Manufacturer_ID, Selling_Price, Buying_Price, Product_Quantity, Product_Picture, 
@@ -230,14 +203,14 @@
     }
     ?>
 
-    
-    
+
+
 
 
 </head>
 
 <body class="bg-gray-100 p-8">
-<div class="sticky-nav bg-white shadow-md p-4">
+    <div class="sticky-nav bg-white shadow-md p-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-3xl font-bold">Add Product</h1>
             <div>
