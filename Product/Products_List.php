@@ -132,7 +132,6 @@
     $pdostmt_shopping->execute([':User_ID' => $userId]);
     $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
 
-    // Counting the rows
     $Cart_Count = $pdostmt_shopping->rowCount();
 
 

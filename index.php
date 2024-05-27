@@ -10,27 +10,41 @@
     session_start();
     include_once ("DB_Connexion.php");
 
-    function formatNumber($number) {
+    function formatNumber($number)
+    {
         return number_format($number, 0, '', ' ');
     }
-    
-  
-    
-    
-    
 
-
-    if (!empty($_SESSION['User_ID'])) {
+    $Visible = 'Visible';
+    if (isset($_SESSION['User_ID'])) {
         $User_ID = $_SESSION['User_ID'];
-        $Users = "SELECT User_ID, User_Role, User_FirstName , User_LastName , User_Role FROM Users WHERE User_ID = :User_ID";
+        $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
         $pdoUsers = $connexion->prepare($Users);
         $pdoUsers->execute([':User_ID' => $User_ID]);
         $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-
         $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
         $User_Role = $User['User_Role'];
+
+        if ($User_Role !== 'Client') {
+            $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
+                                    FROM Products";
+        } else {
+            $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
+                                    FROM Products WHERE Product_Visibility = :Visible";
+        }
+    } else {
+        $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
+                                FROM Products WHERE Product_Visibility = :Visible";
     }
-    ;
+
+    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+
+    if (!isset($User_Role) || $User_Role === 'Client') {
+        $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
+    }
+
+    $pdoGeneralProductQuery->execute();
+    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
 
 
 
@@ -39,24 +53,6 @@
     $pdoCategories->execute();
     $Categories = $pdoCategories->fetchAll(PDO::FETCH_ASSOC);
 
-
-
-    $Visible = 'Visible';
-
-    // Define the query with named parameter
-    $GeneralProductQuery = "SELECT Product_ID,Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture FROM Products WHERE Product_Visibility = :Visible";
-
-    // Prepare the query
-    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-
-    // Bind the value of $Visible to the named parameter :Visible
-    $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
-
-    // Execute the query
-    $pdoGeneralProductQuery->execute();
-
-    // Fetch the results
-    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
 
 
 
@@ -69,7 +65,25 @@
 </head>
 
 <style>
-    /* Additional CSS for category dropdown */
+    .visibility-status {
+        background-color: #EF4444;
+        /* Red background */
+        color: #FFFFFF;
+        /* White text */
+        padding: 0.25rem 0.5rem;
+        /* Adjust padding */
+        border-radius: 0.25rem;
+        /* Rounded corners */
+        font-size: 0.875rem;
+        /* Adjust font size */
+        font-weight: 500;
+        /* Medium font weight */
+        margin-top: 0.5rem;
+        /* Add some space at the top */
+        display: inline-block;
+        /* Display as inline block */
+    }
+
     .category-dropdown {
         display: none;
     }
@@ -84,6 +98,7 @@
     }
 
     nav {
+
         height: auto;
         position: fixed;
 
@@ -92,6 +107,7 @@
         z-index: 1000;
 
         margin-bottom: auto;
+        opacity: 95%;
     }
 
     body {
@@ -117,9 +133,7 @@
         display: flex;
         justify-content: center;
         width: 100%;
-        /* Ensure the parent uses the full width */
         padding-top: 16px;
-        /* Adjust padding to make space for fixed nav */
     }
 
     .container {
@@ -127,9 +141,7 @@
         flex-direction: column;
         min-height: 100vh;
         width: 90%;
-        /* You can adjust the width as needed */
         max-width: 1500px;
-        /* You can adjust the max width as needed */
         justify-content: space-between;
     }
 
@@ -139,37 +151,33 @@
         left: 0;
         right: 0;
         z-index: 1000;
-        /* Ensure the nav bar is above other content */
+
     }
 
     .content-wrapper {
         flex: 1;
         margin-top: 0;
         padding-top: 10px;
-        /* Adjust as needed based on your nav bar's height */
-        overflow-y: auto;
-    }
 
-    #Content {
-        /* background-color: black; */
+        overflow-y: auto;
     }
 
     .product-name {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        /* You can use `white-space: normal` with max-height and overflow for multiline ellipsis */
+
         max-width: 100%;
-        /* Ensure it doesn't exceed the container width */
+
         display: inline-block;
         max-height: 1.2em;
-        /* Adjust this value based on the font-size to fit a single line */
+
     }
 </style>
 
 <body class="bg-gray-100">
 
-    <nav class="bg-gray-800 text-white">
+    <nav class="bg-blue-800 text-white">
         <div class="flex flex-wrap justify-between items-center p-4">
             <!-- Logo -->
             <a href="index.php"><img src="Logo.png" alt="Logo" id="Logo"></a>
@@ -203,7 +211,6 @@
 
                     <?php endif; ?>
                 <?php endforeach; ?>
-
             </div>
 
             <!-- User Links -->
@@ -219,13 +226,11 @@
                     ?>
 
                     <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="#">Currently
-                        Logged in As : <br><span style="border : 2 px solid Purple">
-                            <?php echo $Emoji . ' ' . $User_FullName ?> -
+                        Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 
-
                     <a href="User/User_Logout.php"
-                        class="text-    -300 hover:bg-red-700 px-4 py-4 rounded-md text-sm font-medium">Logout</a>
+                        class="text-gray-300 hover:bg-red-700 px-4 py-4 rounded-md text-sm font-medium">Logout</a>
                 <?php else: ?>
                     <a href="User/User_SignIn.php"
                         class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
@@ -235,60 +240,48 @@
             </div>
         </div>
 
-
         <?php if (!empty($_SESSION['User_ID']) || !empty($_SESSION['User_Role'])): ?>
             <?php if ($User['User_Role'] !== 'Client') { ?>
-                <div class="bg-gray-800 text-white p-4">
-                    <h6 class="text-sm font-medium text-gray-300 mb-2">Management</h6>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="space-y-2">
+                <div class="bg-gray-800 text-white py-2 px-4">
+                    <h6 class="text-sm font-medium text-gray-300 mb-1">Management Section</h6>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div class="space-y-1">
                             <a href="Product/Products_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                 Product List</a>
                             <a href="Product/Products_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New
-                                Product</a>
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Product</a>
                         </div>
-                        <div class="space-y-2">
-
+                        <div class="space-y-1">
                             <a href="Category/Categories_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                 Category List</a>
                             <a href="Category/Categories_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New
-                                Category</a>
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Category</a>
                         </div>
-
-                        <div class="space-y-2">
+                        <div class="space-y-1">
                             <a href="Category/SubCategories/SubCategories_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                 Subcategory List</a>
                             <a href="Category/SubCategories/SubCategories_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New
-                                Subcategory</a>
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Subcategory</a>
                         </div>
-
-                        <div class="space-y-2">
+                        <div class="space-y-1">
                             <a href="Manufacturer/Manufacturers_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                 Manufacturer List</a>
                             <a href="Manufacturer/Manufacturers_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New
-                                Manufacturer</a>
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Manufacturer</a>
                         </div>
-
-
-
                         <?php if ($User['User_Role'] === 'Owner') { ?>
-                            <div class="space-y-2">
+                            <div class="space-y-1">
                                 <a href="User/User_Management.php"
-                                    class="block bg-gray-700 hover:bg-blue-600 px-4 py-3 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
-                                    Users
-                                    Dashboard</a>
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
+                                    Users Dashboard</a>
                             </div>
                         <?php } ?>
                     </div>
@@ -301,27 +294,67 @@
 
 
 
+
     <div class="outer-container">
         <div class="container">
             <div class="content-wrapper pt-16">
                 <section id="Content">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12">
-                        <?php foreach ($GeneralProducts as $Product): ?>
+                        <?php foreach ($GeneralProducts as $Product):
+                            $Visibility = '';
+                            if ($Product['Product_Visibility'] === 'Invisible') {
+                                $Visibility = 'Status : OFF';
+                            }
+
+
+                            ?>
                             <div
                                 class="bg-white rounded-lg overflow-hidden shadow-lg card w-full sm:w-full md:w-full lg:w-full">
+                                <?php
+                                if ($Visibility) { ?>
+                                    <span
+                                        class="visibility-status bg-red-500 text-white px-2 py-1 rounded"><?php echo $Visibility ?></span>
+                                <?php } ?>
                                 <a href=""><img class="w-full h-32 object-cover object-center"
                                         style="width : auto ; height : auto"
                                         src="Product/<?php echo $Product['Product_Picture']; ?>" alt="Product Image"></a>
                                 <div class="p-2">
                                     <h2 class="product-name font-bold text-base mb-1">
-                                        <?php echo $Product['Product_Name']; ?></h2>
+                                        <?php echo $Product['Product_Name']; ?>
+                                    </h2>
 
-                                    <p class="text-gray-700 mb-1"><?php echo formatNumber($Product['Selling_Price']); ?> Dhs</p>
+                                    <p class="text-gray-700 mb-1"><?php echo formatNumber($Product['Selling_Price']); ?> Dhs
+                                    </p>
                                     <p class="text-gray-700 mb-1">In Stock (<?php echo $Product['Product_Quantity']; ?>)</p>
-                                    <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
-                                        class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm">Add
-                                        to Cart</a>
+
+                                    <?php if (isset($_SESSION['User_ID']) && $User['User_Role'] !== 'Client') {
+
+
+                                        ?>
+
+                                        <div class="flex justify-between items-center space-x-2">
+                                            <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
+                                                class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm flex-grow">Add
+                                                to Cart</a>
+                                            <div class="flex space-x-2">
+                                                <a href="Product/Products_Modify.php?id=<?php echo $Product['Product_ID']; ?>"
+                                                    class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">Edit</a>
+
+                                                <a href="Product/Products_Delete.php?id=<?php echo $Product['Product_ID']; ?>"
+                                                    class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm"
+                                                    onclick="return confirm('Are you sure you want to delete this product?\n*Disclaimer* : This action is irreversible')">Delete</a>
+                                            </div>
+                                        </div>
+                                    <?php } else { ?>
+                                        <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
+                                            class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-full">Add
+                                            to Cart</a>
+
+                                    <?php } ?>
                                 </div>
+
+
+
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -329,6 +362,7 @@
             </div>
         </div>
     </div>
+
 
 
 
