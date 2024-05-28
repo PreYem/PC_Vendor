@@ -29,7 +29,7 @@ CREATE TABLE `categories` (
   PRIMARY KEY (`Category_ID`),
   UNIQUE KEY `UC_Category_Name` (`Category_Name`),
   UNIQUE KEY `Category_Name` (`Category_Name`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,7 +38,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'Unspecified','Unspecified'),(14,'Processors','ProcessorsProcessorsProcessors');
+INSERT INTO `categories` VALUES (1,'Unspecified','Unspecified'),(14,'PC Gamer',''),(15,'Laptop',''),(16,'Component',''),(17,'Devices',''),(18,'Chairs & Desks',''),(19,'Network',''),(20,'Image & Sound','');
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -54,7 +54,7 @@ CREATE TABLE `manufacturers` (
   `Manufacturer_Name` varchar(100) DEFAULT 'Unspecified',
   `Manufacturer_Desc` varchar(2000) DEFAULT NULL,
   PRIMARY KEY (`Manufacturer_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,7 +63,7 @@ CREATE TABLE `manufacturers` (
 
 LOCK TABLES `manufacturers` WRITE;
 /*!40000 ALTER TABLE `manufacturers` DISABLE KEYS */;
-INSERT INTO `manufacturers` VALUES (1,'Unspecified','Unspecified'),(2,'NVIDIA','Nvidia Corporation is an American multinational corporation and technology company headquartered in Santa Clara, California, and incorporated in Delaware.It is a software and fabless company which designs and supplies graphics processing units (GPUs), application programming interfaces (APIs) for data science and high-performance computing as well as system on a chip units (SoCs) for the mobile computing and automotive market. Nvidia is also a dominant supplier of artificial intelligence (AI) hardware and software.'),(5,'AMD','AMD stuff');
+INSERT INTO `manufacturers` VALUES (1,'Unspecified','Unspecified'),(2,'NVIDIA','Nvidia Corporation is an American multinational corporation and technology company headquartered in Santa Clara, California, and incorporated in Delaware.It is a software and fabless company which designs and supplies graphics processing units (GPUs), application programming interfaces (APIs) for data science and high-performance computing as well as system on a chip units (SoCs) for the mobile computing and automotive market. Nvidia is also a dominant supplier of artificial intelligence (AI) hardware and software.'),(5,'AMD','AMD stuff'),(6,'Custom Made','Custom Made'),(7,'Gigabyte','GigabyteGigabyteGigabyte'),(8,'Intel','IntelIntelIntel'),(9,'MSI','MSI'),(10,'Aerocool','Aerocool'),(11,'Connect','Connect'),(12,'Corsair','Corsair '),(13,'Samsung','Samsung');
 /*!40000 ALTER TABLE `manufacturers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -85,7 +85,7 @@ CREATE TABLE `orderitems` (
   KEY `Product_ID` (`Product_ID`),
   CONSTRAINT `orderitems_ibfk_1` FOREIGN KEY (`Order_ID`) REFERENCES `orders` (`Order_ID`),
   CONSTRAINT `orderitems_ibfk_2` FOREIGN KEY (`Product_ID`) REFERENCES `products` (`Product_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,7 +94,7 @@ CREATE TABLE `orderitems` (
 
 LOCK TABLES `orderitems` WRITE;
 /*!40000 ALTER TABLE `orderitems` DISABLE KEYS */;
-INSERT INTO `orderitems` VALUES (20,25,16,2,500.00),(21,25,17,2,600.00),(22,25,22,1,6000.00),(23,26,16,1,500.00),(24,26,17,1,600.00),(25,26,22,1,6000.00),(26,27,17,1,600.00),(27,27,16,1,500.00),(28,28,16,1,500.00);
+INSERT INTO `orderitems` VALUES (39,34,23,1,52249.00),(40,34,22,1,9699.00),(41,34,27,1,79.00);
 /*!40000 ALTER TABLE `orderitems` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +118,7 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`Order_ID`),
   KEY `User_ID` (`User_ID`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,7 +127,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (25,'2024-05-23 00:56:13',8200.00,'Casa','Cancelled by User','PayPal','0202020202','',1),(26,'2024-05-23 01:20:06',7100.00,'eaeae','Cancelled by User','Credit Card','0202020202','',1),(27,'2024-05-23 01:20:26',1100.00,'aerarar','Cancelled by User','Credit Card','0202020202','',1),(28,'2024-05-23 01:22:38',500.00,'aeae','Cancelled by User','Credit Card','0202020202','eaeae',1);
+INSERT INTO `orders` VALUES (34,'2024-05-27 17:24:50',62027.00,'CASA','Pending','Bank Transfer','0202020202','CASA',13);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -159,7 +159,7 @@ CREATE TABLE `products` (
   CONSTRAINT `products_ibfk_2` FOREIGN KEY (`SubCategory_ID`) REFERENCES `subcategories` (`SubCategory_ID`),
   CONSTRAINT `products_ibfk_3` FOREIGN KEY (`Manufacturer_ID`) REFERENCES `manufacturers` (`Manufacturer_ID`),
   CONSTRAINT `chk_buying_price` CHECK ((`Buying_Price` <= `Selling_Price`))
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -168,7 +168,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (16,'RTX 2060',14,1,'aaaaaaaaaa',1,0.00,500.00,9999,'Visible','2024-05-13 23:09:09','Product_Pictures/Stocking with Yubel Eyes 02.jpeg'),(17,'aeaeae',14,1,'',1,0.00,600.00,5,'Visible','2024-05-16 23:56:51','Product_Pictures/Default_Product_Picture.jpg'),(22,'m4tt72',14,1,'aeaeaeae',1,0.00,6000.00,5,'Visible','2024-05-22 23:46:42','Product_Pictures/Untitled.png');
+INSERT INTO `products` VALUES (16,'MSI GeForce RTX 4060 VENTUS 2X BLACK OC 8GB GDDR6',16,42,'Based on NVIDIA\'s Ada Lovelace architecture, the MSI GeForce RTX 4060 VENTUS 2X BLACK 8G OC graphics card utilizes DLSS 3 technology and hardware ray tracing to enhance the latest games, providing you with an immersive and realistic gaming experience. Beyond gaming, the NVIDIA GeForce RTX 4060 graphics cards offer high performance for creating and streaming.',2,3500.00,3999.00,46,'Visible','2024-05-13 23:09:09','Product_Pictures/RTX2060.jpg'),(17,'[OFF] - PC Gamer UltraPC Core i5 12400F/512GB SSD/16GB/RX6600',14,51,'Affordable Gaming PC, the UltraPC Core i5 12400F/512GB SSD/16GB/RX6600 will be a great ally for playing the latest games without emptying your bank account. Particularly efficient, this gaming computer will allow you to get to the point. It is equipped with an Intel 6-Core processor from the 12th generation (Intel Alder Lake), an H610M motherboard, 16 GB of DDR4 RAM and an AMD RADEON RX 6600 8Go GDDR6 graphics card. It also has a 512Go NVMe SSD disk.',6,6790.00,7590.00,19,'Visible','2024-05-16 23:56:51','Product_Pictures/pc-gamer-ultrapc-core-i5-12400f-512gb-ssd-16gb-rx6600.png'),(22,'PC Gamer UltraPC Ryzen 7 5700X/512GB SSD/16GB/RTX4060',14,52,'Trust the PC Gamer UltraPC Ryzen 7 5700X/512GB SSD/16GB/RTX4060 to guide you through your first steps in the world of video games. Simple and efficient, this computer will allow you to get to the essentials while keeping costs minimal. It features an AMD Ryzen 7 5700X 8-core processor, 16GB of DDR4 RAM, a 512GB SSD, and the NVIDIA GeForce RTX 4060 graphics card with 8GB of video memory, which are at the heart of this exceptional performance-to-price ratio system.',6,5799.00,9699.00,9,'Visible','2024-05-22 23:46:42','Product_Pictures/pc-gamer-ultrapc-ryzen-7-5700x-512gb-ssd-16gb-rtx4060.jpg'),(23,'PC Gamer UltraPC Core i9 14900K/4TB SSD/64GB DDR5/RTX4090',14,53,'The PC Gamer UltraPC Core i9 14900K/4TB SSD/64GB DDR5/RTX4090 24GB is configured to offer the best performance in the latest games. It will accompany you no matter what your desires are. With a 14th generation Intel Core i9 processor, 64GB of DDR5 memory, and a 4TB NVMe SSD system disk, the PC Gamer UPC-I9-14900K-RTX4090 leaves nothing to chance and will allow you to play your favorite PC Hits in excellent resolution and frame rate conditions.',6,49749.00,52249.00,2,'Visible','2024-05-25 19:41:27','Product_Pictures/pc-gamer-ultrapc-core-i9-14900k-4tb-ssd-64gb-ddr5-rtx4090.png'),(24,'Gigabyte G5 KF5 i5 13500H/16GB/1TB SSD/RTX4060 8GB/15.4\'\' 144Hz',15,54,'Gain comfort and play in excellent conditions with the Gigabyte G5 laptop! With ultra-performing components, a 144Hz IPS screen, a backlit gaming keyboard, and Nahimic audio system, it has everything you need to offer a high-quality mobile gaming experience. The Gigabyte G5 KF5 laptop offers high performance and fast operation thanks to its Intel Core i5-13500H processor, 16GB of DDR4 memory, a 1TB M.2 PCIe SSD, and an NVIDIA GeForce RTX 4060 graphics card with 8GB of dedicated memory.',7,12490.00,13490.00,19,'Visible','2024-05-25 19:46:42','Product_Pictures/gigabyte-g5-kf5-i5-13500h-16gb-1tb-ssd-rtx4060-8gb-154-144hz.png'),(25,'Intel Core i5 12400F (2.5 GHz / 4.4 GHz)',16,39,'With more cores and more power, Intel\'s 12th generation processors (Alder Lake) are ready for next-generation gaming, PCI-Express 5.0 graphics cards, or DDR5 RAM. They will allow you to design powerful machines capable of handling all tasks, from video games to productivity applications or intense multitasking.',8,1500.00,1799.00,21,'Visible','2024-05-25 19:49:20','Product_Pictures/intel-core-i5-12400f-25-ghz-44-ghz-processeurs.jpg'),(26,'MSI MAG B550 TOMAHAWK',16,40,'The MSI MAG B550 TOMAHAWK motherboard features the AMD B550 chipset and an AM4 socket, designed to accommodate 3rd generation AMD Ryzen processors. It allows for the creation of a gaming configuration equipped with the latest technological advancements, including PCI-Express 4.0 for graphics cards and M.2 SSDs, as well as 128GB of DDR4 RAM management. Everything is in place for an exceptional gaming experience, it\'s your turn to play!',9,1500.00,2199.00,30,'Visible','2024-05-25 20:37:51','Product_Pictures/msi-mag-b550-tomahawk-cartes-meres.jpg'),(27,'Aerocool Cosmo 12',16,41,'120mm fan with Molex connector featuring a sleek fixed RGB LED lighting design to add an extra touch to your setup. Equipped with curved fan blades to increase air pressure, maximize cooling performance, and minimize air resistance and noise.',10,50.00,79.00,53,'Visible','2024-05-25 21:00:41','Product_Pictures/aerocool-cosmo-12-refroidissement.jpg'),(28,'Connect 27H2G 27',17,47,'Connect accompanies you in your quest for perfect entertainment and gaming with the 27H2G screen! Featuring a 27-inch Full HD IPS panel and superior gaming features, this model has all the qualities to meet your expectations.',11,1799.00,2199.00,26,'Invisible','2024-05-25 22:13:12','Product_Pictures/connect-27h2g-27-ips-180hz-moniteurs.jpg'),(29,'Corsair T3 Rush (grey/silver)',18,1,'The Corsair T3 Rush gaming chair has a very comfortable seat and excellent molecularity to allow you to play in the best conditions. Made of breathable fabric, the T3 is very pleasant to use during hot periods or your long gaming sessions. Thanks to its reinforced casters, it is extremely resistant to wear and will retain its place by your side for many years.',12,3500.00,4199.00,11,'Visible','2024-05-27 17:57:05','Product_Pictures/corsair-t3-rush-grey-silver-chaisebureau.png'),(39,'Corsair Vengeance RGB DDR5 64Go (2 x 32Go) 5200 MHz CL40',16,43,'The Corsair Vengeance RGB DDR5 memory offers higher performance and frequency with increased capacity optimized for AMD motherboards, while illuminating your PC with dynamic RGB lighting in ten individually customizable zones. The high-frequency memory chips, carefully selected, enable faster processing, rendering, and buffering than ever before, with integrated voltage regulation for easy and precise overclocking. Take control with the Corsair iCUE software, which allows for RGB lighting customization, real-time frequency monitoring, integrated voltage regulation, and Intel XMP 3.0 profile customization. A custom-designed printed circuit board provides optimal signal quality for exceptional performance and stability on the latest Intel DDR5 motherboards. With its cutting-edge performance and dazzling RGB lighting, the DDR5 Vengeance RGB memory opens the way.',12,2500.00,2999.00,5,'Visible','2024-05-27 23:57:47','Product_Pictures/corsair-vengeance-rgb-ddr5-64go-2-x-32go-5200-mhz-cl40.jpg'),(56,'Samsung SSD 980 M.2 PCIe NVMe 1TB',16,44,'The Samsung 1TB 980 SSD enables you to transcend your machine\'s performance and responsiveness. It offers high transfer speeds and excellent endurance, thanks to the PCI-E 3.0 x4 interface and NVMe technology. It is equipped with Samsung V-NAND 3-bit MLC memory and a Samsung Pablo controller.\r\n\r\nThe Samsung 980 M.2 PCIe 3.0 4x NVMe is ideal for users seeking a high-performance PCIe 3.0 x4 SSD. Its high-performance bandwidth for heavy workloads in gaming, graphics, data analysis, and more allows you to rediscover fluidity and responsiveness in all tasks.',13,800.00,1149.00,15,'Visible','2024-05-28 00:32:16','Product_Pictures/665526106d0fa_Samsung_SSD_980_M.2_PCIe_NVMe_1TB.jpg');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -194,6 +194,7 @@ CREATE TABLE `productspecifications` (
 
 LOCK TABLES `productspecifications` WRITE;
 /*!40000 ALTER TABLE `productspecifications` DISABLE KEYS */;
+INSERT INTO `productspecifications` VALUES (16,'Brand','MSI'),(16,'Chipset Brand','Nvidia'),(16,'Chipset frequency','2505 Mhz'),(16,'Computing units','3072 CUDA Cores'),(16,'Graphics Card','    NVIDIA GeForce RTX 4060 8GB GDDR6'),(16,'Memory amount','8 Go'),(16,'Memory frequency','17000 Mhz'),(16,'Warranty','12 Months'),(17,'Case','XTRMLAB Optix'),(17,'Cooler','Mars Gaming MCPU120.'),(17,'Graphics Card','    AMD Radeon RX 6600 8GB GDDR6'),(17,'Memory','Corsair Vengeance LPX Series Low Profile 16Go (2x 8Go) DDR4 3200 MHz CL16'),(17,'Motherboard','MSI PRO H610M-E DDR4.'),(17,'Power Supply','    Mars Gaming MPB550 80 PLUS Bronze 550W'),(17,'Processor','    Intel Core i5 12400F (2.5 GHz / 4.4 GHz)'),(17,'SSD','    Lexar NM620 M.2 PCIe NVMe 512GB'),(17,'Warranty','12 Months'),(22,'Case','XTRMLAB Optix'),(22,'Cooler','    DeepCool Gammaxx AG400'),(22,'Graphics Card','    NVIDIA GeForce RTX 4060 8GB GDDR6'),(22,'Memory','    Corsair Vengeance LPX Series Low Profile 16Go (2x 8Go) DDR4 3200 MHz CL16'),(22,'Motherboard','    MSI B450M PRO-VDH MAX'),(22,'Power Supply','    Mars Gaming MPB650 80 PLUS Bronze 650W'),(22,'Processeur','    AMD Ryzen 7 5700X (3.4 GHz / 4.6 GHz)'),(22,'SSD','    Lexar NM620 M.2 PCIe NVMe 512GB'),(22,'Warranty','12 Months'),(23,'Case','Corsair Crystal 680X RGB White'),(23,'Cooler','MSI MAG CORELIQUID 360R V2'),(23,'Graphics Card','NVIDIA GeForce RTX 4090 24GB GDDR6X'),(23,'Memory','G.Skill Trident Z5 Neo Series 64Go (2x 32Go) DDR5 6000 MHz CL30'),(23,'Motherboard','MSI MAG Z790 TOMAHAWK MAX WIFI'),(23,'Power Supply','MSI MPG A1000G 80PLUS Gold 1000W'),(23,'Processor','    Intel Core i9 14900K (3.2 GHz / 5.8 GHz)'),(23,'SSD','Samsung SSD 990 PRO M.2 PCIe NVMe 4TB'),(23,'Warranty','12 Months'),(24,'Brand','Gigabyte'),(24,'Graphics Card','NVIDIA GeForce RTX 4060 8GB GDDR6'),(24,'Keyboard','QWERTY'),(24,'Memory','16 Go DDR4'),(24,'Operation System','FreeDOS'),(24,'Processor','Intel Core i5-13500H (4 Performance-Cores 4.7 GHz Turbo + 8 Efficient-Cores 2.6 GHz Turbo - 16 Threads - Cache 18 Mo)'),(24,'Screen','15.6'),(24,'SSD','1TB NVMe PCIe'),(24,'Warranty','12 Months'),(26,'Brand','MSI'),(26,'Chipset','AMD B550'),(26,'Format','ATX'),(26,'Memory Slots','4'),(26,'Port(s) PCI-Express 16x','2'),(26,'Socket','AMD AM4'),(26,'Warranty','12 Months'),(27,'Brand','Aerocool'),(27,'Diamater','120 mm'),(27,'Max Debit','26.2 CFM'),(27,'Max Noise','23.9 dB'),(27,'Max Speed','1000 RPM'),(27,'Warranty','12 Months'),(28,'Brand','Connect'),(28,'Frequency','180 Hz'),(28,'Ports','2 x HDMI, 1 x DisplayPort'),(28,'Resolution','1920 x 1080 pixels (FHD)'),(28,'Response Time','1 ms'),(28,'Size','27 Inche'),(28,'Technologie de dalle','  IPS'),(28,'Warranty','12 Months'),(29,'Adjustable armrests','Yes'),(29,'Backrest height','85 cm'),(29,'Maximum supported weight','120 kg'),(29,'Reclining backrest','180°'),(29,'Type of armrests','4D'),(29,'Weight','22.5 kg'),(39,'CAS Latency','CL40'),(39,'Memory Frequency','5200 Mhz'),(39,'Memory Type','DDR5'),(39,'Number of Chip(s)','2'),(39,'Tension','1.25 Volts'),(39,'Total Capacity','64 Go'),(39,'Warranty','12 Months'),(56,'Disk Capacity','1 To'),(56,'Disk Format','Carte M.2'),(56,'Interface','PCI-E 3.0 4x'),(56,'Reading Speed','3500 Mo/s'),(56,'Warranty','12 Months'),(56,'Writing Speed','3000 Mo/s');
 /*!40000 ALTER TABLE `productspecifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -214,7 +215,7 @@ CREATE TABLE `shoppingcart` (
   KEY `Product_ID` (`Product_ID`),
   CONSTRAINT `shoppingcart_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`),
   CONSTRAINT `shoppingcart_ibfk_2` FOREIGN KEY (`Product_ID`) REFERENCES `products` (`Product_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=177 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -223,7 +224,7 @@ CREATE TABLE `shoppingcart` (
 
 LOCK TABLES `shoppingcart` WRITE;
 /*!40000 ALTER TABLE `shoppingcart` DISABLE KEYS */;
-INSERT INTO `shoppingcart` VALUES (111,1,16,1);
+INSERT INTO `shoppingcart` VALUES (140,1,22,1),(142,1,16,1),(143,NULL,22,1),(144,NULL,22,1),(145,1,17,1),(146,1,23,1);
 /*!40000 ALTER TABLE `shoppingcart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -242,7 +243,7 @@ CREATE TABLE `subcategories` (
   PRIMARY KEY (`SubCategory_ID`),
   KEY `Category_ID` (`Category_ID`),
   CONSTRAINT `subcategories_ibfk_1` FOREIGN KEY (`Category_ID`) REFERENCES `categories` (`Category_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -251,7 +252,7 @@ CREATE TABLE `subcategories` (
 
 LOCK TABLES `subcategories` WRITE;
 /*!40000 ALTER TABLE `subcategories` DISABLE KEYS */;
-INSERT INTO `subcategories` VALUES (1,'Unspecified','Unspecified',1),(39,'Graphics Cards','Graphics Cards',1);
+INSERT INTO `subcategories` VALUES (1,'Unspecified','',1),(39,'Processors','Processors',16),(40,'Motherboards','',16),(41,'Coolers','',16),(42,'Graphics Cards','',16),(43,'Memory','',16),(44,'HDDs & SSDs','',16),(45,'Power Supply Units','',16),(46,'Cases','',16),(47,'Monitors','',17),(48,'Keyboards','',17),(49,'Mouses','',17),(50,'Headphones','',17),(51,'PC Gamer Standard','',14),(52,'PC Gamer Advanced','',14),(53,'PC Gamer Ultra','',14),(54,'Gamer Laptop','',15);
 /*!40000 ALTER TABLE `subcategories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -276,7 +277,7 @@ CREATE TABLE `users` (
   `User_Role` enum('Owner','Admin','Client') NOT NULL DEFAULT 'Client',
   PRIMARY KEY (`User_ID`),
   UNIQUE KEY `User_Username` (`User_Username`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -285,7 +286,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'yem0417','Youssef','EL MOUMEN','0636523432','Morocco','Casa, Bernoussi','dinactiprefected@gmail.com','$2y$10$DvjydSui9IMIwBjArOTKBOI7kmeT7XggIVtEbkmRAdJemkvvD.Xie','2024-05-02 16:11:44','Owner'),(10,'test','test','test','0000000000','Bahamas','testtesttest','aeae@gmail.com','$2y$10$r36T.Gu5tyi709rV/1MvIeGBW0cV4j9lPdR0.bYNaT.jDxrGqhgd2','2024-05-03 14:35:20','Admin');
+INSERT INTO `users` VALUES (1,'yem0417','Youssef','EL MOUMEN','0636523432','Morocco','Casa, Bernoussi','dinactiprefected@gmail.com','$2y$10$DvjydSui9IMIwBjArOTKBOI7kmeT7XggIVtEbkmRAdJemkvvD.Xie','2024-05-02 16:11:44','Owner'),(13,'Client','Tazi','Ali','0607302999','Morocco','Casa','tazi.ali@exmaple.com','$2y$10$oJYioxjiTX591x2SpDgu9e66BnkMN2tXY1JBtasoRUjT6USZlpOHi','2024-05-25 16:47:42','Client'),(14,'Admin','Weak','Aura','0607302999','Antigua and Barbuda','AAAAAAAA','SAAD@gmail.com','$2y$10$Q31/vvEte6qfBzqxbhwT0.qka5FGdsstzXJVEiaoMuBIyrNN2JCZ6','2024-05-25 16:57:29','Admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -298,4 +299,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-23  2:34:57
+-- Dump completed on 2024-05-28 10:43:53
