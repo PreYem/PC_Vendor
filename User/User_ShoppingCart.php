@@ -7,6 +7,9 @@
     <link rel="icon" href="../Logo.png" type="image/x-icon">
     <title>Shopping Cart 🛒 | PC Vendor</title>
 
+
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+
     <?php
 
     include_once ("../DB_Connexion.php");
@@ -338,7 +341,7 @@
                                     <th class="px-6 py-3">Product</th>
                                     <th class="px-6 py-3">Price per Unit</th>
                                     <th class="px-6 py-3">Quantity</th>
-                                    <th class="px-6 py-3">Product Picture</th>
+                                    <th class="px-6 py-3">Picture</th>
                                     <th class="px-6 py-3"></th>
                                 </tr>
                             </thead>
@@ -354,7 +357,7 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             <a href="User_Delete_Item_ShoppingCart.php?id=<?php echo $item["CartItem_ID"]; ?>"
-                                                class="text-red-600 hover:underline">Remove</a>
+                                                class="text-red-600 hover:underline"><box-icon type='solid' color="#dd0d1e" name='trash-alt'></box-icon></a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -418,7 +421,8 @@
                         </section>
                     </section>
                 <?php } else { ?>
-                    <h1 class="text-xl text-gray-700 CC" id="Empty_Cart">Your Shopping Cart is Empty.<br>Check Out Our Products <a class="text-blue-600 hover:underline mb-4 inline-block" href=".././">Here</a>.</h1>
+                    <h1 class="text-xl text-gray-700 CC" id="Empty_Cart">Your Shopping Cart is Empty.<br>Check Out Our
+                        Products <a class="text-blue-600 hover:underline mb-4 inline-block" href=".././">Here</a>.</h1>
                 <?php } ?>
             </div>
         </div>
@@ -462,7 +466,7 @@
 </html>
 <style>
     .CC {
-        margin-left : 40%;
+        margin-left: 40%;
         margin-top: 20%;
     }
 

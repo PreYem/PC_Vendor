@@ -152,8 +152,12 @@
                                 <div class="category-dropdown absolute top-full left-0 mt-1 bg-gray-800 rounded shadow-md p-2 hidden"
                                     style="min-width: 200px;">
                                     <?php foreach ($SubCategories as $SubCategory): ?>
-                                        <?php if ($SubCategory['SubCategory_Name'] !== 'Unspecified'): ?>
-                                            <a href="./?id=<?php echo $SubCategory['SubCategory_ID'] ?>&Type=SubCategory&Name=<?php echo str_replace(' ', '', $SubCategory['SubCategory_Name']) ?>"
+                                        <?php if ($SubCategory['SubCategory_Name'] !== 'Unspecified'): 
+                                            
+                                            ?>
+                                            <a href="./?id=<?php echo $SubCategory['SubCategory_ID'] ?>&Type=SubCategory&Name=<?php 
+                                                echo str_replace(' ', '', $SubCategory['SubCategory_Name']) ?>"
+
                                                 class="block px-2 py-1 hover:bg-blue-600"><?php echo $SubCategory['SubCategory_Name']; ?></a>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
