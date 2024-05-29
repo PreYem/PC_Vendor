@@ -267,45 +267,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 <script>
-    fetch('https://restcountries.com/v3/all')
+document.addEventListener('DOMContentLoaded', function() {
+    const defaultCountry = "<?php echo htmlspecialchars($country, ENT_QUOTES, 'UTF-8'); ?>"; // or use the embedded script's value
+
+    fetch('https://api.first.org/data/v1/countries')
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Network response was not ok ' + response.statusText);
             }
             return response.json();
         })
         .then(data => {
             const countrySelect = document.getElementById('User_Country');
 
-            // Clear existing options
-            countrySelect.innerHTML = '';
+            if (!countrySelect) {
+                throw new Error('Select element with ID "User_Country" not found.');
+            }
 
-            // Filter countries based on conditions
-            const filteredCountries = data.filter(country => {
-                const name = country.name.common;
-                return name.length <= 20 && !name.includes('(') && !name.includes(')');
-            });
+            // Extract the countries object from the data
+            const countries = data.data;
+
+            // Filter countries based on name length (less than 30 characters)
+            const filteredCountries = Object.values(countries).filter(country => country.country.length < 30);
 
             // Create and append options for filtered countries
             filteredCountries.forEach(country => {
                 const option = document.createElement('option');
-                option.value = country.name.common;
-                option.textContent = country.name.common;
+                option.value = country.country;
+                option.textContent = country.country;
+                
+                // Set the selected attribute if the country matches the default country
+                if (country.country === defaultCountry) {
+                    option.selected = true;
+                }
+
                 countrySelect.appendChild(option);
             });
-
-            // Retrieve user's country from database (replace 'userCountry' with actual value)
-            const userCountry = '<?php echo $country; ?>';
-
-            // Set default selected option based on user's country
-            const defaultOption = Array.from(countrySelect.options).find(option => option.value === userCountry);
-            if (defaultOption) {
-                defaultOption.selected = true;
-            }
         })
         .catch(error => {
             console.error('Error fetching country data:', error);
         });
+});
+
+
 </script>
 
 

@@ -115,92 +115,23 @@
 
             <!-- User Links -->
             <div class="flex space-x-4">
-                <?php if (isset($_SESSION['User_ID'])):
-                    if ($User_Role === 'Owner') {
-                        $Emoji = '👑';
-                    } elseif ($User_Role === 'Admin') {
-                        $Emoji = '👨‍💼';
-                    } else {
-                        $Emoji = '💼';
-                    }
-                    ?>
-                    <a href="../User/User_ShoppingCart.php"
-                        class="flex items-center text-gray-300 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium">
-                        🛒 Shopping Cart
-                        <?php if ($Cart_Count > 0) { ?>
-                            (<?php echo $Cart_Count ?>)
-                        <?php } ?>
-                    </a>
-                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="#">Currently
-                        Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
-                            <?php echo $User_Role ?></span></a>
 
-                    <a href="../User/User_Logout.php"
-                        class="text-gray-300 hover:bg-red-700 px-4 py-4 rounded-md text-sm font-medium">Logout</a>
-                <?php else: ?>
                     <a href="../User/User_SignIn.php"
                         class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
                     <a href="../User/User_SignUp.php"
                         class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Register</a>
-                <?php endif; ?>
+
             </div>
 
         </div>
 
-        <?php if (!empty($_SESSION['User_ID']) || !empty($_SESSION['User_Role'])): ?>
-            <?php if ($User['User_Role'] !== 'Client') { ?>
-                <div class="bg-gray-800 text-white py-2 px-4">
-                    <h6 class="text-sm font-medium text-gray-300 mb-1">Management Section</h6>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <div class="space-y-1">
-                            <a href="../Product/Products_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Product List</a>
-                            <a href="../Product/Products_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Product</a>
-                        </div>
-                        <div class="space-y-1">
-                            <a href="../Category/Categories_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Category List</a>
-                            <a href="../Category/Categories_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Category</a>
-                        </div>
-                        <div class="space-y-1">
-                            <a href="../Category/SubCategories/SubCategories_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Subcategory List</a>
-                            <a href="Category/SubCategories/SubCategories_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Subcategory</a>
-                        </div>
-                        <div class="space-y-1">
-                            <a href="../Manufacturer/Manufacturers_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Manufacturer List</a>
-                            <a href="../Manufacturer/Manufacturers_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Manufacturer</a>
-                        </div>
-                        <?php if ($User['User_Role'] === 'Owner') { ?>
-                            <div class="space-y-1">
-                                <a href="../User/User_Management.php"
-                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
-                                    Users Dashboard</a>
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
-            <?php } ?>
-        <?php endif; ?>
+
     </nav>
 
 
     <div class="container">
         <div class="content-wrapper">
-        <h1 class="text-2xl font-bold mb-6 text-center">Sign in to your account</h1>
+            <h1 class="text-2xl font-bold mb-6 text-center">Sign in to your account</h1>
             <form action="" method="POST" class="max-w-md mx-auto bg-white p-8 rounded shadow-md space-y-4">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -237,7 +168,7 @@
             </form>
         </div>
     </div>
-    </div>
+    
 
 
 
