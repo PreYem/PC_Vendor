@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
-    <title>Shopping Cart 🛒 | PC Vendor</title>
+    <title>Add Product | PC Vendor</title>
     <?php
     function formatNumber($number)
     {
@@ -464,7 +464,6 @@
     </div>
 
 
-
     <script>
         window.addEventListener('DOMContentLoaded', function () {
             adjustContentMargin();
@@ -498,6 +497,7 @@
             specDiv.remove();
         }
     </script>
+
 </body>
 
 </html>

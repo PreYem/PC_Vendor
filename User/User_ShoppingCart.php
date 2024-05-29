@@ -253,7 +253,7 @@
                         $Emoji = '💼';
                     }
                     ?>
-                    <a href="User_ShoppingCartTEST.php"
+                    <a href="User_ShoppingCart.php"
                         class="flex items-center text-gray-300 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium">🛒
                         Shopping Cart
                         <?php if ($Cart_Count > 0) { ?>
