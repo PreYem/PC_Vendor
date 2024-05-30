@@ -187,8 +187,9 @@
                             (<?php echo $Cart_Count ?>)
                         <?php } ?>
                     </a>
-                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="User/User_Modify.php?id=<?php echo $User_ID ?>">Currently
-                        Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName?> -
+                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                        href="User/User_Modify.php?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
+                        Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 
                     <a href="User/User_Logout.php"
@@ -287,7 +288,7 @@
                                                 <?php if ($Visibility === '') { ?>
                                                     <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
                                                         class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm flex-grow"
-                                                        onclick="return alert('<?php echo $Product['Product_Name']?> has been added To Your Shopping Cart.')">Add
+                                                        onclick="return alert('<?php echo $Product['Product_Name'] ?> has been added To Your Shopping Cart.')">Add
                                                         to Cart 🛒</a>
                                                 <?php } ?>
                                                 <div class="flex space-x-2">
@@ -302,7 +303,8 @@
                                             </div>
                                         <?php } else { ?>
                                             <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
-                                                class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto" onclick="return alert('You must login before you can performe this action.')" >Add
+                                                class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto"
+                                                onclick="return alert('You must login before you can performe this action.')">Add
                                                 to Cart 🛒</a>
                                         <?php } ?>
                                     </div>

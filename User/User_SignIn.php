@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
     <title>Login 🔑 | PC Vendor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
 
     <?php
 
@@ -116,10 +119,10 @@
             <!-- User Links -->
             <div class="flex space-x-4">
 
-                    <a href="../User/User_SignIn.php"
-                        class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                    <a href="../User/User_SignUp.php"
-                        class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Register</a>
+                <a href="../User/User_SignIn.php"
+                    class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                <a href="../User/User_SignUp.php"
+                    class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Register</a>
 
             </div>
 
@@ -134,18 +137,21 @@
             <h1 class="text-2xl font-bold mb-6 text-center">Sign in to your account</h1>
             <form action="" method="POST" class="max-w-md mx-auto bg-white p-8 rounded shadow-md space-y-4">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
                     <label for="User_Username" class="block text-sm font-medium text-gray-700">Username:</label>
                     <input type="text" name="User_Username" placeholder="Your Username"
                         class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
                     <label for="User_Password" class="block text-sm font-medium text-gray-700">Password:</label>
-                    <input type="password" name="User_Password" placeholder="Your Password"
+                    <input type="password" name="User_Password" id="password" placeholder="Your Password"
                         class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required>
+                    <span id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
+                        <i class="fas fa-eye"></i>
+                    </span>
                 </div>
 
                 <div class="flex justify-between items-center">
@@ -166,9 +172,13 @@
                         class="text-blue-500 hover:underline">Sign Up</a>
                 </div>
             </form>
+
+            <!-- Include Font Awesome -->
+
+
         </div>
     </div>
-    
+
 
 
 
@@ -191,6 +201,19 @@
             var navHeight = document.querySelector('nav').offsetHeight;
             document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
         }
+
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function () {
+            // Toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // Toggle the eye / eye-slash icon
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
     </script>
 </body>
 

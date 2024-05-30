@@ -5,21 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
-    <title>Home 🏠︎ | PC Vendor</title>
+
+    <title><?php echo $_GET['FullName'] ?> | PC Vendor</title>
+
 
     <?php
     session_start();
     include_once ("../DB_Connexion.php");
-
-
-
-
-
-
-
-
-
-
 
     if (isset($_GET['id'])) {
         if (isset($_SESSION['User_ID'])) {
@@ -124,10 +116,9 @@
         exit();
     }
 
-
-
-
     ?>
+
+
 </head>
 
 
@@ -363,7 +354,8 @@
                     <div>
                         <div>
                             <label for="Password" class="block text-sm font-medium text-gray-700">Password:</label>
-                            <input type="password" name="User_Password" id="Password" placeholder="Your Password"
+                            <input type="password" name="User_Password" id="Password"
+                                placeholder="Your Password (Optional)"
                                 class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                 oninput="checkForm()">
                         </div>
@@ -393,8 +385,7 @@
                         <button type="submit"
                             class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 rounded buttons"
                             id="Submit" disabled>Save Changes</button>
-                        <button type="reset"
-                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 border-b-4 border-gray-500 rounded">Reset</button>
+
                     </div>
                 </div>
             </form>
@@ -499,14 +490,15 @@
 
 
 
+
             </script>
 </body>
 
 </html>
 <style>
     #SaveChanges {
-        margin-top: 3%;
-        margin-left: 40%;
+        margin-top: 2%;
+        margin-left: 42%;
     }
 
 
