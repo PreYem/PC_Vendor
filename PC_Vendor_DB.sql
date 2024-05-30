@@ -215,7 +215,7 @@ CREATE TABLE `shoppingcart` (
   KEY `Product_ID` (`Product_ID`),
   CONSTRAINT `shoppingcart_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`),
   CONSTRAINT `shoppingcart_ibfk_2` FOREIGN KEY (`Product_ID`) REFERENCES `products` (`Product_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=180 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=187 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -224,7 +224,7 @@ CREATE TABLE `shoppingcart` (
 
 LOCK TABLES `shoppingcart` WRITE;
 /*!40000 ALTER TABLE `shoppingcart` DISABLE KEYS */;
-INSERT INTO `shoppingcart` VALUES (143,NULL,22,1),(144,NULL,22,1);
+INSERT INTO `shoppingcart` VALUES (143,NULL,22,1),(144,NULL,22,1),(180,1,29,1);
 /*!40000 ALTER TABLE `shoppingcart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -286,7 +286,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'yem0417','Youssef','EL MOUMEN','0636523432','Morocco','Casa, Bernoussi','dinactiprefected@gmail.com','$2y$10$1ODDWv1kBmnpcxsJH5aBFeiFyZDkdHE2/9UvqD7HHSrxG6D39YYJq','2024-05-02 16:11:44','Owner'),(13,'Client','Tazi','Ali','0607302999','Morocco','Casa','tazi.ali@exmaple.com','$2y$10$fYINyFo5GcaAPapiTi9nFe0OO6z0Ob8yxh0e4q1U4c37n3ahYT3lG','2024-05-25 16:47:42','Client'),(14,'Admin','Weak','Aura','0607302999','Morocco','AAAAAAAA','WeakAura@gmail.com','$2y$10$VaZCjIQ.VL.szpKtWcLDIOqXZb2KYKULf4AvfR6dV4oRSEMKeH/h2','2024-05-25 16:57:29','Admin');
+INSERT INTO `users` VALUES (1,'yem0417','Youssef','EL MOUMEN','0636523432','Morocco','Casa, Bernoussi','dinactiprefected@gmail.com','$2y$10$1ODDWv1kBmnpcxsJH5aBFeiFyZDkdHE2/9UvqD7HHSrxG6D39YYJq','2024-05-02 16:11:44','Owner'),(13,'Client','Tazi','Ali','0607302999','Morocco','Casa','tazi.ali@exmaple.com','$2y$10$fYINyFo5GcaAPapiTi9nFe0OO6z0Ob8yxh0e4q1U4c37n3ahYT3lG','2024-05-25 16:47:42','Client'),(14,'Admin','Admin','Aura','0607302999','Morocco','AAAAAAAA','WeakAura@gmail.com','$2y$10$VaZCjIQ.VL.szpKtWcLDIOqXZb2KYKULf4AvfR6dV4oRSEMKeH/h2','2024-05-25 16:57:29','Admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -299,4 +299,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-30  1:06:08
+-- Dump completed on 2024-05-30 12:29:39

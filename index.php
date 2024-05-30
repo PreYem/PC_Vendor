@@ -203,55 +203,57 @@
             </div>
 
         </div>
-
-        <?php if (!empty($_SESSION['User_ID']) || !empty($_SESSION['User_Role'])): ?>
-            <?php if ($User['User_Role'] !== 'Client') { ?>
-                <div class="bg-gray-800 text-white py-2 px-4">
-                    <h6 class="text-sm font-medium text-gray-300 mb-1">Management Section</h6>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <div class="space-y-1">
-                            <a href="Product/Products_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Product List</a>
-                            <a href="Product/Products_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Product</a>
-                        </div>
-                        <div class="space-y-1">
-                            <a href="Category/Categories_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Category List</a>
-                            <a href="Category/Categories_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Category</a>
-                        </div>
-                        <div class="space-y-1">
-                            <a href="Category/SubCategories/SubCategories_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Subcategory List</a>
-                            <a href="Category/SubCategories/SubCategories_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Subcategory</a>
-                        </div>
-                        <div class="space-y-1">
-                            <a href="Manufacturer/Manufacturers_List.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Manufacturer List</a>
-                            <a href="Manufacturer/Manufacturers_Add.php"
-                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
-                                New Manufacturer</a>
-                        </div>
-                        <?php if ($User['User_Role'] === 'Owner') { ?>
+        <div>
+            <?php if (!empty($_SESSION['User_ID']) || !empty($_SESSION['User_Role'])): ?>
+                <?php if ($User['User_Role'] !== 'Client') { ?>
+                    <div class="bg-gray-800 text-white py-2 px-4">
+                        <h6 class="text-sm font-medium text-gray-300 mb-1">Management Section</h6>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                             <div class="space-y-1">
-                                <a href="User/User_Management.php"
-                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
-                                    Users Dashboard</a>
+                                <a href="Product/Products_List.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                    Product List</a>
+                                <a href="Product/Products_Add.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                    New Product</a>
                             </div>
-                        <?php } ?>
+                            <div class="space-y-1">
+                                <a href="Category/Categories_List.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                    Category List</a>
+                                <a href="Category/Categories_Add.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                    New Category</a>
+                            </div>
+                            <div class="space-y-1">
+                                <a href="Category/SubCategories/SubCategories_List.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                    Subcategory List</a>
+                                <a href="Category/SubCategories/SubCategories_Add.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                    New Subcategory</a>
+                            </div>
+                            <div class="space-y-1">
+                                <a href="Manufacturer/Manufacturers_List.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                    Manufacturer List</a>
+                                <a href="Manufacturer/Manufacturers_Add.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                    New Manufacturer</a>
+                            </div>
+                            <?php if ($User['User_Role'] === 'Owner') { ?>
+                                <div class="space-y-1">
+                                    <a href="User/User_Management.php"
+                                        class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
+                                        Users Dashboard</a>
+                                </div>
+                            <?php } ?>
+                        </div>
                     </div>
-                </div>
-            <?php } ?>
-        <?php endif; ?>
+                <?php } ?>
+            <?php endif; ?>
+        </div>
+
     </nav>
 
 
@@ -301,10 +303,15 @@
                                                         🗑️</a>
                                                 </div>
                                             </div>
-                                        <?php } else { ?>
+                                        <?php } elseif (isset($_SESSION['User_ID']) && $User['User_Role'] === 'Client') { ?>
                                             <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
                                                 class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto"
-                                                onclick="return alert('You must login before you can performe this action.')">Add
+                                                onclick="return alert('<?php echo $Product['Product_Name'] . '\n' ?>has been added To Your Shopping Cart.')">Add
+                                                to Cart 🛒</a>
+                                        <?php } elseif (!isset($_SESSION['User_ID'])) { ?>
+                                            <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
+                                                class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto"
+                                                onclick="return alert('You must login before you can make a purchase')">Add
                                                 to Cart 🛒</a>
                                         <?php } ?>
                                     </div>

@@ -6,7 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
 
-    <title><?php echo $_GET['FullName'] ?> | PC Vendor</title>
+    <title><?php
+    if (isset($_GET['FullName'])) {
+        $FullName = $_GET['FullName'];
+    } else {
+        $FullName = 'Account Modification';
+    }
+    ;
+    echo $FullName
+        ?> | PC Vendor</title>
 
 
     <?php
@@ -65,6 +73,13 @@
         exit;
     }
 
+    $Owners = "SELECT User_ID FROM Users WHERE User_Role = 'Owner'";
+    $pdostmt_owners = $connexion->prepare($Owners);
+    $pdostmt_owners->execute();
+    $owner_count = $pdostmt_owners->rowCount();
+
+
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $User_FirstName = $_POST['User_FirstName'];
         $User_LastName = $_POST['User_LastName'];
@@ -73,7 +88,12 @@
         $User_Address = $_POST['User_Address'];
         $User_Email = $_POST['User_Email'];
         $User_Password = password_hash($_POST['User_Password'], PASSWORD_BCRYPT);
-        $User_Role = $_POST['User_Role'];
+        if (empty($_POST['User_Role'])) {
+            $User_Role = 'Owner';
+        } else {
+            $User_Role = $_POST['User_Role'];
+        }
+
 
         if (!empty($_POST['User_Password'])) {
             $User_Data_Update = "UPDATE Users SET User_FirstName = :User_FirstName, User_LastName = :User_LastName, User_Phone = :User_Phone, 
@@ -112,7 +132,7 @@
         }
 
 
-        header("Location: ../.");
+        header("Location: User_Management.php");
         exit();
     }
 
@@ -185,7 +205,7 @@
                         <?php } ?>
                     </a>
                     <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                        href="User_Modify.php?id=<?php echo $User_ID ?>">Currently
+                        href="User_Modify.php?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
                         Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 
@@ -298,21 +318,34 @@
                         <div>
                             <label for="ConfirmPassword" class="block text-sm font-medium text-gray-700">User Privilege
                                 Level</label>
-                            <select name="User_Role" id="User_Role">
-                                <?php
-                                $Roles = ['Client', 'Admin', 'Owner'];
 
+                            <?php if ($owner_count > 1 || $User_Data['User_Role'] !== 'Owner') { ?>
+                                <select name="User_Role" id="User_Role"
+                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <?php
+                                    $Roles = ['Client', 'Admin', 'Owner'];
 
-                                foreach ($Roles as $Role) {
-                                    if ($User_Data['User_Role'] === $Role) {
-
-                                        echo '<option selected>' . $Role . '</option>';
-                                    } else {
-                                        echo '<option>' . $Role . '</option>';
+                                    foreach ($Roles as $Role) {
+                                        if ($User_Data['User_Role'] === $Role) {
+                                            echo '<option selected>' . $Role . '</option>';
+                                        } else {
+                                            echo '<option>' . $Role . '</option>';
+                                        }
                                     }
-                                }
-                                ?>
-                            </select>
+                                    ?>
+                                </select>
+                            <?php } else { ?>
+                                <div class="mt-1 block bg-red-200" id="privilegeWarning">
+                                    <span
+                                        class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">⚠️
+                                        Privilige Warning :</span><br>
+                                    <span class="text-yellow-800">There is currently only <b>1</b> user with <b>Owner</b> Level
+                                        Privilege. To be able to modify this Privilege Level, there should be at least <b>1 more</b>
+                                        user with Owner Level Privilege.</span>
+                                </div>
+
+                            <?php } ?>
+
                         </div>
                     <?php } else { ?>
                         <select name="User_Role" id="User_Role" hidden>

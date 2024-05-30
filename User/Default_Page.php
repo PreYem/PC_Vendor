@@ -5,73 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
-    <title>Home 🏠︎ | PC Vendor</title>
+
+    <title>| PC Vendor</title>
+
 
     <?php
-    
     session_start();
     include_once ("../DB_Connexion.php");
 
-    function formatNumber($number)
-    {
-        return number_format($number, 0, '', ' ');
-    }
 
-    $Visible = 'Visible';
-    if (isset($_GET['id'])) {
-
-        $Target_ID = $_GET['id'];
-        $Target_Type = $_GET['Type']; // 'Category' or 'SubCategory'
-    
-        if (isset($_SESSION['User_ID'])) {
-            $User_ID = $_SESSION['User_ID'];
-            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
-            $pdoUsers = $connexion->prepare($Users);
-            $pdoUsers->execute([':User_ID' => $User_ID]);
-            $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-            $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
-            $User_Role = $User['User_Role'];
-        } else {
-            $User_Role = 'Client';
-        }
-
-        if ($Target_Type === 'Category') {
-            $condition = "Category_ID = :Target_ID";
-            $Target_Category_Name = "SELECT Category_Name FROM Categories WHERE $condition";
-            $pdoTarget_Category_Name = $connexion->prepare($Target_Category_Name);
-            $pdoTarget_Category_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_Category_Name->fetchColumn();
-
-        } elseif ($Target_Type === 'SubCategory') {
-            $condition = "SubCategory_ID = :Target_ID";
-            $Target_SubCategory_Name = "SELECT SubCategory_Name FROM SubCategories WHERE $condition";
-            $pdoTarget_SubCategory_Name = $connexion->prepare($Target_SubCategory_Name);
-            $pdoTarget_SubCategory_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_SubCategory_Name->fetchColumn();
-
-        }
-        if ($User_Role === 'Client') {
-            $params[':Visible'] = $Visible;
-        }
-        $pdoGeneralProductQuery->execute($params);
-        $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+    if (isset($_SESSION['User_ID'])) {
+        $User_ID = $_SESSION['User_ID'];
+        $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
+        $pdoUsers = $connexion->prepare($Users);
+        $pdoUsers->execute([':User_ID' => $User_ID]);
+        $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
+        $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
+        $User_Role = $User['User_Role'];
+        $Current_User_Role = $User['User_Role'];
     } else {
-        if (isset($_SESSION['User_ID'])) {
-            $User_ID = $_SESSION['User_ID'];
-            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
-            $pdoUsers = $connexion->prepare($Users);
-            $pdoUsers->execute([':User_ID' => $User_ID]);
-            $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-            $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
-            $User_Role = $User['User_Role'];
-        }
+        $User_Role = 'Client';
     }
+
+    if ($User_Role !== 'Owner') {
+        header("Location: ../.");
+        exit;
+    }
+
+
+
+
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
     $pdoCategories = $connexion->prepare($Categories);
     $pdoCategories->execute();
     $Categories = $pdoCategories->fetchAll(PDO::FETCH_ASSOC);
-
 
     if (isset($_SESSION['User_ID'])) {
         $Shopping_Cart = "SELECT CartItem_ID FROM ShoppingCart WHERE User_ID = :User_ID";
@@ -80,7 +48,12 @@
         $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
         $Cart_Count = $pdostmt_shopping->rowCount();
     }
+
+
+
     ?>
+
+
 </head>
 
 
@@ -146,7 +119,8 @@
                             (<?php echo $Cart_Count ?>)
                         <?php } ?>
                     </a>
-                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="#">Currently
+                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                        href="User_Modify.php?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
                         Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 
@@ -214,9 +188,11 @@
 
 
 
-                            
+    <div class="container mx-auto p-6">
+        <div class="content-wrapper">
 
-
+        </div>
+    </div>
 
 
 
@@ -224,6 +200,7 @@
     <script>
         window.addEventListener('DOMContentLoaded', function () {
             adjustContentMargin();
+            resetForm();
         });
 
         window.addEventListener('resize', function () {
@@ -235,10 +212,14 @@
             document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
         }
     </script>
+
 </body>
 
 </html>
 <style>
+
+
+
     .visibility-status {
         background-color: #EF4444;
         /* Red background */
@@ -341,15 +322,4 @@
         overflow-y: auto;
     }
 
-    .product-name {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-        max-width: 100%;
-
-        display: inline-block;
-        max-height: 1.2em;
-
-    }
 </style>
