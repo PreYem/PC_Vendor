@@ -8,6 +8,8 @@ function formatNumber($number)
 
 session_start();
 
+#ABC
+
 if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
     // User is not logged in, redirect to login page
     header("Location: ../User/User_SignIn.php");
