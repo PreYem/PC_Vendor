@@ -266,16 +266,11 @@
                                     onclick="resetForm()">Reset</button>
                                 <br>
                                 <?php if ($Error_Message != "") { ?>
-                                    <p class="text-red-600 text-xs">Username or Email already taken. <br>Try a different one
+                                    <p class="text-red-600 text-xs">Username or Email already taken. <br>Try a different one.
                                     </p>
 
                                 <?php } ?>
-
-
-
-
                             </div>
-
                         </div>
 
             </form>

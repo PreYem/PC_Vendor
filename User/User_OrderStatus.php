@@ -93,8 +93,8 @@
         $Date = date('Y-m-d', strtotime($order['Order_Date'])) . ' <b>at</b> ' . date('H:i:s', strtotime($order['Order_Date']));
         ?>
         <div class="bg-white shadow-md rounded-lg p-6 mb-6 order-container <?php echo ($order['Order_Status'] === 'Cancelled by User') ? 'bg-red-100' : ''; ?>">
-            <h4 class="text-lg font-semibold mb-4">Order Number : <?php echo $orderId; ?></h4>
-            <p class="text-gray-600 mb-2">Order made at : <?php echo $Date; ?></p>
+            <h4 class="text-lg font-semibold mb-4"><b>Order Number : </b><?php echo $orderId; ?></h4>
+            <p class="text-gray-600 mb-2"><b>Order made on : </b><?php echo $Date; ?></p>
             <!-- Details section -->
             <div class="order-details">
                 <?php foreach ($order['Products'] as $product): ?>
@@ -118,8 +118,8 @@
                 <?php endforeach; ?>
 
             </div>
-            <p class="text-gray-600 mt-4 status-paragraph">Status : <?php echo $order['Order_Status']; ?></p>
-            <p class="text-gray-600">Total Amount : <?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs</p>
+            <p class="text-gray-600 mt-4 status-paragraph"><b>Status : </b><?php echo $order['Order_Status']; ?></p>
+            <p class="text-gray-600"><b>Total Amount : </b><?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs</p>
             <?php if ($order['Order_Status'] == 'Pending') { ?>
 
                 <a href="User_CancelOrder.php?id=<?php echo $orderId; ?>" class="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">

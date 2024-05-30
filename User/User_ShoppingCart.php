@@ -143,8 +143,7 @@
         $pdostmt_shopping->execute([':User_ID' => $User_ID]);
         $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
         $Cart_Count = $pdostmt_shopping->rowCount();
-    }
-    ;
+    };
 
     $Shopping_Query = " SELECT sc.CartItem_ID, sc.Product_ID, sc.Quantity, p.Product_Name, p.Selling_Price, p.Product_Picture
                         FROM ShoppingCart sc
@@ -260,7 +259,7 @@
                             (<?php echo $Cart_Count ?>)
                         <?php } ?>
                     </a>
-                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="#">Currently
+                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="User_Modify.php?id=<?php echo $User_ID ?>">Currently
                         Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 

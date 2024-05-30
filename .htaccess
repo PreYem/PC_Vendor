@@ -4,3 +4,4 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /PC_Vendor/User/User_Unauthorized.html [L]
+ErrorDocument 404 /path/to/custom-404-page.php
