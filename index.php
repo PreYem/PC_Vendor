@@ -295,8 +295,8 @@
                                                 <?php } ?>
                                                 <div class="flex space-x-2">
                                                     <a href="Product/Products_Modify.php?id=<?php echo $Product['Product_ID']; ?>"
-                                                        class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">Edit
-                                                        ⚙️</a>
+                                                        class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">
+                                                    ⚙️</a>
                                                     <a href="Product/Products_Delete.php?id=<?php echo $Product['Product_ID']; ?>"
                                                         class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm"
                                                         onclick="return confirm('Are you sure you want to delete this product?\n*Disclaimer* : This action is irreversible.')">

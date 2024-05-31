@@ -53,17 +53,37 @@
     $pdostmt->execute();
 
     ?>
+    <style>
+        /* CSS for the message */
+        .fade-out {
+            transition: opacity 2s ease-in-out;
+            /* Transition for opacity over 2 seconds */
+            opacity: 1;
+            /* Initially visible */
+        }
+
+        .fade-out.hide {
+            opacity: 0;
+            /* After 2 seconds, fade out to completely transparent */
+        }
+    </style>
 
 </head>
 
 <body class="bg-gray-200 py-8">
     <div class="max-w-4xl mx-auto">
         <div class="mb-4 flex justify-between">
-            <a href="Manufacturers_Add.php" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">New Manufacturer</a>
+            <a href="Manufacturers_Add.php" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">New
+                Manufacturer</a>
             <a href="../index.php" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Main Page</a>
         </div>
 
         <h1 class="text-2xl font-bold mb-4">List of Manufacturers</h1>
+        <h6 style="background-color : Green" id="message" class="fade-out"><?php
+        if (isset($_SESSION['Message'])) {
+            echo $_SESSION['Message'];
+            unset($_SESSION['Message']);
+        } ?></h6>
 
         <table class="w-full border border-black">
             <thead class="bg-gray-100">
@@ -81,8 +101,10 @@
                         <td class="border px-4 py-2"><?php echo $ligne["Manufacturer_Name"] ?></td>
                         <td class="border px-4 py-2"><?php echo $ligne["Manufacturer_Desc"] ?></td>
                         <td class="border px-4 py-2">
-                            <a href="Manufacturers_Modify.php?id=<?php echo urlencode($ligne["Manufacturer_Name"]) ?>" class="text-blue-600 hover:underline">Edit</a>
-                            <a href="Manufacturers_Delete.php?id=<?php echo urlencode($ligne["Manufacturer_Name"]) ?>" class="text-red-600 hover:underline ml-2">Delete</a>
+                            <a href="Manufacturers_Modify.php?id=<?php echo urlencode($ligne["Manufacturer_Name"]) ?>"
+                                class="text-blue-600 hover:underline">Edit</a>
+                            <a href="Manufacturers_Delete.php?id=<?php echo urlencode($ligne["Manufacturer_Name"]) ?>"
+                                class="text-red-600 hover:underline ml-2">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
@@ -93,3 +115,14 @@
 
 
 </html>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const messageElement = document.getElementById('message');
+        if (messageElement) {
+            setTimeout(() => {
+                messageElement.classList.add('hide'); // Add 'hide' class after 2 seconds
+            }, 2000);
+        }
+    });
+</script>

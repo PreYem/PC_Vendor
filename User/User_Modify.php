@@ -340,8 +340,8 @@
                                         class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">⚠️
                                         Privilige Warning :</span><br>
                                     <span class="text-yellow-800">There is currently only <b>1</b> user with <b>Owner</b> Level
-                                        Privilege. To be able to modify this Privilege Level, there should be at least <b>1 more</b>
-                                        user with Owner Level Privilege.</span>
+                                        Privilege. To be able to modify the Privilege Level for this user, there should be at least <b>1 more</b>
+                                        user with 'Owner Level Privilege'.</span>
                                 </div>
 
                             <?php } ?>

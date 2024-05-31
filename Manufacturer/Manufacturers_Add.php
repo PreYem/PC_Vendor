@@ -77,6 +77,9 @@
             ]);
 
             $pdostmtInsert->closeCursor();
+
+            $_SESSION['Message'] = "Manufacturer added successfully";
+
             header("Location: Manufacturers_List.php");
             exit();
         } else {
