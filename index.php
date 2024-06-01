@@ -54,7 +54,7 @@
         $visibilityCondition = ($User_Role === 'Client') ? "AND Product_Visibility = :Visible" : '';
 
         $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                FROM Products WHERE $condition $visibilityCondition";
+                                FROM Products WHERE $condition $visibilityCondition ORDER BY Product_ID DESC";
 
         $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
         $params = [':Target_ID' => $Target_ID];
@@ -75,14 +75,14 @@
 
             if ($User_Role !== 'Client') {
                 $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                        FROM Products";
+                                        FROM Products ORDER BY Product_ID DESC";
             } else {
                 $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                        FROM Products WHERE Product_Visibility = :Visible";
+                                        FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
             }
         } else {
             $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                    FROM Products WHERE Product_Visibility = :Visible";
+                                    FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
         }
 
         $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
@@ -260,6 +260,18 @@
     <div class="outer-container">
         <div class="container">
             <div class="content-wrapper pt-16">
+                <?php if (isset($_SESSION['Product_Update'])) { ?>
+                    <span class="rounded-full" id="UpdatedProduct"><?php echo $_SESSION['Product_Update'];
+                    unset($_SESSION['Product_Update']) ?></span>
+                <?php } ?>
+                <?php if (isset($_SESSION['Product_Delete'])) { ?>
+                    <span class="rounded-full bg-red-600" style="background-color : red" id="UpdatedProduct">
+                        <?php echo $_SESSION['Product_Delete'];
+                        unset($_SESSION['Product_Delete']) ?>
+                    </span>
+
+                <?php } ?>
+
                 <?php if ($GeneralProducts) { ?>
                     <section id="Content">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12">
@@ -296,7 +308,7 @@
                                                 <div class="flex space-x-2">
                                                     <a href="Product/Products_Modify.php?id=<?php echo $Product['Product_ID']; ?>"
                                                         class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">
-                                                    ⚙️</a>
+                                                        ⚙️</a>
                                                     <a href="Product/Products_Delete.php?id=<?php echo $Product['Product_ID']; ?>"
                                                         class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm"
                                                         onclick="return confirm('Are you sure you want to delete this product?\n*Disclaimer* : This action is irreversible.')">
@@ -348,11 +360,54 @@
             var navHeight = document.querySelector('nav').offsetHeight;
             document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                var updatedProductSpan = document.getElementById("UpdatedProduct");
+                updatedProductSpan.classList.add("fade-out");
+            }, 2000);
+        });
+
     </script>
 </body>
 
 </html>
 <style>
+    #UpdatedProduct {
+        margin-left: 44%;
+        border: round;
+        background-color: Green;
+        padding-bottom: 10%;
+        opacity: 80%;
+        padding: 5px 5px;
+        margin-top: 21%;
+        height: 30px;
+        font-size: 13px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .fade-out {
+        animation: fadeOut 500ms ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+        0% {
+            opacity: 0.8;
+            margin-left: 44%;
+        }
+
+        50% {
+            opacity: 0.6;
+
+        }
+
+        100% {
+            opacity: 0;
+            margin-left: 0%;
+            display: none;
+        }
+    }
+
     .visibility-status {
         background-color: #EF4444;
         /* Red background */

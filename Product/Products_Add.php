@@ -160,8 +160,6 @@
                     'Date_Created' => $detailedDateTimeForDB
                 ]);
 
-                // Display the date with the "at" text in the desired format on the webpage
-                echo "Date Created: " . $detailedDateTimeForDisplay;
 
 
 
@@ -261,7 +259,8 @@
                             (<?php echo $Cart_Count ?>)
                         <?php } ?>
                     </a>
-                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="#">Currently
+                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                        href="../User/User_Modify.php?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
                         Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 

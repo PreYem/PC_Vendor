@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../Logo.png" type="image/x-icon">
-
-    <title>| PC Vendor</title>
+    <title> | PC Vendor</title>
 
 
     <?php
@@ -31,9 +29,6 @@
         header("Location: ../.");
         exit;
     }
-
-
-
 
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
@@ -217,9 +212,6 @@
 
 </html>
 <style>
-
-
-
     .visibility-status {
         background-color: #EF4444;
         /* Red background */
@@ -321,5 +313,4 @@
 
         overflow-y: auto;
     }
-
 </style>
