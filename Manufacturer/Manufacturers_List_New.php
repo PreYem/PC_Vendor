@@ -4,33 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturer List | PC Vendor</title>
     <link rel="icon" href="../Logo.png" type="image/x-icon">
-
-    <title>Users Dashboard | PC Vendor</title>
 
 
     <?php
-    session_start();
-    include_once ("../DB_Connexion.php");
-
-
-    if (isset($_SESSION['User_ID'])) {
-        $User_ID = $_SESSION['User_ID'];
-        $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
-        $pdoUsers = $connexion->prepare($Users);
-        $pdoUsers->execute([':User_ID' => $User_ID]);
-        $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-        $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
-        $User_Role = $User['User_Role'];
-        $Current_User_Role = $User['User_Role'];
-    } else {
-        $User_Role = 'Client';
+    function formatNumber($number)
+    {
+        return number_format($number, 0, '', ' ');
     }
+    include_once ("../DB_Connexion.php");
+    session_start();
+    if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 
-    if ($User_Role !== 'Owner') {
-        header("Location: ../.");
+        header("Location: ../User/User_SignIn.php");
         exit;
     }
+
+    $User_ID = $_SESSION['User_ID'];
+    $query = "SELECT User_Role, User_Username , User_FirstName , User_LastName FROM Users WHERE User_ID = :User_ID";
+    $pdostmt = $connexion->prepare($query);
+    $pdostmt->execute([':User_ID' => $User_ID]);
+
+    if ($User = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
+        $User_Role = $User['User_Role'];
+        $User_Username = $User['User_Username'];
+        $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
+
+        if ($User_Role === 'Owner') {
+            $showUserManagement = true;
+        } else {
+            $showUserManagement = false;
+        }
+
+
+        if ($User_Role == 'Client') {
+            header("Location: ../User/User_Unauthorized.html");
+            exit;
+        }
+    }
+    ;
 
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
@@ -45,22 +58,17 @@
         $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
         $Cart_Count = $pdostmt_shopping->rowCount();
     }
+    ;
 
-    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
-    $Users = "SELECT User_ID, User_Username , User_FirstName, User_LastName, User_Phone , User_Country , User_Address , User_Email , User_RegisterationDate ,  User_Role 
-              FROM Users";
-    $pdoUsers = $connexion->prepare($Users);
-    $pdoUsers->execute();
-    $Users = $pdoUsers->fetchall(PDO::FETCH_ASSOC);
-
-
+    $Manufacturers = "SELECT Manufacturer_ID,Manufacturer_Name, Manufacturer_Desc FROM Manufacturers";
+    $pdoManufacturers = $connexion->prepare($Manufacturers);
+    $pdoManufacturers->execute();
+    $Manufacturers = $pdoManufacturers->fetchAll(PDO::FETCH_ASSOC);
 
     ?>
 
 
 </head>
-
 
 
 <body class="bg-gray-100">
@@ -195,73 +203,64 @@
 
     <div class="container mx-auto p-6">
         <div class="content-wrapper">
-            <h1 class="text-xl font-semibold mb-4">Currently Registered Accounts :</h1>
-
+            <h1 class="text-xl font-semibold mb-4">List of Manufacturers</h1>
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white border border-gray-200">
                     <thead class="bg-gray-800 text-white">
                         <tr>
                             <th class="py-2 px-4 border-b " onclick="sortTable(0)">ID <span
                                     class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(1)">Username <span
+                            <th class="py-2 px-4 border-b " onclick="sortTable(1)">Name <span
                                     class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(2)">Full Name <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b">Phone</th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(4)">Country <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(5)">Address <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b" onclick="sortTable(6)">Email <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(7)">Registration Date <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(8)">Role <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b">⚙️ Settings</th>
+                            <th class="py-2 px-4 border-b ">Manufacturer Description</th>
+                            <th class="py-2 px-4 border-b ">⚙️ Settings</th>
+
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($Users as $User):
-                            $User_FullName = $User['User_LastName'] . ' ' . $User['User_FirstName'];
-                            $Registration_Date = date('Y-m-d', strtotime($User["User_RegisterationDate"])) . '<b> at </b>' . date('H:i:s', strtotime($User["User_RegisterationDate"]));
-                            if ($User['User_Role'] === 'Owner') {
-                                $User_Role_Level = '1 - ' . $User['User_Role'];
-                            } elseif ($User['User_Role'] === 'Admin') {
-                                $User_Role_Level = '2 - ' . $User['User_Role'];
-                            } else {
-                                $User_Role_Level = '3 - ' . $User['User_Role'];
-                            }
+                        <?php foreach ($Manufacturers as $Manufacturer):
+                            $Manufacturer_Desc = strlen($Manufacturer['Manufacturer_Desc']) > 10 ? substr($Manufacturer['Manufacturer_Desc'], 0, 150) . "..." : $Manufacturer['Manufacturer_Desc'];
+
                             ?>
                             <tr class="border-b hover:bg-gray-100">
-                                <td class="py-2 px-4"><?php echo $User['User_ID']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Username']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User_FullName; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Phone']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Country']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Address']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Email']; ?></td>
-                                <td class="py-2 px-4"><?php echo $Registration_Date; ?></td>
-                                <td class="py-2 px-4"><?php echo $User_Role_Level; ?></td>
+                                <td class="py-2 px-4"><?php echo $Manufacturer['Manufacturer_ID']; ?></td>
+                                <td class="py-2 px-4"><?php echo $Manufacturer['Manufacturer_Name']; ?></td>
+                                <td class="py-2 px-4 limited-text"><?php echo $Manufacturer_Desc; ?></td>
                                 <td class="py-2 px-4">
-                                    <a href="User_Modify.php?id=<?php echo $User['User_ID'] ?>&FullName=<?php echo urlencode($User_FullName); ?>"
-                                        class="text-blue-500 hover:underline">⚙️</a>
-                                    <?php if ($User['User_Role'] !== 'Owner') { ?>
-                                        <a href="User_Delete.php?id=<?php echo $User['User_ID'] ?>"
-                                            onclick="return confirm('Are you sure you want to delete this user account?\n*Disclaimer* : This action is irreversible')"
-                                            class="text-red-500 hover:underline ml-4">Delete</a>
+                                    <a href="Manufacturers_Modify.php?id=<?php echo $Manufacturer['Manufacturer_ID']; ?>&Manufacturer_Name=<?php echo $Manufacturer['Manufacturer_Name']; ?>"
+                                        class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm link-spacing">⚙️</a>
+                                    <?php if ($Manufacturer['Manufacturer_Name'] !== 'Unspecified') { ?>
+                                        <a href="Manufacturers_Delete.php?id=<?php echo $Manufacturer['Manufacturer_ID'] ?>"
+                                            onclick="return confirm('Are you sure you want to delete this Manufacturer?\n*Disclaimer* : This action is irreversible')"
+                                            class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm">🗑️</a>
                                     <?php } ?>
                                 </td>
+
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 
+
+
+
     <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            adjustContentMargin();
+            resetForm();
+        });
+
+        window.addEventListener('resize', function () {
+            adjustContentMargin();
+        });
+
+        function adjustContentMargin() {
+            var navHeight = document.querySelector('nav').offsetHeight;
+            document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
+        }
         function sortTable(columnIndex) {
             var table, rows, switching, i, x, y, shouldSwitch, direction, switchcount = 0;
             table = document.querySelector("table");
@@ -302,25 +301,18 @@
                 }
             }
         }
-        window.addEventListener('DOMContentLoaded', function () {
-            adjustContentMargin();
-            resetForm();
-        });
-
-        window.addEventListener('resize', function () {
-            adjustContentMargin();
-        });
-
-        function adjustContentMargin() {
-            var navHeight = document.querySelector('nav').offsetHeight;
-            document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
-        }
     </script>
 
 </body>
 
 </html>
 <style>
+    .link-wrapper {
+        display: flex;
+        gap: 8px;
+        /* Adjust the value as needed */
+    }
+
     .visibility-status {
         background-color: #EF4444;
         /* Red background */

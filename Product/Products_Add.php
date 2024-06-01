@@ -391,21 +391,20 @@
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label for="Buying_Price" class="block text-sm font-medium text-gray-700">Buying
-                                Price:</label>
-                            <input type="number" name="Buying_Price" placeholder="In Dhs" value="0" required
+                            <label for="Buying_Price" class="block text-sm font-medium text-gray-700">Buying Price:</label>
+                            <input type="number" name="Buying_Price" placeholder="In Dhs" value="1" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
                         <div class="mb-4">
                             <label for="Selling_Price" class="block text-sm font-medium text-gray-700">Selling
                                 Price:</label>
-                            <input type="number" name="Selling_Price" placeholder="In Dhs" value="0" required
+                            <input type="number" name="Selling_Price" placeholder="In Dhs" value="1" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
                         <div class="mb-4">
                             <label for="Product_Quantity"
                                 class="block text-sm font-medium text-gray-700">Quantity:</label>
-                            <input type="number" name="Product_Quantity" placeholder="How many in stock" value="0"
+                            <input type="number" name="Product_Quantity" placeholder="How many in stock" value="1"
                                 required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
