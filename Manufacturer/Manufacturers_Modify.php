@@ -237,6 +237,7 @@
             <?php } ?>
         <?php endif; ?>
     </nav>
+    
     <div class="container mx-auto p-6">
         <div class="content-wrapper">
             <h1 class="text-2xl font-bold mb-4">Edit Manufacturer</h1>
@@ -260,8 +261,7 @@
                         Description:</label>
                     <textarea name="Manufacturer_Desc" id="Manufacturer_Desc" cols="30" rows="10"
                         class="mt-1 p-2 w-full border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Write a few lines describing the manufacturer"><?php echo trim($Manufacturer["Manufacturer_Desc"]); ?>
-                    </textarea>
+                        placeholder="Write a few lines describing the manufacturer"><?php echo trim($Manufacturer["Manufacturer_Desc"]); ?></textarea>
                 </div>
                 <div class="mb-4">
                 <button type="submit"

@@ -204,9 +204,9 @@
     <div class="container mx-auto p-6">
         <div class="content-wrapper">
             <h1 class="text-xl font-semibold mb-4">List of Manufacturers</h1>
-            <?php if (isset($_SESSION['Manufacturer_Update'])) { ?>
-                <span class="rounded-full" id="Manufacturer_Message"><?php echo $_SESSION['Manufacturer_Update'];
-                unset($_SESSION['Manufacturer_Update']) ?></span>
+            <?php if (isset($_SESSION['Manufacturer_Add/Update'])) { ?>
+                <span class="rounded-full" id="Manufacturer_Message"><?php echo $_SESSION['Manufacturer_Add/Update'];
+                unset($_SESSION['Manufacturer_Add/Update']) ?></span>
             <?php } ?>
             <?php if (isset($_SESSION['Manufacturer_Delete'])) { ?>
                 <span class="rounded-full bg-red-600" style="background-color : red" id="Manufacturer_Message">
