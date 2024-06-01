@@ -5,27 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../../Logo.png" type="image/x-icon">
-    <title>Sub Categories List</title>
+    <title>Sub Category List | PC Vendor</title>
     <?php
     include_once ("../../DB_Connexion.php");
+
     session_start();
     if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 
-        header("Location: ../../User/User_SignIn.php");
+        header("Location: ../../.");
         exit;
     }
 
-
     $User_ID = $_SESSION['User_ID'];
-    $query = "SELECT User_Role, User_Username FROM Users WHERE User_ID = :User_ID";
+    $query = "SELECT User_Role, User_Username , User_FirstName , User_LastName FROM Users WHERE User_ID = :User_ID";
     $pdostmt = $connexion->prepare($query);
     $pdostmt->execute([':User_ID' => $User_ID]);
 
-
-
-    if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
-        $User_Role = $row['User_Role'];
-        $User_Username = $row['User_Username'];
+    if ($User = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
+        $User_Role = $User['User_Role'];
+        $User_Username = $User['User_Username'];
+        $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
 
         if ($User_Role === 'Owner') {
             $showUserManagement = true;
@@ -33,94 +32,468 @@
             $showUserManagement = false;
         }
 
-        if ($User_Role !== 'Owner' && $User_Role !== 'Admin') {
-            header("Location: ../../User/User_Unauthorized.html");
+
+        if ($User_Role == 'Client') {
+            header("Location: ../../.");
             exit;
         }
     }
     ;
 
-    $Query_SubCategory = "SELECT sc.SubCategory_ID, sc.SubCategory_Name, sc.SubCategory_Desc, c.Category_Name AS Category,
-    COUNT(p.Product_ID) AS Product_Count
-    FROM SubCategories sc
-    INNER JOIN Categories c 
-    ON sc.Category_ID = c.Category_ID
-    LEFT JOIN Products p 
-    ON sc.SubCategory_ID = p.SubCategory_ID
-    GROUP BY sc.SubCategory_ID";
+    $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
+    $pdoCategories = $connexion->prepare($Categories);
+    $pdoCategories->execute();
+    $Categories = $pdoCategories->fetchAll(PDO::FETCH_ASSOC);
 
-    $pdostmt = $connexion->prepare($Query_SubCategory);
-    $pdostmt->execute();
+    if (isset($_SESSION['User_ID'])) {
+        $Shopping_Cart = "SELECT CartItem_ID FROM ShoppingCart WHERE User_ID = :User_ID";
+        $pdostmt_shopping = $connexion->prepare($Shopping_Cart);
+        $pdostmt_shopping->execute([':User_ID' => $User_ID]);
+        $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
+        $Cart_Count = $pdostmt_shopping->rowCount();
+    }
+    ;
 
-    $result = $pdostmt->fetchAll(PDO::FETCH_ASSOC);
+    //-----------------------------------------------------------------------------------------------------------------
+    
+
+    $Query_SubCategory = "SELECT Sub.SubCategory_ID, Sub.SubCategory_Name, Sub.SubCategory_Desc, C.Category_Name AS Category_Name,
+                          COUNT(P.Product_ID) AS Product_Count
+                          FROM SubCategories Sub
+                          INNER JOIN Categories C ON Sub.Category_ID = C.Category_ID
+                          LEFT JOIN Products P ON Sub.SubCategory_ID = P.SubCategory_ID
+                          GROUP BY Sub.SubCategory_ID";
+    $pdoQuery_SubCategory = $connexion->prepare($Query_SubCategory);
+    $pdoQuery_SubCategory->execute();
+    $SubCats = $pdoQuery_SubCategory->fetchAll(PDO::FETCH_ASSOC);
+
+
+
 
     ?>
 
-<script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const rows = document.querySelectorAll('tbody tr');
-            console.log("1")
-            rows.forEach(row => {
-                const categoryNameCell = row.querySelector('td:nth-child(2)');
-                const categoryName = categoryNameCell.textContent.trim();
-                console.log("2")
-
-                // Check if category name is "Unspecified" and disable buttons accordingly
-                if (categoryName === "Unspecified") {
-                    const editButton = row.querySelector('.edit-button');
-                    const deleteButton = row.querySelector('.delete-button');
-                    console.log("3")
-
-                    editButton.disabled = true;
-
-                    deleteButton.disabled = true;
-
-                    editButton.hidden = true;
-
-                    deleteButton.hidden= true;
-
-                }
-            });
-        });
-    </script>
 </head>
 
-<body class="bg-gray-100 p-8">
-    <a href="SubCategories_Add.php"
-        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block mb-4">New Sub Category</a>
-    <a href="../../index.php"
-        class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md inline-block mb-4">Main Page</a>
-    <h1 class="text-3xl font-bold mb-4">Sub Categories</h1>
-    <table class="w-full border-collapse border border-gray-300">
-        <thead>
-            <tr class="bg-gray-200">
-                <th class="px-4 py-2">Sub Category ID</th>
-                <th class="px-4 py-2">Sub Category Name</th>
-                <th class="px-4 py-2">Main Category</th>
-                <th class="px-4 py-2">Sub Category Description</th>
-                <th class="px-4 py-2">Product Count</th>
-                <th class="px-4 py-2">Options</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($result as $ligne): ?>
-                <tr class="hover:bg-gray-100 transition-colors duration-200">
-                    <td class="border px-4 py-2"><?php echo $ligne['SubCategory_ID'] ?></td>
-                    <td class="border px-4 py-2"><?php echo $ligne['SubCategory_Name'] ?></td>
-                    <td class="border px-4 py-2"><?php echo $ligne['Category'] ?></td>
-                    <td class="border px-4 py-2"><?php echo $ligne['SubCategory_Desc'] ?></td>
-                    <td class="border px-4 py-2"><?php echo $ligne['Product_Count'] ?></td>
-                    <td class="border px-4 py-2">
-                        <a href="SubCategories_Modify.php?id=<?php echo $ligne["SubCategory_ID"] ?>"
-                            class="edit-button text-blue-500 hover:underline mr-2">Edit</a>
-                        <a href="SubCategories_Delete.php?id=<?php echo $ligne["SubCategory_ID"] ?>"
-                            onclick="return confirm('Are you sure you want to delete this Sub Category?\n*Disclaimer* : This action is irreversible')"
-                            class="delete-button text-red-500 hover:underline">Delete</a>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+<body class="bg-gray-200">
+    <nav class="bg-blue-800 text-white">
+        <div class="flex flex-wrap justify-between items-center p-4">
+            <!-- Logo -->
+            <a href="../.././"><img src="../../Logo.png" alt="Logo" id="Logo"></a>
+
+            <!-- Category Links -->
+            <div class="flex flex-wrap space-x-4">
+                <?php foreach ($Categories as $Category): ?>
+                    <?php if ($Category['Category_Name'] !== 'Unspecified'):
+                        ?>
+                        <?php
+                        $Category_ID = $Category['Category_ID'];
+                        $SubCategoriesQuery = "SELECT SubCategory_ID, SubCategory_Name FROM SubCategories WHERE Category_ID = :Category_ID ORDER BY SubCategory_ID ASC";
+                        $pdoSubCategories = $connexion->prepare($SubCategoriesQuery);
+                        $pdoSubCategories->execute([':Category_ID' => $Category_ID]);
+                        $SubCategories = $pdoSubCategories->fetchAll(PDO::FETCH_ASSOC);
+                        ?>
+
+                        <div class="relative category">
+                            <a href="../.././?id=<?php echo $Category['Category_ID'] ?>&Type=Category&Name=<?php echo str_replace(' ', '', $Category['Category_Name']) ?>"
+                                class="px-3 py-2 hover:bg-gray-700"><?php echo $Category['Category_Name']; ?></a>
+                            <?php if (!empty($SubCategories)): ?>
+                                <div class="category-dropdown absolute top-full left-0 mt-1 bg-gray-800 rounded shadow-md p-2 hidden"
+                                    style="min-width: 200px;">
+                                    <?php foreach ($SubCategories as $SubCategory): ?>
+                                        <?php if ($SubCategory['SubCategory_Name'] !== 'Unspecified'):
+
+                                            ?>
+                                            <a href="../.././?id=<?php echo $SubCategory['SubCategory_ID'] ?>&Type=SubCategory&Name=<?php
+                                               echo str_replace(' ', '', $SubCategory['SubCategory_Name']) ?>"
+                                                class="block px-2 py-1 hover:bg-blue-600"><?php echo $SubCategory['SubCategory_Name']; ?></a>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- User Links -->
+            <div class="flex space-x-4">
+                <?php if (isset($_SESSION['User_ID'])):
+                    if ($User_Role === 'Owner') {
+                        $Emoji = '👑';
+                    } elseif ($User_Role === 'Admin') {
+                        $Emoji = '👨‍💼';
+                    } else {
+                        $Emoji = '💼';
+                    }
+                    ?>
+                    <a href="../../User/User_ShoppingCart.php"
+                        class="flex items-center text-gray-300 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium">
+                        🛒 Shopping Cart
+                        <?php if ($Cart_Count > 0) { ?>
+                            (<?php echo $Cart_Count ?>)
+                        <?php } ?>
+                    </a>
+                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                        href="Use../r_Modify.php?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
+                        Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
+                            <?php echo $User_Role ?></span></a>
+
+                    <a href="../../User/User_Logout.php"
+                        class="text-gray-300 hover:bg-red-700 px-4 py-4 rounded-md text-sm font-medium">Logout</a>
+                <?php else: ?>
+                    <a href="../../User/User_SignIn.php"
+                        class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                    <a href="../../User/User_SignUp.php"
+                        class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Register</a>
+                <?php endif; ?>
+            </div>
+
+        </div>
+
+        <?php if (!empty($_SESSION['User_ID']) || !empty($_SESSION['User_Role'])): ?>
+            <?php if ($User['User_Role'] !== 'Client') { ?>
+                <div class="bg-gray-800 text-white py-2 px-4">
+                    <h6 class="text-sm font-medium text-gray-300 mb-1">Management Section</h6>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div class="space-y-1">
+                            <a href="../../Product/Products_List.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                Product List</a>
+                            <a href="../../Product/Products_Add.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Product</a>
+                        </div>
+                        <div class="space-y-1">
+                            <a href="../../Category/Categories_List.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                Category List</a>
+                            <a href="../../Category/Categories_Add.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Category</a>
+                        </div>
+                        <div class="space-y-1">
+                            <a href="SubCategories_List.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                Subcategory List</a>
+                            <a href="SubCategories_Add.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Subcategory</a>
+                        </div>
+                        <div class="space-y-1">
+                            <a href="../../Manufacturer/Manufacturers_List.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
+                                Manufacturer List</a>
+                            <a href="../../Manufacturer/Manufacturers_Add.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
+                                New Manufacturer</a>
+                        </div>
+                        <?php if ($User['User_Role'] === 'Owner') { ?>
+                            <div class="space-y-1">
+                                <a href="../../User/User_Management.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
+                                    Users Dashboard</a>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
+        <?php endif; ?>
+    </nav>
+
+    <div class="container mx-auto p-6" style="width : auto">
+        <div class="content-wrapper">
+            <h1 class="text-2xl font-bold mb-4">List of Sub Categories</h1>
+            <?php if (isset($_SESSION['SubCategory_Add/Update'])) { ?>
+                <span class="rounded-full" id="SubCategory_Message"><?php echo $_SESSION['SubCategory_Add/Update'];
+                unset($_SESSION['SubCategory_Add/Update']) ?></span>
+            <?php } ?>
+            <?php if (isset($_SESSION['SubCategory_Delete'])) { ?>
+                <span class="rounded-full bg-red-600" style="background-color : red" id="SubCategory_Message">
+                    <?php echo $_SESSION['SubCategory_Delete'];
+                     unset($_SESSION['SubCategory_Delete']) ?>
+                </span>
+
+            <?php } ?>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="py-2 px-4 border-b text-left cursor-pointer" style="width : 5%"
+                                onclick="sortTable(0)">ID
+                                <span>🠻</span>
+                            </th>
+                            <th class="py-2 px-4 border-b text-left cursor-pointer" style="width : 15%"
+                                onclick="sortTable(1)">Name
+                                <span>🠻</span>
+                            </th>
+                            <th class="py-2 px-4 border-b text-left cursor-pointer" style="width : 15%"
+                                onclick="sortTable(2)">Parent Category
+                                <span>🠻</span>
+                            </th>
+                            <th class="py-2 px-4 border-b text-left">SubCategory Description</th>
+                            <th class="py-2 px-4 border-b text-left cursor-pointer" style="width : 15%"
+                                onclick="sortTable(4)">Prod Count
+                                <span>🠻</span>
+                            </th>
+                            <th class="py-2 px-4 border-b" style="width : 9% ">⚙️ Settings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($SubCats as $SubCat):
+
+                            $SubCat_Desc = strlen($SubCat['SubCategory_Desc']) > 100 ? substr($SubCat['SubCategory_Desc'], 0, 100) . "..." : $SubCat['SubCategory_Desc'];
+                            ?>
+                            <tr class="border-b hover:bg-gray-100">
+                                <td class="py-2 px-4 text-left"><?php echo $SubCat['SubCategory_ID']; ?></td>
+                                <td class="py-2 px-4 text-left"><?php echo $SubCat['SubCategory_Name']; ?></td>
+                                <td class="py-2 px-4 text-left"><?php echo $SubCat['Category_Name']; ?></td>
+                                <td class="py-2 px-4 text-left limited-text">
+                                    <?php if (strlen($SubCat['SubCategory_Desc'] > 100)) {
+                                        echo $SubCat['SubCategory_Desc'];
+                                        
+                                    } else {
+                                        echo $SubCat_Desc ;
+                                    } ?>
+                                </td>
+                                <td class="py-2 px-4 text-left"><?php echo $SubCat['Product_Count']; ?></td>
+
+                                <!-- Settings -->
+                                <td class="py-2 px-4 text-left">
+                                    <?php if ($SubCat['SubCategory_Name'] !== 'Unspecified') { ?>
+                                        <a href="SubCategories_Modify.php?id=<?php echo $SubCat['SubCategory_ID']; ?>&SubCategory_Name=<?php
+                                           echo $SubCat['SubCategory_Name']; ?>"
+                                            class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">⚙️</a>
+
+                                        <a href="SubCategories_Delete.php?id=<?php echo $SubCat['SubCategory_ID']; ?>"
+                                            onclick="return confirm('Are you sure you want to delete this SubCategory?\n*Disclaimer* : This action is irreversible')"
+                                            class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm">🗑️</a>
+                                    <?php } ?>
+                                </td>
+                                <!-- Settings -->
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+
+            </div>
+
+
+        </div>
+    </div>
 </body>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        adjustContentMargin();
+        resetForm();
+    });
+
+    window.addEventListener('resize', function () {
+        adjustContentMargin();
+    });
+
+    function adjustContentMargin() {
+        var navHeight = document.querySelector('nav').offsetHeight;
+        document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+            var updatedProductSpans = document.querySelectorAll("#SubCategory_Message");
+            updatedProductSpans.forEach(function (span) {
+                span.classList.add("fade-out");
+            });
+        }, 2000);
+
+
+        setTimeout(function () {
+            var updatedProductSpans = document.querySelectorAll("#SubCategory_Message");
+            updatedProductSpans.forEach(function (span) {
+                span.classList.add("hidden");
+            });
+        }, 2700);
+    });
+    
+    function sortTable(columnIndex) {
+        var table, rows, switching, i, x, y, shouldSwitch, direction, switchcount = 0;
+        table = document.querySelector("table");
+        switching = true;
+        direction = "asc"; // Default sorting direction
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("td")[columnIndex];
+                y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+
+                if (direction === "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (direction === "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount === 0 && direction === "asc") {
+                    direction = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<style>
+    #SubCategory_Message {
+        margin-left: 44%;
+        border: round;
+        background-color: Green;
+        padding-bottom: 10%;
+        opacity: 70%;
+        padding: 5px 5px;
+        margin-top: 21%;
+        height: 30px;
+        font-size: 13px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .fade-out {
+        animation: fadeOut 500ms ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+        0% {
+            opacity: 0.8;
+            margin-left: 44%;
+        }
+
+        50% {
+            opacity: 0.6;
+
+        }
+
+        100% {
+            opacity: 0;
+            margin-left: 0%;
+            display: none;
+        }
+    }
+
+    .visibility-status {
+        background-color: #EF4444;
+        /* Red background */
+        color: #FFFFFF;
+        /* White text */
+        padding: 0.25rem 0.5rem;
+        /* Adjust padding */
+        border-radius: 0.25rem;
+        /* Rounded corners */
+        font-size: 0.875rem;
+        /* Adjust font size */
+        font-weight: 500;
+        /* Medium font weight */
+        margin-top: 0.5rem;
+        /* Add some space at the top */
+        display: inline-block;
+        /* Display as inline block */
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 1;
+        /* Ensure it's above the image */
+    }
+
+    .category-dropdown {
+        display: none;
+    }
+
+    .category:hover .category-dropdown {
+        display: block;
+    }
+
+    #Logo {
+        width: 30px;
+        height: 34px;
+    }
+
+    nav {
+
+        height: auto;
+        position: fixed;
+
+        width: 100%;
+
+        z-index: 1000;
+
+        margin-bottom: auto;
+        opacity: 95%;
+    }
+
+    body {
+        background-color: #e4e8f3;
+    }
+
+    .content-wrapper {
+        padding-top: auto;
+
+    }
+
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .outer-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        padding-top: 16px;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: 90%;
+        max-width: 1500px;
+        justify-content: space-between;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+
+    }
+
+    .content-wrapper {
+        flex: 1;
+        margin-top: 0;
+        padding-top: 10px;
+
+        overflow-y: auto;
+    }
+</style>
 
 </html>

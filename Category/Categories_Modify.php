@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
-    <title>Category Edit | PC Vendor</title>
+    <title>Edit Category | PC Vendor</title>
     <?php
     include_once ("../DB_Connexion.php");
 
@@ -61,6 +61,7 @@
 
     } else {
         header("Location: Categories_List.php");
+        exit();
     }
 
     $Error_Message = '';
@@ -210,7 +211,7 @@
                             <a href="../Category/SubCategories/SubCategories_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                 Subcategory List</a>
-                            <a href="Category/SubCategories/SubCategories_Add.php"
+                            <a href="../Category/SubCategories/SubCategories_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Subcategory</a>
                         </div>

@@ -197,7 +197,7 @@
                             <a href="../Category/SubCategories/SubCategories_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                 Subcategory List</a>
-                            <a href="Category/SubCategories/SubCategories_Add.php"
+                            <a href="../Category/SubCategories/SubCategories_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Subcategory</a>
                         </div>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manufacturer List | PC Vendor</title>
+    <title>Category List | PC Vendor</title>
     <link rel="icon" href="../Logo.png" type="image/x-icon">
 
 
@@ -174,7 +174,7 @@
                             <a href="../Category/SubCategories/SubCategories_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                 Subcategory List</a>
-                            <a href="Category/SubCategories/SubCategories_Add.php"
+                            <a href="../Category/SubCategories/SubCategories_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Subcategory</a>
                         </div>
@@ -332,7 +332,7 @@
                 updatedProductSpans.forEach(function (span) {
                     span.classList.add("fade-out");
                 });
-            }, 2000); 
+            }, 2000);
 
 
             setTimeout(function () {
