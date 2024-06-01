@@ -190,7 +190,9 @@
                     }
                 }
 
-                header("Location: ../index.php");
+                $_SESSION['Product_Add/Update'] = "Product Added Successfully";
+
+                header("Location: ../.");
             } else {
                 $Error_Message = 'A Product with that name already exists, try again!';
             }

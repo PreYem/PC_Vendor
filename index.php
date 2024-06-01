@@ -260,9 +260,9 @@
     <div class="outer-container">
         <div class="container">
             <div class="content-wrapper pt-16">
-                <?php if (isset($_SESSION['Product_Update'])) { ?>
-                    <span class="rounded-full" id="UpdatedProduct"><?php echo $_SESSION['Product_Update'];
-                    unset($_SESSION['Product_Update']) ?></span>
+                <?php if (isset($_SESSION['Product_Add/Update'])) { ?>
+                    <span class="rounded-full" id="UpdatedProduct"><?php echo $_SESSION['Product_Add/Update'];
+                    unset($_SESSION['Product_Add/Update']) ?></span>
                 <?php } ?>
                 <?php if (isset($_SESSION['Product_Delete'])) { ?>
                     <span class="rounded-full bg-red-600" style="background-color : red" id="UpdatedProduct">
@@ -365,6 +365,10 @@
                 var updatedProductSpan = document.getElementById("UpdatedProduct");
                 updatedProductSpan.classList.add("fade-out");
             }, 2000);
+            setTimeout(function () {
+                var updatedProductSpan = document.getElementById("UpdatedProduct");
+                updatedProductSpan.classList.add("hidden");
+            }, 2700);
         });
 
     </script>

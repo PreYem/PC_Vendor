@@ -221,7 +221,7 @@ if (!empty($_GET["id"])) {
             }
 
 
-            $_SESSION['Product_Update'] = "Product Updated Successfully";
+            $_SESSION['Product_Add/Update'] = "Product Updated Successfully";
 
             header("Location: ../.");
             exit();

@@ -52,5 +52,6 @@ if (!empty($_GET["id"])) {
     exit();
 } else {
     $_SESSION['Manufacturer_Delete'] = "Error : Manufacturer Could Not Be Deleted";
+    header("Location: Manufacturers_List.php");
 }
 

@@ -219,28 +219,35 @@
                 <table class="min-w-full bg-white border border-gray-200">
                     <thead class="bg-gray-800 text-white">
                         <tr>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(0)">ID <span
+                            <th class="py-2 px-4 border-b text-left" onclick="sortTable(0)">ID <span
                                     class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(1)">Name <span
+                            <th class="py-2 px-4 border-b text-left" onclick="sortTable(1)">Name <span
                                     class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b ">Manufacturer Description</th>
-                            <th class="py-2 px-4 border-b ">⚙️ Settings</th>
+                            <th class="py-2 px-4 border-b text-left">Manufacturer Description</th>
+                            <th class="py-2 px-4 border-b" style="width : 9% ; ">⚙️ Settings</th>
 
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($Manufacturers as $Manufacturer):
-                            $Manufacturer_Desc = strlen($Manufacturer['Manufacturer_Desc']) > 10 ? substr($Manufacturer['Manufacturer_Desc'], 0, 150) . "..." : $Manufacturer['Manufacturer_Desc'];
+                            $Manufacturer_Desc = strlen($Manufacturer['Manufacturer_Desc']) > 150 ? substr($Manufacturer['Manufacturer_Desc'], 0, 150) . "..." : $Manufacturer['Manufacturer_Desc'];
 
                             ?>
                             <tr class="border-b hover:bg-gray-100">
                                 <td class="py-2 px-4"><?php echo $Manufacturer['Manufacturer_ID']; ?></td>
                                 <td class="py-2 px-4"><?php echo $Manufacturer['Manufacturer_Name']; ?></td>
-                                <td class="py-2 px-4 limited-text"><?php echo $Manufacturer_Desc; ?></td>
+                                <td class="py-2 px-4 limited-text">
+                                    <?php if (strlen($Manufacturer['Manufacturer_Desc'] > 100)) {
+                                        echo $Manufacturer_Desc;
+                                    } else {
+                                        echo $Manufacturer['Manufacturer_Desc'];
+                                    } ?>
+                                </td>
                                 <td class="py-2 px-4">
-                                    <a href="Manufacturers_Modify.php?id=<?php echo $Manufacturer['Manufacturer_ID']; ?>&Manufacturer_Name=<?php echo $Manufacturer['Manufacturer_Name']; ?>"
-                                        class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm link-spacing">⚙️</a>
                                     <?php if ($Manufacturer['Manufacturer_Name'] !== 'Unspecified') { ?>
+                                        <a href="Manufacturers_Modify.php?id=<?php echo $Manufacturer['Manufacturer_ID']; ?>&Manufacturer_Name=<?php echo $Manufacturer['Manufacturer_Name']; ?>"
+                                            class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm link-spacing">⚙️</a>
+
                                         <a href="Manufacturers_Delete.php?id=<?php echo $Manufacturer['Manufacturer_ID'] ?>"
                                             onclick="return confirm('Are you sure you want to delete this Manufacturer?\n*Disclaimer* : This action is irreversible')"
                                             class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm">🗑️</a>
@@ -254,9 +261,6 @@
             </div>
         </div>
     </div>
-
-
-
 
     <script>
         window.addEventListener('DOMContentLoaded', function () {
@@ -318,7 +322,13 @@
                 var updatedProductSpan = document.getElementById("Manufacturer_Message");
                 updatedProductSpan.classList.add("fade-out");
             }, 2000);
+            setTimeout(function () {
+                var updatedProductSpan = document.getElementById("Manufacturer_Message");
+                updatedProductSpan.classList.add("hidden");
+            }, 2700);
         });
+
+
     </script>
 
 </body>

@@ -1,79 +1,76 @@
 <?php
 
 include_once ("../DB_Connexion.php");
-
-session_start(); 
-
-
+session_start();
 if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 
-    header("Location: ../User/User_SignIn.php");
-    exit; 
+    header("Location: ../.");
+    exit;
 }
 
-
-$userId = $_SESSION['User_ID'];
-$query = "SELECT User_Role, User_Username FROM Users WHERE User_ID = :userId";
+$User_ID = $_SESSION['User_ID'];
+$query = "SELECT User_Role, User_Username , User_FirstName , User_LastName FROM Users WHERE User_ID = :User_ID";
 $pdostmt = $connexion->prepare($query);
-$pdostmt->execute([':userId' => $userId]);
+$pdostmt->execute([':User_ID' => $User_ID]);
 
+if ($User = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
+    $User_Role = $User['User_Role'];
+    $User_Username = $User['User_Username'];
+    $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
 
-
-if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
-    $userRole = $row['User_Role'];
-    $User_Username = $row['User_Username'];
-
-    if ($userRole === 'Owner') {
-        $showUserManagement = true;
-    } else {
-        $showUserManagement = false;
-    }
-
- 
-    if ($userRole !== 'Owner' && $userRole !== 'Admin') {
-
-        header("Location: ../User/User_Unauthorized.html");
+    if ($User_Role == 'Client') {
+        header("Location: ../.");
         exit;
     }
-} ;
+}
+;
 
 if (!empty($_GET["id"])) {
-    $Category_Name = urldecode($_GET["id"]);
+    $Category_ID = $_GET["id"];
 
-    // Check if there are subcategories associated with the main category
-    $querySubcategories = "SELECT SubCategory_ID FROM SubCategories WHERE Category_ID = 
-    (SELECT Category_ID FROM Categories WHERE Category_Name = :Category_Name)";
+
+
+    $Unspecified_Category_ID = "SELECT Category_ID FROM Categories WHERE Category_Name = 'Unspecified'";
+    $pdoUnspecified_Category_ID = $connexion->prepare($Unspecified_Category_ID);
+    $pdoUnspecified_Category_ID->execute();
+    $Unspecified_Category_ID = $pdoUnspecified_Category_ID->fetchColumn();
+
+
+
+    $querySubcategories = "SELECT SubCategory_ID FROM SubCategories WHERE Category_ID = :Unspecified_Category_ID";
     $pdostmtSubcategories = $connexion->prepare($querySubcategories);
-    $pdostmtSubcategories->execute(["Category_Name" => $Category_Name]);
-
-    $subcategories = $pdostmtSubcategories->fetchAll(PDO::FETCH_ASSOC);
+    $pdostmtSubcategories->execute(["Unspecified_Category_ID" => $Unspecified_Category_ID]);
+    $subcategories = $pdostmtSubcategories->fetchColumn();
 
     if (!empty($subcategories)) {
-        // Reassign subcategories to "Unspecified" category
-        $queryUpdateSubcategories = "UPDATE SubCategories SET Category_ID = :unspecifiedCategoryId WHERE Category_ID = 
-        (SELECT Category_ID FROM Categories WHERE Category_Name = :Category_Name)";
+        $queryUpdateSubcategories = "UPDATE SubCategories SET Category_ID = :Unspecified_Category_ID WHERE Category_ID = :Category_ID";
         $pdostmtUpdateSubcategories = $connexion->prepare($queryUpdateSubcategories);
-        $pdostmtUpdateSubcategories->execute(["unspecifiedCategoryId" => $unspecifiedCategoryId, "Category_Name" => $Category_Name]);
+        $pdostmtUpdateSubcategories->execute([
+            'Unspecified_Category_ID' => $Unspecified_Category_ID, 
+            'Category_ID' => $Category_ID
+            ]);
     }
 
-    // Get the ID of the "Unspecified" category
-    $queryUnspecified = "SELECT Category_ID FROM Categories WHERE Category_Name = 'Unspecified'";
-    $pdostmtUnspecified = $connexion->prepare($queryUnspecified);
-    $pdostmtUnspecified->execute();
-    $unspecifiedCategoryId = $pdostmtUnspecified->fetchColumn();
-
-    // Update products with the specified category name to use the "Unspecified" category
-    $updateQuery = "UPDATE Products SET Category_ID = :unspecifiedCategoryId WHERE Category_ID = 
-    (SELECT Category_ID FROM Categories WHERE Category_Name = :Category_Name)";
+    $updateQuery = "UPDATE Products SET Category_ID = :Unspecified_Category_ID WHERE Category_ID = :Category_ID";
     $pdostmtUpdate = $connexion->prepare($updateQuery);
-    $pdostmtUpdate->execute(["unspecifiedCategoryId" => $unspecifiedCategoryId, "Category_Name" => $Category_Name]);
+    $pdostmtUpdate->execute([
+        "Category_ID" => $Category_ID,
+        ":Unspecified_Category_ID" => $Unspecified_Category_ID
+        
+    ]);
 
     // Delete the category
-    $deleteQuery = "DELETE FROM Categories WHERE Category_Name = :Category_Name";
+    $deleteQuery = "DELETE FROM Categories WHERE Category_ID = :Category_ID";
     $pdostmtDelete = $connexion->prepare($deleteQuery);
-    $pdostmtDelete->execute(["Category_Name" => $Category_Name]);
+    $pdostmtDelete->execute(["Category_ID" => $Category_ID]);
 
+    $_SESSION['Category_Delete'] = "Category Deleted Successfully";
     header("Location: Categories_List.php");
+    
+    exit();
+} else {
+    $_SESSION['Category_Delete'] = "Error : Category Could Not Be Deleted";
+    header("Location: ../.");
     exit();
 }
 

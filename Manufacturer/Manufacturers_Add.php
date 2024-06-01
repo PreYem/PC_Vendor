@@ -86,7 +86,7 @@
                 $Error_Message = 'A Manufacturer with that name already exists, try again!';
             }
         } else {
-            $Error_Message = "You must specify a name for the Manufacturer";
+            $Error_Message = "You must Provide a name for the Manufacturer";
         }
     }
     ?>

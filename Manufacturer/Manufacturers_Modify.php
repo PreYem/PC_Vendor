@@ -97,7 +97,7 @@
 
             $pdostmtUpdate->closeCursor();
 
-            $_SESSION['Manufacturer_Update'] = "Manufacturer Updated Successfully" ;
+            $_SESSION['Manufacturer_Add/Update'] = "Manufacturer Updated Successfully" ;
             header("Location: Manufacturers_List.php");
             exit();
 
