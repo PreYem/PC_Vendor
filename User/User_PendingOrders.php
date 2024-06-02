@@ -117,7 +117,19 @@
 
     foreach ($To_Be_Deleted_Orders as $Order_TB) {
 
-        if ($Order_TB['Order_Date'] < $thresholdDateString) {
+
+        // 1 Hour = 60 Minutes
+        // 1 Day = 720 Minutes
+        // 1 Week = 10080 Minutes
+        // 1 Month = 43800 Minutes
+    
+        $orderDate = new DateTime($Order_TB['Order_Date']);
+        $currentDate = new DateTime();
+        $interval = $currentDate->diff($orderDate);
+        $totalMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i - 60;
+
+
+        if ($totalMinutes >= 1) {
             $D_Order_ID = $Order_TB['Order_ID'];
             $Clear_OrderItems = "DELETE FROM OrderItems WHERE Order_ID = $D_Order_ID";
             $pdoClear_OI = $connexion->prepare($Clear_OrderItems);

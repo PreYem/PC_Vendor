@@ -121,44 +121,6 @@
 
     #--------------------------------------------------------------
     
-    $thresholdMinutes = 1;
-    // 1 Hour = 60 Minutes
-    // 1 Day = 720 Minutes
-    // 1 Week = 10080 Minutes
-    // 1 Month = 43800 Minutes
-    
-    #--------------------------------------------------------------
-    
-    $currentDate = new DateTime();
-    $Limit_Minutes = $thresholdMinutes + 60;
-    $currentDate->modify("-$Limit_Minutes minutes");
-    $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
-
-
-    $To_Be_Deleted_Orders = "SELECT Order_ID , Order_Date FROM Orders 
-                             WHERE Order_Status IN ('Cancelled By User', 'Cancelled by Management')";
-    $pdoTo_Be_D = $connexion->prepare($To_Be_Deleted_Orders);
-    $pdoTo_Be_D->execute();
-    $To_Be_Deleted_Orders = $pdoTo_Be_D->fetchAll(PDO::FETCH_ASSOC);
-
-
-    foreach ($To_Be_Deleted_Orders as $Order_TB) {
-
-        if ($Order_TB['Order_Date'] < $thresholdDateString) {
-            $D_Order_ID = $Order_TB['Order_ID'];
-            $Clear_OrderItems = "DELETE FROM OrderItems WHERE Order_ID = $D_Order_ID";
-            $pdoClear_OI = $connexion->prepare($Clear_OrderItems);
-            $pdoClear_OI->execute();
-
-
-            $Clear_Orders = "DELETE FROM Orders WHERE Order_ID = $D_Order_ID";
-            $pdoClear_O = $connexion->prepare($Clear_Orders);
-            $pdoClear_O->execute();
-
-        }
-
-    }
-
 
     ?>
 </head>

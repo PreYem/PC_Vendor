@@ -105,10 +105,7 @@
     
     #--------------------------------------------------------------
     
-    $currentDate = new DateTime();
-    $Limit_Minutes = $thresholdMinutes + 60;
-    $currentDate->modify("-$Limit_Minutes minutes");
-    $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
+
 
 
     $To_Be_Deleted_Orders = "SELECT Order_ID , Order_Date FROM Orders 
@@ -120,7 +117,19 @@
 
     foreach ($To_Be_Deleted_Orders as $Order_TB) {
 
-        if ($Order_TB['Order_Date'] < $thresholdDateString) {
+        // 1 Hour = 60 Minutes
+        // 1 Day = 720 Minutes
+        // 1 Week = 10080 Minutes
+        // 1 Month = 43800 Minutes
+    
+        $orderDate = new DateTime($Order_TB['Order_Date']);
+        $currentDate = new DateTime();
+        $interval = $currentDate->diff($orderDate);
+        $totalMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i - 60;
+
+
+
+        if ($totalMinutes >= 1) {
             $D_Order_ID = $Order_TB['Order_ID'];
             $Clear_OrderItems = "DELETE FROM OrderItems WHERE Order_ID = $D_Order_ID";
             $pdoClear_OI = $connexion->prepare($Clear_OrderItems);
@@ -289,16 +298,36 @@
     <div class="outer-container bg-gray-100 min-h-screen py-8">
         <div class="container mx-auto p-4 bg-white shadow-lg rounded-lg">
             <div class="content-wrapper pt-8">
+                <?php if (isset($_SESSION['Order_Update'])) { ?>
+                    <span class="rounded-full" id="UpdatedProduct"><b><?php echo $_SESSION['Order_Update'];
+                    unset($_SESSION['Order_Update']) ?></b></span>
+                <?php } ?>
+                <?php if (isset($_SESSION['Product_Delete'])) { ?>
+                    <span class="rounded-full bg-red-600" style="background-color : red" id="UpdatedProduct">
+                        <?php echo $_SESSION['Product_Delete'];
+                        unset($_SESSION['Product_Delete']) ?>
+                    </span>
+
+                <?php } ?>
                 <h1 class="text-3xl font-bold mb-6 text-blue-800">Global Orders</h1>
                 <?php if ($Orders) { ?>
                     <section>
                         <?php foreach ($orders as $orderId => $order):
+                            $orderDate = new DateTime($order['Order_Date']);
+
+
+                            $currentDate = new DateTime();
+
+
+                            $interval = $currentDate->diff($orderDate);
+                            $totalMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i - 60;
                             $Date = date('Y-m-d', strtotime($order['Order_Date'])) . ' <b>at</b> ' . date('H:i:s', strtotime($order['Order_Date']));
                             ?>
                             <div class="bg-white shadow-md rounded-lg p-6 mb-6 order-container <?php
-                                echo ($order['Order_Status'] === 'Cancelled by User' || $order['Order_Status'] === 'Cancelled by Management') ? 'bg-red-100' : '';
-                                ?>">
-                                <h4 class="text-lg font-semibold mb-4"><b>Order Number : </b><?php echo $orderId; ?>
+                            echo ($order['Order_Status'] === 'Cancelled by User' || $order['Order_Status'] === 'Cancelled by Management') ? 'bg-red-100' : '';
+                            ?>">
+                                <h4 class="text-lg font-semibold mb-4"><b>Order Number :
+                                    </b><?php echo $orderId; ?>
                                 </h4>
                                 <p class="text-gray-600"><b>Order made on : </b><?php echo $Date; ?></p>
                                 <p class="text-gray-600 mb-4 status-paragraph">Client :
@@ -344,28 +373,36 @@
                                 <p class="text-gray-600"><b>Total Amount :
                                     </b><?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs</p>
 
-                                <?php if ($order['Order_Status'] === 'Pending') { ?>
+
+
+                                <?php if ($order['Order_Status'] !== 'Cancelled by User') { ?>
+                                    <a href="User_Update_Order.php?id=<?php echo $order['Order_ID'] ?>"
+                                        class="inline-block bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">⚙️</a>
+                                <?php } ?>
+
+                                <?php if ($order['Order_Status'] !== 'Cancelled By User') { ?>
 
                                     <a href="User_CancelOrder.php?id=<?php echo $orderId; ?>"
                                         class="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">Cancel
                                         Order</a>
 
-                                <?php }; if ($order['Order_Status'] !== 'Cancelled by Management' && $order['Order_Status'] !== 'Cancelled by User') { ?>
-                                    <a href="User_Update_Order.php?id=<?php echo $order['Order_ID'] ?>"
-                                    class="inline-block bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">⚙️</a>
                                 <?php } ?>
 
 
 
 
-                                
+
+
+
+
                             </div>
 
 
                         <?php endforeach; ?>
                     </section>
                 <?php } else { ?>
-                    <h1 class="text-xl text-gray-700 CC" id="Empty_Cart">There Are No Pending Orders At Moment, <br>Check Again Later.</h1>
+                    <h1 class="text-xl text-gray-700 CC" id="Empty_Cart">There Are No Pending Orders At Moment, <br>Check
+                        Again Later.</h1>
                 <?php } ?>
             </div>
         </div>
@@ -410,11 +447,62 @@
             var navHeight = document.querySelector('nav').offsetHeight;
             document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
         }
+
+        function adjustContentMargin() {
+            var navHeight = document.querySelector('nav').offsetHeight;
+            document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                var updatedProductSpan = document.getElementById("UpdatedProduct");
+                updatedProductSpan.classList.add("fade-out");
+            }, 2000);
+            setTimeout(function () {
+                var updatedProductSpan = document.getElementById("UpdatedProduct");
+                updatedProductSpan.classList.add("hidden");
+            }, 2700);
+        });
     </script>
 </body>
 
 </html>
 <style>
+    #UpdatedProduct {
+        margin-left: 44%;
+        border: round;
+        background-color: Green;
+        padding-bottom: 10%;
+        opacity: 80%;
+        padding: 5px 5px;
+        margin-top: 21%;
+        height: 30px;
+        font-size: 13px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .fade-out {
+        animation: fadeOut 500ms ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+        0% {
+            opacity: 0.8;
+            margin-left: 44%;
+        }
+
+        50% {
+            opacity: 0.6;
+
+        }
+
+        100% {
+            opacity: 0;
+            margin-left: 0%;
+            display: none;
+        }
+    }
+
     .order-details {
         opacity: 0;
         max-height: 0;
