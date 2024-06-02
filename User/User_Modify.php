@@ -189,6 +189,7 @@
 
                     <?php endif; ?>
                 <?php endforeach; ?>
+                <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
             </div>
 
             <!-- User Links -->
@@ -399,7 +400,7 @@
                                     <span
                                         class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">⚠️
                                         Account Status Warning 🔒✔️ :</span><br>
-                                    <span class="text-yellow-800">Unable to Lock Accounts with <b>Owner Level Privilege</b> until their Privilige is downgraded first</span>
+                                    <span class="text-yellow-800">Unable to Lock Accounts with <b>Owner Level Privilege</b> until their Privilige is downgraded first.</span>
                                 </div>
                     <?php } ?>
 

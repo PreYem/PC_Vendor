@@ -277,6 +277,7 @@ if (!empty($_GET["id"])) {
 
                     <?php endif; ?>
                 <?php endforeach; ?>
+                <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
             </div>
 
             <!-- User Links -->
