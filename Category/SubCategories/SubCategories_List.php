@@ -189,13 +189,26 @@
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Manufacturer</a>
                         </div>
-                        <?php if ($User['User_Role'] === 'Owner') { ?>
-                            <div class="space-y-1">
-                                <a href="../../User/User_Management.php"
-                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
-                                    Users Dashboard</a>
+                        <div class="space-y-1">
+                                <?php if ($User['User_Role'] === 'Owner') { ?>
+
+                                    <a href="../../User/User_Management.php"
+                                        class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
+                                        Users Dashboard</a>
+                                <?php } ?>
+                                <a href="../../User/User_GlobalOrders.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
+                                    Pending Orders <?php
+                                    $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
+                                    $pdostmt = $connexion->prepare($Order_Pending);
+                                    $pdostmt->execute();
+
+                                    $Order_Count = $pdostmt->rowCount();
+                                    ?> <span
+                                        style="color : red"><?php if ($Order_Count > 0) {
+                                            echo '(' . $Order_Count . ')';
+                                        } ?></span></a>
                             </div>
-                        <?php } ?>
                     </div>
                 </div>
             <?php } ?>

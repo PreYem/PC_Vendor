@@ -18,6 +18,16 @@
     }
 
     $Visible = 'Visible';
+
+    #--------------------------------------------------------------
+    
+    $thresholdMinutes = 5;
+    // 1 Hour = 60 Minutes
+    // 1 Day = 720 Minutes
+    // 1 Week = 10080 Minutes
+    // 1 Month = 43800 Minutes
+    
+    #--------------------------------------------------------------
     if (isset($_GET['id'])) {
 
         $Target_ID = $_GET['id'];
@@ -93,52 +103,40 @@
             $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $thresholdMinutes = 5; // Important for the age (in minutes) in which products are considered New or not.
-    
+
+
         if (isset($_GET['Status'])) {
 
-            $thresholdMinutes = 5;
-
-            // 1 Hour = 60 Minutes
-            // 1 Day = 720 Minutes
-            // 1 Week = 10080 Minutes
-            // 1 Month = 43800 Minutes
-    
-
             $currentDate = new DateTime();
-
             $Limit_Minutes = $thresholdMinutes + 60;
-
-
             $currentDate->modify("-$Limit_Minutes minutes");
-
             $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
 
             if (isset($_SESSION['User_Role'])) {
 
                 if ($_SESSION['User_Role'] !== 'Client') {
                     $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                    FROM Products WHERE Date_Created > :thresholdDate ORDER BY Product_ID DESC";
+                    FROM Products WHERE Date_Created > :thresholdDateString ORDER BY Product_ID DESC";
 
 
                     $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                    $pdoGeneralProductQuery->bindParam(':thresholdDate', $thresholdDateString);
+                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
                     $pdoGeneralProductQuery->execute();
                     $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
                 } else {
                     $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                    FROM Products WHERE Date_Created > :thresholdDate AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                    FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
                     $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                    $pdoGeneralProductQuery->bindParam(':thresholdDate', $thresholdDateString);
+                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
                     $pdoGeneralProductQuery->execute();
                     $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
                 }
                 ;
             } else {
                 $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                FROM Products WHERE Date_Created > :thresholdDate AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
                 $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->bindParam(':thresholdDate', $thresholdDateString);
+                $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
                 $pdoGeneralProductQuery->execute();
                 $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
             }
@@ -167,16 +165,9 @@
                 $pdoGeneralProductQuery->execute();
                 $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
             }
-
-
-
         }
-
     }
-
-
-
-
+    ;
 
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
@@ -184,21 +175,13 @@
     $pdoCategories->execute();
     $Categories = $pdoCategories->fetchAll(PDO::FETCH_ASSOC);
 
-
-
-
     if (isset($_SESSION['User_ID'])) {
         $Shopping_Cart = "SELECT CartItem_ID FROM ShoppingCart WHERE User_ID = :User_ID";
         $pdostmt_shopping = $connexion->prepare($Shopping_Cart);
         $pdostmt_shopping->execute([':User_ID' => $User_ID]);
         $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
         $Cart_Count = $pdostmt_shopping->rowCount();
-
     }
-
-
-
-
 
     ?>
 </head>
@@ -321,14 +304,28 @@
                                 <a href="Manufacturer/Manufacturers_Add.php"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Manufacturer</a>
+
                             </div>
-                            <?php if ($User['User_Role'] === 'Owner') { ?>
-                                <div class="space-y-1">
+                            <div class="space-y-1">
+                                <?php if ($User['User_Role'] === 'Owner') { ?>
+
                                     <a href="User/User_Management.php"
                                         class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
                                         Users Dashboard</a>
-                                </div>
-                            <?php } ?>
+                                <?php } ?>
+                                <a href="User/User_GlobalOrders.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
+                                    Pending Orders <?php
+                                    $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
+                                    $pdostmt = $connexion->prepare($Order_Pending);
+                                    $pdostmt->execute();
+
+                                    $Order_Count = $pdostmt->rowCount();
+                                    ?> <span
+                                        style="color : red"><?php if ($Order_Count > 0) {
+                                            echo '(' . $Order_Count . ')';
+                                        } ?></span></a>
+                            </div>
                         </div>
                     </div>
                 <?php } ?>
@@ -402,6 +399,10 @@
 
 
                                         <?php if (isset($_SESSION['User_ID']) && $User['User_Role'] !== 'Client') { ?>
+                                            <div class="text-gray-700 font-semibold text-sm italic">Current threshold :
+                                                <?php echo $thresholdMinutes . ' minutes.' ?>
+                                            </div>
+
                                             <div class="text-gray-700 font-semibold text-sm italic">Created:
                                                 <?php echo $Date_Created . ' <br> ' . $Product_Age_Minute . ' Minutes old.' ?>
                                             </div>

@@ -80,12 +80,12 @@ if (!empty($_GET["id"])) {
             ':User_ID' => $User_ID,
             ':Product_ID' => $Product_ID
         ]);
-        echo "2";
+
     }
      header("Location: ../index.php");
     
      exit;
     
 } else {
-    echo "Error";
+   
 }
