@@ -8,7 +8,7 @@
     <link href="../output.css" rel="stylesheet">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
 
-    <title>List of Products</title>
+    <title>List of Products (Old)</title>
     <?php
 
 
