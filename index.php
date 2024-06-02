@@ -321,10 +321,9 @@
                                     $pdostmt->execute();
 
                                     $Order_Count = $pdostmt->rowCount();
-                                    ?> <span
-                                        style="color : red"><?php if ($Order_Count > 0) {
-                                            echo '(' . $Order_Count . ')';
-                                        } ?></span></a>
+                                    ?> <span style="color : red"><?php if ($Order_Count > 0) {
+                                         echo '(' . $Order_Count . ')';
+                                     } ?></span></a>
                             </div>
                         </div>
                     </div>
@@ -393,9 +392,18 @@
                                         <h2 class="product-name font-bold text-base mb-1">
                                             <?php echo $Product['Product_Name']; ?>
                                         </h2>
-                                        <p class="text-gray-700 mb-1"><?php echo formatNumber($Product['Selling_Price']); ?> Dhs
+                                        <p class="text-blue-500 mb-1 font-bold"><?php echo formatNumber($Product['Selling_Price']); ?> Dhs
                                         </p>
-                                        <p class="text-gray-700 mb-1">In Stock (<?php echo $Product['Product_Quantity']; ?>)</p>
+                                        <p class="text-gray-700 mb-1">
+                                            <?php if ($Product['Product_Quantity'] > 0) { ?>
+                                                <span
+                                                    class="text-green-500 font-bold"><?php echo '(' . $Product['Product_Quantity'] . ')'; ?></span>
+                                                In Stock
+                                            <?php } else { ?>
+                                                <span class="text-red-500 font-bold">Out of stock</span>
+                                            <?php } ?>
+                                        </p>
+
 
 
                                         <?php if (isset($_SESSION['User_ID']) && $User['User_Role'] !== 'Client') { ?>

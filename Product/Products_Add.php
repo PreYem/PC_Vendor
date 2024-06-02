@@ -317,7 +317,7 @@
                                 New Manufacturer</a>
                         </div>
                         <div class="space-y-1">
-                            <?php if ($User['User_Role'] === 'Owner') { ?>
+                            <?php if ($showUserManagement) { ?>
 
                                 <a href="../User/User_Management.php"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
