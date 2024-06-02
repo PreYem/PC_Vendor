@@ -216,7 +216,7 @@
                         <div class="space-y-1">
                             <a href="../../Product/Products_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Product List</a>
+                                Product List (Old)</a>
                             <a href="../../Product/Products_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Product</a>
@@ -312,7 +312,7 @@
                     <button type="submit"
                         class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block">Save
                         Changes</button>
-                    <a href="SubCategories_List.php"
+                    <a href="Categories_List.php"
                         class="ml-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Close</a>
                 </div>
                 <?php if (!empty($Error_Message)): ?>

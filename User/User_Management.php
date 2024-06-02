@@ -48,8 +48,9 @@
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
-    $Users = "SELECT User_ID, User_Username , User_FirstName, User_LastName, User_Phone , User_Country , User_Address , User_Email , User_RegisterationDate ,  User_Role 
-              FROM Users";
+    $Users = "SELECT User_ID, User_Username , User_FirstName, User_LastName, User_Phone , User_Country , User_Address , 
+                     User_Email , User_RegisterationDate ,  User_Role , Account_Status 
+                     FROM Users";
     $pdoUsers = $connexion->prepare($Users);
     $pdoUsers->execute();
     $Users = $pdoUsers->fetchall(PDO::FETCH_ASSOC);
@@ -149,7 +150,7 @@
                         <div class="space-y-1">
                             <a href="../Product/Products_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Product List</a>
+                                Product List (Old)</a>
                             <a href="../Product/Products_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Product</a>
@@ -192,74 +193,93 @@
     </nav>
 
 
+    <div id="BigContainer">
+        <div class="container mx-auto p-6">
+            <div class="content-wrapper">
+                <h1 class="text-xl font-semibold mb-4">Currently Registered Accounts :</h1>
+                <?php if (isset($_SESSION['User_Add/Update'])) { ?>
+                    <span class="rounded-full" id="User_Message"><?php echo $_SESSION['User_Add/Update'];
+                    unset($_SESSION['User_Add/Update']) ?></span>
+                <?php } ?>
+                <?php if (isset($_SESSION['User_Delete'])) { ?>
+                    <span class="rounded-full bg-red-600" style="background-color : red" id="User_Message">
+                        <?php echo $_SESSION['User_Delete'];
+                        unset($_SESSION['User_Delete']) ?>
+                    </span>
 
-    <div class="container mx-auto p-6">
-        <div class="content-wrapper">
-            <h1 class="text-xl font-semibold mb-4">Currently Registered Accounts :</h1>
+                <?php } ?>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border border-gray-200">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(0)">ID <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(1)">Username <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(2)">Full Name <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b">Phone</th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(4)">Country <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(5)">Address <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b" onclick="sortTable(6)">Email <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(7)">Registration Date <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b " onclick="sortTable(8)">Role <span
-                                    class="cursor-pointer">🠻</span></th>
-                            <th class="py-2 px-4 border-b">⚙️ Settings</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($Users as $User):
-                            $User_FullName = $User['User_LastName'] . ' ' . $User['User_FirstName'];
-                            $Registration_Date = date('Y-m-d', strtotime($User["User_RegisterationDate"])) . '<b> at </b>' . date('H:i:s', strtotime($User["User_RegisterationDate"]));
-                            if ($User['User_Role'] === 'Owner') {
-                                $User_Role_Level = '1 - ' . $User['User_Role'];
-                            } elseif ($User['User_Role'] === 'Admin') {
-                                $User_Role_Level = '2 - ' . $User['User_Role'];
-                            } else {
-                                $User_Role_Level = '3 - ' . $User['User_Role'];
-                            }
-                            ?>
-                            <tr class="border-b hover:bg-gray-100">
-                                <td class="py-2 px-4"><?php echo $User['User_ID']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Username']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User_FullName; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Phone']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Country']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Address']; ?></td>
-                                <td class="py-2 px-4"><?php echo $User['User_Email']; ?></td>
-                                <td class="py-2 px-4"><?php echo $Registration_Date; ?></td>
-                                <td class="py-2 px-4"><?php echo $User_Role_Level; ?></td>
-                                <td class="py-2 px-4">
-                                    <a href="User_Modify.php?id=<?php echo $User['User_ID'] ?>&FullName=<?php echo urlencode($User_FullName); ?>"
-                                        class="text-blue-500 hover:underline">⚙️</a>
-                                    <?php if ($User['User_Role'] !== 'Owner') { ?>
-                                        <a href="User_Delete.php?id=<?php echo $User['User_ID'] ?>"
-                                            onclick="return confirm('Are you sure you want to delete this user account?\n*Disclaimer* : This action is irreversible')"
-                                            class="text-red-500 hover:underline ml-4">Delete</a>
-                                    <?php } ?>
-                                </td>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(0)">ID <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(1)">Username <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(2)">Full Name <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b">Phone</th>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(4)">Country <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(5)">Address <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b" onclick="sortTable(6)">Email <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(7)">Registration Date <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(8)">Role <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b " onclick="sortTable(9)">Status <span
+                                        class="cursor-pointer">🠻</span></th>
+                                <th class="py-2 px-4 border-b">⚙️ Settings</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($Users as $User):
+                                $User_FullName = $User['User_LastName'] . ' ' . $User['User_FirstName'];
+                                $Registration_Date = date('Y-m-d', strtotime($User["User_RegisterationDate"])) . '<b> at </b>' . date('H:i:s', strtotime($User["User_RegisterationDate"]));
+                                if ($User['User_Role'] === 'Owner') {
+                                    $User_Role_Level = '1 - ' . $User['User_Role'];
+                                } elseif ($User['User_Role'] === 'Admin') {
+                                    $User_Role_Level = '2 - ' . $User['User_Role'];
+                                } else {
+                                    $User_Role_Level = '3 - ' . $User['User_Role'];
+                                }
+                                ?>
+                                <tr class="border-b hover:bg-gray-100">
+                                    <td class="py-2 px-4"><?php echo $User['User_ID']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $User['User_Username']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $User_FullName; ?></td>
+                                    <td class="py-2 px-4"><?php echo $User['User_Phone']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $User['User_Country']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $User['User_Address']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $User['User_Email']; ?></td>
+                                    <td class="py-2 px-4"><?php echo $Registration_Date; ?></td>
+                                    <td class="py-2 px-4"><?php echo $User_Role_Level; ?></td>
+                                    <td class="py-2 px-4"><?php if ($User['Account_Status'] === '🔒 Locked') { ?>🔒
+                                        <?php } else { ?>✔️<?php }
+                                    ; ?>
+                                    </td>
+                                    <td class="py-2 px-4">
+                                        <a href="User_Modify.php?id=<?php echo $User['User_ID'] ?>&FullName=<?php echo urlencode($User_FullName); ?>"
+                                            class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm link-spacing">⚙️</a>
+                                        <?php if ($User['User_Role'] !== 'Owner') { ?>
+                                            <a href="User_Delete.php?id=<?php echo $User['User_ID'] ?>"
+                                                onclick="return confirm('Are you sure you want to delete this user account?\n*Disclaimer* : This action is irreversible')"
+                                                class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm">🗑️</a>
+                                        <?php } ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
 
+            </div>
         </div>
     </div>
+
 
     <script>
         function sortTable(columnIndex) {
@@ -315,12 +335,72 @@
             var navHeight = document.querySelector('nav').offsetHeight;
             document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                var updatedProductSpans = document.querySelectorAll("#User_Message");
+                updatedProductSpans.forEach(function (span) {
+                    span.classList.add("fade-out");
+                });
+            }, 2000);
+
+
+            setTimeout(function () {
+                var updatedProductSpans = document.querySelectorAll("#User_Message");
+                updatedProductSpans.forEach(function (span) {
+                    span.classList.add("hidden");
+                });
+            }, 2700);
+        });
     </script>
 
 </body>
 
 </html>
 <style>
+
+
+    #User_Message {
+        margin-left: 44%;
+        border: round;
+        background-color: Green;
+        padding-bottom: 10%;
+        opacity: 70%;
+        padding: 5px 5px;
+        margin-top: 21%;
+        height: 30px;
+        font-size: 13px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .fade-out {
+        animation: fadeOut 500ms ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+        0% {
+            opacity: 0.8;
+            margin-left: 44%;
+        }
+
+        50% {
+            opacity: 0.6;
+
+        }
+
+        100% {
+            opacity: 0;
+            margin-left: 0%;
+            display: none;
+        }
+    }
+
+
+    #BigContainer {
+        position: absolute;
+        width : 100%;
+        margin-left: -5%;
+    }
     .visibility-status {
         background-color: #EF4444;
         /* Red background */
@@ -375,10 +455,7 @@
         background-color: #e4e8f3;
     }
 
-    .content-wrapper {
-        padding-top: auto;
 
-    }
 
     .card {
         border-radius: 8px;
@@ -420,6 +497,8 @@
         margin-top: 0;
         padding-top: 10px;
 
-        overflow-y: auto;
+        width: 110%;
+
+
     }
 </style>

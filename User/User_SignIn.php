@@ -53,13 +53,20 @@
 
         if ($User && password_verify($password, $User['User_Password'])) {
 
-            $_SESSION['User_ID'] = $User['User_ID'];
-            $_SESSION['User_Username'] = $User['User_Username'];
-            $_SESSION['User_Role'] = $User['User_Role'];
+            if ($User['Account_Status'] !== '🔒 Locked') {
+                $_SESSION['User_ID'] = $User['User_ID'];
+                $_SESSION['User_Username'] = $User['User_Username'];
+                $_SESSION['User_Role'] = $User['User_Role'];
+
+                $_SESSION['Product_Add/Update'] = "Welcome Back " . $User['User_FirstName'];
+                header("Location: ../.");
+                exit;
+
+            } else {
+                $loginError = "Login Failed, Account is locked.";
+            }
 
 
-            header("Location: ../index.php");
-            exit;
         } else {
 
             $loginError = "Invalid username or password.";

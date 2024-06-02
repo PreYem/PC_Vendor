@@ -322,7 +322,7 @@ if (!empty($_GET["id"])) {
                         <div class="space-y-1">
                             <a href="../Product/Products_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Product List</a>
+                                Product List (Old)</a>
                             <a href="../Product/Products_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Product</a>
