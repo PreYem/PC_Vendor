@@ -105,7 +105,7 @@
             <a href=".././"><img src="../Logo.png" alt="Logo" id="Logo"></a>
 
             <!-- Category Links -->
-            <div class="flex flex-wrap space-x-4">
+            <div class="flex grid-cols-4 gap-1">
                 <?php foreach ($Categories as $Category): ?>
                     <?php if ($Category['Category_Name'] !== 'Unspecified'):
                         ?>
@@ -360,7 +360,7 @@
         z-index: 1000;
 
         margin-bottom: auto;
-        opacity: 95%;
+        opacity: 99%;
     }
 
     body {

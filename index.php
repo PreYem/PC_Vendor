@@ -215,9 +215,6 @@
             <!-- Category Links -->
             <div class="flex grid-cols-4 gap-1">
 
-
-
-
                 <?php foreach ($Categories as $Category): ?>
                     <?php if ($Category['Category_Name'] !== 'Unspecified'):
                         ?>
@@ -406,7 +403,7 @@
 
                                         <?php if (isset($_SESSION['User_ID']) && $User['User_Role'] !== 'Client') { ?>
                                             <div class="text-gray-700 font-semibold text-sm italic">Created:
-                                                <?php echo $Date_Created . ' - ' . $Product_Age_Minute ?>
+                                                <?php echo $Date_Created . ' <br> ' . $Product_Age_Minute . ' Minutes old.' ?>
                                             </div>
                                             <div class="flex justify-between items-center space-x-2">
                                                 <?php if ($Visibility === '') { ?>
