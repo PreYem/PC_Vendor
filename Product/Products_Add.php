@@ -160,8 +160,6 @@
                     'Date_Created' => $detailedDateTimeForDB
                 ]);
 
-                // Display the date with the "at" text in the desired format on the webpage
-                echo "Date Created: " . $detailedDateTimeForDisplay;
 
 
 
@@ -192,7 +190,9 @@
                     }
                 }
 
-                header("Location: ../index.php");
+                $_SESSION['Product_Add/Update'] = "Product Added Successfully";
+
+                header("Location: ../.");
             } else {
                 $Error_Message = 'A Product with that name already exists, try again!';
             }
@@ -211,7 +211,7 @@
             <a href="../"><img src="../Logo.png" alt="Logo" id="Logo"></a>
 
 
-            <div class="flex flex-wrap space-x-4">
+            <div class="flex grid-cols-4 gap-1">
                 <?php foreach ($Categories as $Category): ?>
                     <?php if ($Category['Category_Name'] !== 'Unspecified'):
                         ?>
@@ -241,6 +241,7 @@
 
                     <?php endif; ?>
                 <?php endforeach; ?>
+                <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
             </div>
 
 
@@ -261,7 +262,8 @@
                             (<?php echo $Cart_Count ?>)
                         <?php } ?>
                     </a>
-                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium" href="#">Currently
+                    <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                        href="../User/User_Modify.php?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
                         Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 
@@ -285,7 +287,7 @@
                         <div class="space-y-1">
                             <a href="../Product/Products_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Product List</a>
+                                Product List (Old)</a>
                             <a href="../Product/Products_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Product</a>
@@ -314,13 +316,25 @@
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Manufacturer</a>
                         </div>
-                        <?php if ($row['User_Role'] === 'Owner') { ?>
-                            <div class="space-y-1">
+                        <div class="space-y-1">
+                            <?php if ($User['User_Role'] === 'Owner') { ?>
+
                                 <a href="../User/User_Management.php"
-                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑Users
-                                    Dashboard</a>
-                            </div>
-                        <?php } ?>
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
+                                    Users Dashboard</a>
+                            <?php } ?>
+                            <a href="../User/User_GlobalOrders.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
+                                Pending Orders <?php
+                                $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
+                                $pdostmt = $connexion->prepare($Order_Pending);
+                                $pdostmt->execute();
+
+                                $Order_Count = $pdostmt->rowCount();
+                                ?> <span style="color : red"><?php if ($Order_Count > 0) {
+                                     echo '(' . $Order_Count . ')';
+                                 } ?></span></a>
+                        </div>
                     </div>
                 </div>
             <?php } ?>
@@ -392,21 +406,20 @@
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label for="Buying_Price" class="block text-sm font-medium text-gray-700">Buying
-                                Price:</label>
-                            <input type="number" name="Buying_Price" placeholder="In Dhs" value="0" required
+                            <label for="Buying_Price" class="block text-sm font-medium text-gray-700">Buying Price:</label>
+                            <input type="number" name="Buying_Price" placeholder="In Dhs" value="1" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
                         <div class="mb-4">
                             <label for="Selling_Price" class="block text-sm font-medium text-gray-700">Selling
                                 Price:</label>
-                            <input type="number" name="Selling_Price" placeholder="In Dhs" value="0" required
+                            <input type="number" name="Selling_Price" placeholder="In Dhs" value="1" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
                         <div class="mb-4">
                             <label for="Product_Quantity"
                                 class="block text-sm font-medium text-gray-700">Quantity:</label>
-                            <input type="number" name="Product_Quantity" placeholder="How many in stock" value="0"
+                            <input type="number" name="Product_Quantity" placeholder="How many in stock" value="1"
                                 required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
@@ -548,7 +561,7 @@
         z-index: 1000;
 
         margin-bottom: auto;
-        opacity: 95%;
+        opacity: 99%;
     }
 
     body {

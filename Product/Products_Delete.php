@@ -46,12 +46,13 @@ if (!empty($_GET["id"])) {
     $pdostmtDeleteProduct = $connexion->prepare($queryDeleteProduct);
     $pdostmtDeleteProduct->execute(["productId" => $productId]);
 
-    // Redirect back to the product list page
-    header("Location: ../index.php");
+
+    $_SESSION['Product_Delete'] = "Product Deleted Successfully";
+    header("Location: ../.");
     exit();
 } else {
-    // If no product ID is provided, redirect back to the product list page
-    echo "Error";
+
+    $_SESSION['Product_Delete'] = "Product Could not be deleted";
 }
 
 

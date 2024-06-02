@@ -11,9 +11,9 @@ session_start();
 #ABC
 
 if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
-    // User is not logged in, redirect to login page
-    header("Location: ../User/User_SignIn.php");
-    exit; // Ensure script stops after redirection
+
+    header("Location: ../.");
+    exit; 
 }
 
 $User_ID = $_SESSION['User_ID'];
@@ -27,7 +27,7 @@ if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
 
     if ($userRole !== 'Owner' && $userRole !== 'Admin' && $userRole !== 'Client') {
 
-        header("Location: ../User/User_Unauthorized.html");
+        header("Location: ../.");
         exit;
     }
 }
@@ -82,16 +82,12 @@ if (!empty($_GET["id"])) {
             ':User_ID' => $User_ID,
             ':Product_ID' => $Product_ID
         ]);
-        echo "2";
 
     }
-
-
-    
      header("Location: ../index.php");
     
      exit;
     
 } else {
-    echo "Error";
+   
 }

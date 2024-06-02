@@ -25,27 +25,38 @@ if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
         header("Location: ../User/User_Unauthorized.html");
         exit;
     }
-} ;
+}
+;
 
 
 
 if (!empty($_GET['id'])) {
 
     $User_ID = $_SESSION['User_ID'];
+    $Order_ID = $_GET['id'];
 
-    $Order_ID = $_GET['id'] ;
+    $Who_Cancelled_ID = "SELECT User_ID From Orders WHERE Order_ID  = $Order_ID ";
+    $pdostmt = $connexion->prepare($Who_Cancelled_ID);
+    $pdostmt->execute();
+    $Who_Cancelled_ID = $pdostmt->fetch(PDO::FETCH_ASSOC);
 
-    $Order_Status = 'Cancelled by User' ;
+    if ($Who_Cancelled_ID['User_ID'] == $User_ID) {
+        $Cancel_Order = "UPDATE Orders SET Order_Status = 'Cancelled by User' WHERE Order_ID = $Order_ID AND User_ID = :Who_Cancelled_ID";
+        $pdostmt = $connexion->prepare($Cancel_Order); 
+        $pdostmt->execute(['Who_Cancelled_ID' => $Who_Cancelled_ID['User_ID']]);
+    
+        header("Location: User_PendingOrders.php");
+        
 
-    $Cancel_Order = "UPDATE Orders SET Order_Status = :Order_Status WHERE Order_ID = :Order_ID AND User_ID = :User_ID" ;
-    $pdostmt = $connexion->prepare($Cancel_Order); // Prepare the SQL statement
-    $pdostmt->execute([
-        ':Order_Status' => $Order_Status,
-        ':Order_ID' => $Order_ID,
-        ':User_ID' => $User_ID
-    ]);
+    } else {
+        $Cancel_Order = "UPDATE Orders SET Order_Status = 'Cancelled by Management' WHERE Order_ID = $Order_ID AND User_ID = :Who_Cancelled_ID";
+        $pdostmt = $connexion->prepare($Cancel_Order); 
+        $pdostmt->execute(['Who_Cancelled_ID' => $Who_Cancelled_ID['User_ID']]);
+    
+        header("Location: User_GlobalOrders.php");
+    }
 
-    header("Location: User_OrderStatus.php");
+
 
 
 }

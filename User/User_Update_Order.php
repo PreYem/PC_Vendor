@@ -5,18 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
-    <title>Shopping Cart 🛒 | PC Vendor</title>
-
-
+    <title>Your Order 📦 | PC Vendor</title>
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
 
     <?php
-
     include_once ("../DB_Connexion.php");
     session_start();
+
+
+
     if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 
-        header("Location: ../User/User_SignIn.php");
+        header("Location: ../.");
         exit;
     }
 
@@ -25,20 +25,13 @@
     $pdostmt = $connexion->prepare($query);
     $pdostmt->execute([':User_ID' => $User_ID]);
 
-    if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
-        $User_Role = $row['User_Role'];
-        $User_Username = $row['User_Username'];
-        $User_FullName = $row['User_FirstName'] . ' ' . $row['User_LastName'];
+    if ($User = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
+        $User_Role = $User['User_Role'];
+        $User_Username = $User['User_Username'];
+        $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
 
-        if ($User_Role === 'Owner') {
-            $showUserManagement = true;
-        } else {
-            $showUserManagement = false;
-        }
-
-
-        if ($User_Role !== 'Owner' && $User_Role !== 'Admin' && $User_Role !== 'Client') {
-            header("Location: ../User/User_Unauthorized.html");
+        if ($User_Role === 'Client') {
+            header("Location: ../.");
             exit;
         }
     }
@@ -47,56 +40,6 @@
     function formatNumber($number)
     {
         return number_format($number, 0, '', ' ');
-    }
-
-    $Visible = 'Visible';
-    if (isset($_GET['id'])) {
-
-        $Target_ID = $_GET['id'];
-        $Target_Type = $_GET['Type']; // 'Category' or 'SubCategory'
-    
-        if (isset($_SESSION['User_ID'])) {
-            $User_ID = $_SESSION['User_ID'];
-            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
-            $pdoUsers = $connexion->prepare($Users);
-            $pdoUsers->execute([':User_ID' => $User_ID]);
-            $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-            $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
-            $User_Role = $User['User_Role'];
-        } else {
-            $User_Role = 'Client';
-        }
-
-        if ($Target_Type === 'Category') {
-            $condition = "Category_ID = :Target_ID";
-            $Target_Category_Name = "SELECT Category_Name FROM Categories WHERE $condition";
-            $pdoTarget_Category_Name = $connexion->prepare($Target_Category_Name);
-            $pdoTarget_Category_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_Category_Name->fetchColumn();
-
-        } elseif ($Target_Type === 'SubCategory') {
-            $condition = "SubCategory_ID = :Target_ID";
-            $Target_SubCategory_Name = "SELECT SubCategory_Name FROM SubCategories WHERE $condition";
-            $pdoTarget_SubCategory_Name = $connexion->prepare($Target_SubCategory_Name);
-            $pdoTarget_SubCategory_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_SubCategory_Name->fetchColumn();
-
-        }
-
-
-    } else {
-        if (isset($_SESSION['User_ID'])) {
-            $User_ID = $_SESSION['User_ID'];
-            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
-            $pdoUsers = $connexion->prepare($Users);
-            $pdoUsers->execute([':User_ID' => $User_ID]);
-            $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-            $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
-            $User_Role = $User['User_Role'];
-
-            
-            
-        } 
     }
 
 
@@ -113,65 +56,71 @@
         $pdostmt_shopping->execute([':User_ID' => $User_ID]);
         $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
         $Cart_Count = $pdostmt_shopping->rowCount();
-    };
+    }
+    ;
 
-    $Shopping_Query = " SELECT sc.CartItem_ID, sc.Product_ID, sc.Quantity, p.Product_Name, p.Selling_Price, p.Product_Picture
-                        FROM ShoppingCart sc
-                        JOIN Products p ON sc.Product_ID = p.Product_ID
-                        WHERE sc.User_ID = :User_ID";
-    $pdostmt = $connexion->prepare($Shopping_Query);
-    $pdostmt->execute([':User_ID' => $User_ID]);
-    $Shopping_Cart = $pdostmt->fetchAll(PDO::FETCH_ASSOC);
+    $Current_User = $_SESSION['User_ID'];
 
-    $totalAmount = 0;
+    if (isset($_GET['id'])) {
+        $Order_ID = $_GET['id'];
+        $bigQuery = "SELECT p.Product_ID, p.Product_Name, p.Product_Picture, o.Order_ID, o.Order_Date, o.Order_TotalAmount, o.Order_Status, 
+                    oi.OrderItem_Quantity, oi.OrderItem_UnitPrice, o.Order_ShippingAddress, o.Order_PaymentMethod, o.Order_PhoneNumber, o.Order_Notes,
+                    u.User_ID , u.User_Username, u.User_FirstName , u.User_LastName
+                 FROM Orders o
+                 INNER JOIN OrderItems oi ON o.Order_ID = oi.Order_ID
+                 INNER JOIN Products p ON oi.Product_ID = p.Product_ID
+                 INNER JOIN Users u ON o.User_ID = u.User_ID
+                WHERE o.Order_ID = $Order_ID ";
 
-    $totalAmount = 0;
-    foreach ($Shopping_Cart as $item):
-        $totalAmount += $item['Selling_Price'] * $item['Quantity'];
-    endforeach;
-    if (!empty($_POST)) {
-        $Order_Insert = " INSERT INTO Orders (User_ID, Order_TotalAmount, Order_ShippingAddress, Order_PaymentMethod, Order_PhoneNumber, Order_Notes) 
-                          VALUES (:User_ID, :Order_TotalAmount, :Order_ShippingAddress, :Order_PaymentMethod, :Order_PhoneNumber, :Order_Notes)";
+        $pdostmt = $connexion->prepare($bigQuery);
+        $pdostmt->execute([]);
+        $Orders = $pdostmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $pdostmt = $connexion->prepare($Order_Insert);
-        $pdostmt->execute([
-            ':User_ID' => $User_ID,
-            ':Order_TotalAmount' => $totalAmount,
-            ':Order_ShippingAddress' => $_POST['Order_ShippingAddress'],
-            ':Order_PaymentMethod' => $_POST['Order_PaymentMethod'],
-            ':Order_PhoneNumber' => $_POST['Order_PhoneNumber'],
-            ':Order_Notes' => $_POST['Order_Notes']
-        ]);
 
-        $orderID = $connexion->lastInsertId();
+        // Group the Orders by Order_ID
+        $orders = [];
+        foreach ($Orders as $Order) {
+            $orders[$Order['Order_ID']]['Order_Date'] = $Order['Order_Date'];
+            $orders[$Order['Order_ID']]['Order_TotalAmount'] = $Order['Order_TotalAmount'];
+            $orders[$Order['Order_ID']]['Order_Status'] = $Order['Order_Status'];
+            $orders[$Order['Order_ID']]['User_ID'] = $Order['User_ID'];
+            $orders[$Order['Order_ID']]['User_FirstName'] = $Order['User_FirstName'];
+            $orders[$Order['Order_ID']]['User_LastName'] = $Order['User_LastName'];
+            $orders[$Order['Order_ID']]['User_Username'] = $Order['User_Username'];
+            $orders[$Order['Order_ID']]['Order_ShippingAddress'] = $Order['Order_ShippingAddress'];
+            $orders[$Order['Order_ID']]['Order_PaymentMethod'] = $Order['Order_PaymentMethod'];
+            $orders[$Order['Order_ID']]['Order_PhoneNumber'] = $Order['Order_PhoneNumber'];
+            $orders[$Order['Order_ID']]['Order_Notes'] = $Order['Order_Notes'];
 
-        $orderItemInsertQuery = " INSERT INTO OrderItems (OrderItem_Quantity , OrderItem_UnitPrice , Order_ID , Product_ID)
-                                  VALUES (:OrderItem_Quantity , :OrderItem_UnitPrice , :Order_ID , :Product_ID)";
 
-        $pdostmt = $connexion->prepare($orderItemInsertQuery);
-
-        foreach ($Shopping_Cart as $item) {
-            $pdostmt->execute([
-                ':Order_ID' => $orderID,
-                ':Product_ID' => $item['Product_ID'],
-                ':OrderItem_Quantity' => $item['Quantity'],
-                ':OrderItem_UnitPrice' => $item['Selling_Price']
-            ]);
+            $orders[$Order['Order_ID']]['Products'][] = [
+                'Product_Name' => $Order['Product_Name'],
+                'Product_Picture' => $Order['Product_Picture'],
+                'OrderItem_Quantity' => $Order['OrderItem_Quantity'],
+                'OrderItem_UnitPrice' => $Order['OrderItem_UnitPrice']
+            ];
         }
 
-        $removeAllFromCart = "DELETE FROM ShoppingCart WHERE User_ID = :User_ID";
-        $pdostmt = $connexion->prepare($removeAllFromCart);
-        $pdostmt->execute([':User_ID' => $User_ID]);
-        header("Location: User_PendingOrders.php");
-    }
+        if (isset($_POST['Order_Status'])) {
+            $Order_Status = $_POST['Order_Status'];
+
+            $Update_Status = "UPDATE Orders SET Order_Status = '$Order_Status' WHERE Order_ID = $Order_ID";
+            $pdostmt = $connexion->prepare($Update_Status);
+            $pdostmt->execute();
+
+            $_SESSION['Order_Update'] = "Order number : (" . $Order_ID . ") Has been updated to " . $Order_Status;
+
+            header("Location: User_GlobalOrders.php");
+            exit;
+
+        }
 
 
-    $Order_Pending = "SELECT Order_ID FROM Orders WHERE User_ID = :User_ID AND Order_Status != 'Cancelled by User' ";
-    $pdostmt = $connexion->prepare($Order_Pending);
-    $pdostmt->execute([':User_ID' => $User_ID]);
+    } 
 
-    $Order_Count = $pdostmt->rowCount();
 
+    #--------------------------------------------------------------
+    
 
     ?>
 </head>
@@ -202,7 +151,7 @@
                             <a href="../?id=<?php echo $Category['Category_ID'] ?>&Type=Category&Name=<?php echo str_replace(' ', '', $Category['Category_Name']) ?>"
                                 class="px-3 py-2 hover:bg-gray-700"><?php echo $Category['Category_Name']; ?></a>
                             <?php if (!empty($SubCategories)): ?>
-                                <div class="category-dropdown absolute top-full left-0 mt-1 bg-gray-800 rounded shadow-md p-2 hidden"
+                                <div class="category-dropdown absolute top-full left-0 mt-1 bg-gray-800 rounded shadow-md p-2"
                                     style="min-width: 200px;">
                                     <?php foreach ($SubCategories as $SubCategory): ?>
                                         <?php if ($SubCategory['SubCategory_Name'] !== 'Unspecified'): ?>
@@ -320,122 +269,123 @@
     <div class="outer-container bg-gray-100 min-h-screen py-8">
         <div class="container mx-auto p-4 bg-white shadow-lg rounded-lg">
             <div class="content-wrapper pt-8">
-                <h1 class="text-3xl font-bold mb-6 text-blue-800">Your Shopping Cart</h1>
-                <a href="User_PendingOrders.php" class="text-blue-600 hover:underline mb-4 inline-block">Pending Orders <?php if ($Order_Count) { echo  '(' . $Order_Count . ')'; } ?></a>
 
-                <?php if ($Shopping_Cart) { ?>
-                    <section class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-300 rounded-lg">
-                            <thead>
-                                <tr class="bg-gray-200 text-left">
-                                    <th class="px-6 py-3">Product</th>
-                                    <th class="px-6 py-3">Price per Unit</th>
-                                    <th class="px-6 py-3">Quantity</th>
-                                    <th class="px-6 py-3">Picture</th>
-                                    <th class="px-6 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($Shopping_Cart as $item): ?>
-                                    <tr class="hover:bg-gray-100">
-                                        <td class="px-6 py-4"><?php echo $item['Product_Name']; ?></td>
-                                        <td class="px-6 py-4"><?php echo formatNumber($item['Selling_Price']); ?> Dhs</td>
-                                        <td class="px-6 py-4"><b><?php echo $item['Quantity']; ?></b></td>
-                                        <td class="px-6 py-4">
-                                            <img src="../Product/<?php echo $item['Product_Picture']; ?>" alt="Product Image"
-                                                class="h-20 w-20 object-cover rounded-lg">
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <a href="User_Delete_Item_ShoppingCart.php?id=<?php echo $item["CartItem_ID"]; ?>"
-                                                class="text-red-600 hover:underline"><box-icon type='solid' color="#dd0d1e" name='trash-alt'></box-icon></a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                            <tfoot>
-                                <tr class="bg-gray-200">
-                                    <td class="px-6 py-4" colspan="4">Total Amount:</td>
-                                    <td class="px-6 py-4 font-bold"><?php echo formatNumber($totalAmount); ?> Dhs</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                        <div class="mt-6 flex space-x-4">
-                            <?php if (!empty($Shopping_Cart)): ?>
-                                <button id="orderNowBtn"
-                                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Order
-                                    Now</button>
-                                <a href="User_Delete_Item_ShoppingCart.php?id=clearAllCart"
-                                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">Clear
-                                    Cart</a>
-                            <?php endif; ?>
-                        </div>
-                        <section id="orderForm" class="hidden-form mt-6 bg-white rounded-lg shadow-md p-6">
-                            <form action="" method="POST">
-                                <div class="mb-4">
-                                    <label for="Order_ShippingAddress" class="block text-gray-700 font-bold mb-2">Shipping
-                                        Address</label>
-                                    <textarea name="Order_ShippingAddress"
-                                        class="border border-gray-300 p-3 w-full rounded-lg"
-                                        placeholder="Address where you'd like your items delivered" required></textarea>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="Order_PaymentMethod" class="block text-gray-700 font-bold mb-2">Your Payment
-                                        Method</label>
-                                    <select name="Order_PaymentMethod" class="border border-gray-300 p-3 w-full rounded-lg">
-                                        <option value="Credit Card">Credit Card</option>
-                                        <option value="PayPal">PayPal</option>
-                                        <option value="Bank Transfer">Bank Transfer</option>
-                                        <option value="Cash on Delivery">Cash on Delivery</option>
-                                    </select>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="Order_PhoneNumber" class="block text-gray-700 font-bold mb-2">Your Phone
-                                        Number</label>
-                                    <input type="tel" name="Order_PhoneNumber"
-                                        class="border border-gray-300 p-3 w-full rounded-lg"
-                                        placeholder="Example: 0714876397" pattern="^([0-9]{2}){4}[0-9]{2}$" required>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="Order_Notes" class="block text-gray-700 font-bold mb-2">Notes</label>
-                                    <textarea name="Order_Notes" class="border border-gray-300 p-3 w-full rounded-lg"
-                                        placeholder="(Optional) : Any additional info you'd like to request/provide regarding your order."></textarea>
-                                </div>
-                                <div class="flex justify-end space-x-4">
+                <?php if ($Orders) { ?>
+                    <h1 class="text-3xl font-bold mb-6 text-blue-800">Updating Order Number
+                        : <?php echo $Order['Order_ID']; ?></h1>
+                    <section>
+                        <form method="POST">
+                            <?php foreach ($orders as $orderId => $order):
+                                $Date = date('Y-m-d', strtotime($order['Order_Date'])) . ' <b>at</b> ' . date('H:i:s', strtotime($order['Order_Date']));
+                                ?>
+                                <div class="bg-white shadow-md rounded-lg p-6 mb-6 order-container <?php
+                                echo ($order['Order_Status'] === 'Cancelled by User' || $order['Order_Status'] === 'Cancelled by Management') ? 'bg-red-100' : '';
+                                ?>">
+                                    <p class="text-gray-600"><b>Order made on : </b><?php echo $Date; ?></p>
+                                    <p class="text-gray-600 mb-4 status-paragraph">Client :
+                                        <b><?php echo $order['User_FirstName'] . ' ' . $order['User_LastName'];
+                                        ; ?></b>
+                                    </p>
+                                    <!-- Details section -->
+                                    <div>
+                                        <p class="text-gray-600 mt-4 status-paragraph">Username :
+                                            <b><?php echo $order['User_Username']; ?></b>
+                                        </p>
+                                        <?php foreach ($order['Products'] as $product): ?>
+                                            <div class="flex items-center border-b py-4">
+                                                <div class="flex-shrink-0 mr-4">
+                                                    <img src="../Product/<?php echo $product['Product_Picture']; ?>"
+                                                        alt="Product Image" class="w-16 h-16 rounded-lg">
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold"><?php echo $product['Product_Name']; ?></p>
+                                                    <p class="text-gray-600 mb-1">Quantity :
+                                                        <?php echo $product['OrderItem_Quantity']; ?>
+                                                    </p>
+                                                    <p class="text-gray-600 mb-1">Price Per Unit :
+                                                        <?php echo formatNumber($product['OrderItem_UnitPrice']); ?> Dhs
+                                                    </p>
+                                                    <p class="text-gray-600 mb-1">Total:
+                                                        <?php echo formatNumber($product['OrderItem_Quantity'] * $product['OrderItem_UnitPrice']); ?>
+                                                        Dhs
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+
+                                    </div>
+
+                                    <p class="text-gray-600 status-paragraph mt-4"><b>Shipping Address :
+                                        </b><?php echo $Order['Order_ShippingAddress']; ?>
+
+                                    <p class="text-gray-600 status-paragraph"><b>Payment Method :
+                                        </b><?php echo $Order['Order_PaymentMethod']; ?>
+                                    </p>
+                                    <p class="text-gray-600 status-paragraph"><b>Phone Number :
+                                        </b><?php echo $Order['Order_PhoneNumber']; ?>
+                                    </p>
+                                    <p class="text-gray-600 status-paragraph"><b>Client Notes :</b>
+                                        <?php echo $Order['Order_Notes']; ?>
+
+                                    </p>
+                                    <p class="text-gray-600 status-paragraph flex items-center">
+                                        <!-- Added 'flex items-center' for inline display -->
+                                        <b>Status : </b> <!-- Moved 'Status' outside the select box -->
+                                        <select name="Order_Status" id="User_Role"
+                                            class="mt-1 block w-48 py-2 px-3 border border-gray-300 ml-2 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                            <!-- Changed width to 'w-48' for a narrower input -->
+                                            <?php
+                                            $Cases = [
+                                                'Pending',
+                                                'Processing',
+                                                'Shipped',
+                                                'Delivered',
+                                                'On Hold',
+                                                'Refunded',
+                                                'Returned',
+                                                'Completed',
+                                                'Cancelled by User',
+                                                'Cancelled by Management'
+                                            ];
+
+                                            foreach ($Cases as $Case) {
+                                                if ($Order['Order_Status'] === $Case) {
+                                                    echo '<option selected>' . $Case . '</option>';
+                                                } else {
+                                                    echo '<option>' . $Case . '</option>';
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </p>
+
+
+                                    <p class="text-gray-600 mb-4"><b>Total Amount :
+                                        </b><?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs</p>
+
+
                                     <button type="submit"
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Send
-                                        out the order</button>
-                                    <button type="reset"
-                                        class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">Clear</button>
+                                        class="inline-block bg-blue-400 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105"
+                                        id="Submit">Save Changes</button>
+                                    <a href="User_CancelOrder.php?id=<?php echo $orderId; ?>"
+                                        class="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">Cancel
+                                        Order</a>
+
                                 </div>
-                            </form>
-                        </section>
+
+
+                            <?php endforeach; ?>
                     </section>
+                    </form>
+
                 <?php } else { ?>
-                    <h1 class="text-xl text-gray-700 CC" id="Empty_Cart">Your Shopping Cart is Empty.<br>Check Out Our
-                        Products <a class="text-blue-600 hover:underline mb-4 inline-block" href=".././">Here</a>.</h1>
+                    <h1 class="text-xl text-gray-700 CC" id="Empty_Cart">There Are No Pending Orders At Moment, <br>Check
+                        Again Later.</h1>
                 <?php } ?>
             </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const orderNowBtn = document.getElementById("orderNowBtn");
-            const orderForm = document.getElementById("orderForm");
-
-            orderNowBtn.addEventListener("click", function () {
-                if (orderForm.classList.contains("hidden-form")) {
-                    orderForm.classList.remove("hidden-form");
-                    orderForm.classList.add("visible-form");
-                    orderNowBtn.textContent = "Collapse";
-                } else {
-                    orderForm.classList.remove("visible-form");
-                    orderForm.classList.add("hidden-form");
-                    orderNowBtn.textContent = "Order Now";
-                }
-            });
-        });
-    </script>
 
     <script>
         window.addEventListener('DOMContentLoaded', function () {
@@ -455,22 +405,35 @@
 
 </html>
 <style>
+    .order-details {
+        opacity: 0;
+        max-height: 0;
+        overflow: ;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    .order-details.active {
+        opacity: 1;
+        max-height: 1000px;
+        /* Adjust to a value larger than your content's height */
+    }
+
     .CC {
         margin-left: 40%;
         margin-top: 20%;
     }
 
-    .hidden-form {
+    .-form {
         max-height: 0;
-        overflow: hidden;
+        overflow: ;
         transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
         padding: 0;
     }
 
-    .visible-form {
+    .-form {
         max-height: 1000px;
         /* Adjust based on content */
-        overflow: hidden;
+        overflow: ;
         padding: 16px;
         /* Same padding as the form content */
     }
@@ -578,7 +541,7 @@
     }
 
     .product-name {
-        overflow: hidden;
+        overflow: ;
         text-overflow: ellipsis;
         white-space: nowrap;
 

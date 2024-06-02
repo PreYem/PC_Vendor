@@ -53,13 +53,20 @@
 
         if ($User && password_verify($password, $User['User_Password'])) {
 
-            $_SESSION['User_ID'] = $User['User_ID'];
-            $_SESSION['User_Username'] = $User['User_Username'];
-            $_SESSION['User_Role'] = $User['User_Role'];
+            if ($User['Account_Status'] !== '🔒 Locked') {
+                $_SESSION['User_ID'] = $User['User_ID'];
+                $_SESSION['User_Username'] = $User['User_Username'];
+                $_SESSION['User_Role'] = $User['User_Role'];
+
+                $_SESSION['Product_Add/Update'] = "Welcome Back " . $User['User_FirstName'];
+                header("Location: ../.");
+                exit;
+
+            } else {
+                $loginError = "Login Failed, Account is locked.";
+            }
 
 
-            header("Location: ../index.php");
-            exit;
         } else {
 
             $loginError = "Invalid username or password.";
@@ -81,7 +88,7 @@
             <a href=".././"><img src="../Logo.png" alt="Logo" id="Logo"></a>
 
             <!-- Category Links -->
-            <div class="flex flex-wrap space-x-4">
+            <div class="flex grid-cols-4 gap-1">
                 <?php foreach ($Categories as $Category): ?>
                     <?php if ($Category['Category_Name'] !== 'Unspecified'):
                         ?>
@@ -114,6 +121,8 @@
 
                     <?php endif; ?>
                 <?php endforeach; ?>
+                <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
+                
             </div>
 
             <!-- User Links -->
@@ -301,7 +310,7 @@
         z-index: 1000;
 
         margin-bottom: auto;
-        opacity: 95%;
+        opacity: 99%;
     }
 
     body {

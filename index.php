@@ -18,6 +18,16 @@
     }
 
     $Visible = 'Visible';
+
+    #--------------------------------------------------------------
+    
+    $thresholdMinutes = 5;
+    // 1 Hour = 60 Minutes
+    // 1 Day = 720 Minutes
+    // 1 Week = 10080 Minutes
+    // 1 Month = 43800 Minutes
+    
+    #--------------------------------------------------------------
     if (isset($_GET['id'])) {
 
         $Target_ID = $_GET['id'];
@@ -53,8 +63,8 @@
 
         $visibilityCondition = ($User_Role === 'Client') ? "AND Product_Visibility = :Visible" : '';
 
-        $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                FROM Products WHERE $condition $visibilityCondition";
+        $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                                FROM Products WHERE $condition $visibilityCondition ORDER BY Product_ID DESC";
 
         $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
         $params = [':Target_ID' => $Target_ID];
@@ -74,30 +84,90 @@
             $User_Role = $User['User_Role'];
 
             if ($User_Role !== 'Client') {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                        FROM Products";
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
+                                        FROM Products ORDER BY Product_ID DESC";
             } else {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                        FROM Products WHERE Product_Visibility = :Visible";
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
+                                        FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
             }
         } else {
-            $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture 
-                                    FROM Products WHERE Product_Visibility = :Visible";
+            $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
+                                    FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
         }
 
         $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
 
+
         if (!isset($User_Role) || $User_Role === 'Client') {
             $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
+            $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $pdoGeneralProductQuery->execute();
-        $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
 
 
+        if (isset($_GET['Status'])) {
+
+            $currentDate = new DateTime();
+            $Limit_Minutes = $thresholdMinutes + 60;
+            $currentDate->modify("-$Limit_Minutes minutes");
+            $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
+
+            if (isset($_SESSION['User_Role'])) {
+
+                if ($_SESSION['User_Role'] !== 'Client') {
+                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                    FROM Products WHERE Date_Created > :thresholdDateString ORDER BY Product_ID DESC";
+
+
+                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
+                    $pdoGeneralProductQuery->execute();
+                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+                } else {
+                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                    FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
+                    $pdoGeneralProductQuery->execute();
+                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+                }
+                ;
+            } else {
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
+                $pdoGeneralProductQuery->execute();
+                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+
+        } else {
+
+            if (!isset($_SESSION['User_Role'])) {
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
+                FROM Products WHERE Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                $pdoGeneralProductQuery->execute();
+                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+
+            } elseif ($_SESSION['User_Role'] === 'Client') {
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
+                FROM Products WHERE Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                $pdoGeneralProductQuery->execute();
+                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+
+            } else {
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
+                FROM Products ORDER BY Product_ID DESC";
+                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                $pdoGeneralProductQuery->execute();
+                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+            }
+        }
     }
-
-
+    ;
 
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
@@ -105,21 +175,13 @@
     $pdoCategories->execute();
     $Categories = $pdoCategories->fetchAll(PDO::FETCH_ASSOC);
 
-
-
-
     if (isset($_SESSION['User_ID'])) {
         $Shopping_Cart = "SELECT CartItem_ID FROM ShoppingCart WHERE User_ID = :User_ID";
         $pdostmt_shopping = $connexion->prepare($Shopping_Cart);
         $pdostmt_shopping->execute([':User_ID' => $User_ID]);
         $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
         $Cart_Count = $pdostmt_shopping->rowCount();
-
     }
-
-
-
-
 
     ?>
 </head>
@@ -134,7 +196,8 @@
             <a href="./"><img src="Logo.png" alt="Logo" id="Logo"></a>
 
             <!-- Category Links -->
-            <div class="flex flex-wrap space-x-4">
+            <div class="flex grid-cols-4 gap-1">
+
                 <?php foreach ($Categories as $Category): ?>
                     <?php if ($Category['Category_Name'] !== 'Unspecified'):
                         ?>
@@ -167,6 +230,7 @@
 
                     <?php endif; ?>
                 <?php endforeach; ?>
+                <div><a href="./?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
             </div>
 
             <!-- User Links -->
@@ -212,7 +276,7 @@
                             <div class="space-y-1">
                                 <a href="Product/Products_List.php"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                    Product List</a>
+                                    Product List (Old)</a>
                                 <a href="Product/Products_Add.php"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Product</a>
@@ -240,14 +304,28 @@
                                 <a href="Manufacturer/Manufacturers_Add.php"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Manufacturer</a>
+
                             </div>
-                            <?php if ($User['User_Role'] === 'Owner') { ?>
-                                <div class="space-y-1">
+                            <div class="space-y-1">
+                                <?php if ($User['User_Role'] === 'Owner') { ?>
+
                                     <a href="User/User_Management.php"
                                         class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
                                         Users Dashboard</a>
-                                </div>
-                            <?php } ?>
+                                <?php } ?>
+                                <a href="User/User_GlobalOrders.php"
+                                    class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
+                                    Pending Orders <?php
+                                    $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
+                                    $pdostmt = $connexion->prepare($Order_Pending);
+                                    $pdostmt->execute();
+
+                                    $Order_Count = $pdostmt->rowCount();
+                                    ?> <span
+                                        style="color : red"><?php if ($Order_Count > 0) {
+                                            echo '(' . $Order_Count . ')';
+                                        } ?></span></a>
+                            </div>
                         </div>
                     </div>
                 <?php } ?>
@@ -260,13 +338,34 @@
     <div class="outer-container">
         <div class="container">
             <div class="content-wrapper pt-16">
-                <?php if ($GeneralProducts) { ?>
+                <?php if (isset($_SESSION['Product_Add/Update'])) { ?>
+                    <span class="rounded-full" id="UpdatedProduct"><?php echo $_SESSION['Product_Add/Update'];
+                    unset($_SESSION['Product_Add/Update']) ?></span>
+                <?php } ?>
+                <?php if (isset($_SESSION['Product_Delete'])) { ?>
+                    <span class="rounded-full bg-red-600" style="background-color : red" id="UpdatedProduct">
+                        <?php echo $_SESSION['Product_Delete'];
+                        unset($_SESSION['Product_Delete']) ?>
+                    </span>
+
+                <?php } ?>
+
+                <?php if (!empty($GeneralProducts)) { ?>
                     <section id="Content">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12">
                             <?php foreach ($GeneralProducts as $Product):
+                                $CurrentDate = new DateTime();
+                                $Product_Date = new DateTime($Product["Date_Created"]);
+                                $interval = $CurrentDate->diff($Product_Date);
+
+                                $Product_Age_Minute = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i - 60;
+
+                                $Date_Created = date('Y-m-d', strtotime($Product["Date_Created"])) . '<b> at </b>' . date('H:i:s', strtotime($Product["Date_Created"]));
+
                                 $Visibility = '';
                                 if ($Product['Product_Visibility'] === 'Invisible') {
                                     $Visibility = 'Status : OFF';
+
                                 } ?>
                                 <div
                                     class="bg-white rounded-lg overflow-hidden shadow-lg card relative w-full sm:w-full md:w-full lg:w-full">
@@ -274,6 +373,18 @@
                                         <span
                                             class="visibility-status bg-red-500 text-white px-2 py-1 rounded absolute top-2 right-2"><?php echo $Visibility ?></span>
                                     <?php } ?>
+
+                                    <?php
+                                    // 1 Hour = 60 Minutes
+                                    // 1 Day = 720 Minutes
+                                    // 1 Week = 10080 Minutes
+                                    // 1 Month = 43800 Minutes
+                                    if (isset($thresholdMinutes)) {
+                                        if ($Product_Age_Minute < $thresholdMinutes) { ?>
+                                            <span
+                                                class="NewProduct bg-red-500 text-white px-2 py-1 rounded absolute top-2 right-2"><?php echo '✨NEW✨' ?></span>
+                                        <?php }
+                                    } ?>
                                     <a href="#">
                                         <img class="w-full h-32 object-cover object-center" style="width: auto; height: auto;"
                                             src="Product/<?php echo $Product['Product_Picture']; ?>" alt="Product Image">
@@ -285,7 +396,16 @@
                                         <p class="text-gray-700 mb-1"><?php echo formatNumber($Product['Selling_Price']); ?> Dhs
                                         </p>
                                         <p class="text-gray-700 mb-1">In Stock (<?php echo $Product['Product_Quantity']; ?>)</p>
+
+
                                         <?php if (isset($_SESSION['User_ID']) && $User['User_Role'] !== 'Client') { ?>
+                                            <div class="text-gray-700 font-semibold text-sm italic">Current threshold :
+                                                <?php echo $thresholdMinutes . ' minutes.' ?>
+                                            </div>
+
+                                            <div class="text-gray-700 font-semibold text-sm italic">Created:
+                                                <?php echo $Date_Created . ' <br> ' . $Product_Age_Minute . ' Minutes old.' ?>
+                                            </div>
                                             <div class="flex justify-between items-center space-x-2">
                                                 <?php if ($Visibility === '') { ?>
                                                     <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
@@ -295,7 +415,7 @@
                                                 <?php } ?>
                                                 <div class="flex space-x-2">
                                                     <a href="Product/Products_Modify.php?id=<?php echo $Product['Product_ID']; ?>"
-                                                        class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">Edit
+                                                        class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">
                                                         ⚙️</a>
                                                     <a href="Product/Products_Delete.php?id=<?php echo $Product['Product_ID']; ?>"
                                                         class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm"
@@ -319,12 +439,19 @@
                             <?php endforeach; ?>
                         </div>
                     </section>
-                <?php } else { ?>
+                <?php } elseif (isset($Target_Name)) { ?>
                     <div class="flex justify-center items-center h-full">
                         <h1 class="text-4xl text-gray-700"><b><?php echo $Target_Name ?></b> : No Products Available, Check
                             Again Later</h1>
                     </div>
+                <?php } else { ?>
+                    <div class="flex justify-center items-center h-full">
+
+                        <h1 class="text-4xl text-gray-700"><b>Latest Products</b> : No Products Available, Check
+                            Again Later</h1>
+                    </div>
                 <?php } ?>
+
             </div>
         </div>
     </div>
@@ -348,33 +475,120 @@
             var navHeight = document.querySelector('nav').offsetHeight;
             document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                var updatedProductSpan = document.getElementById("UpdatedProduct");
+                updatedProductSpan.classList.add("fade-out");
+            }, 2000);
+            setTimeout(function () {
+                var updatedProductSpan = document.getElementById("UpdatedProduct");
+                updatedProductSpan.classList.add("hidden");
+            }, 2700);
+        });
+
     </script>
 </body>
 
 </html>
 <style>
-    .visibility-status {
-        background-color: #EF4444;
-        /* Red background */
+    #UpdatedProduct {
+        margin-left: 44%;
+        border: round;
+        background-color: Green;
+        padding-bottom: 10%;
+        opacity: 80%;
+        padding: 5px 5px;
+        margin-top: 21%;
+        height: 30px;
+        font-size: 13px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .fade-out {
+        animation: fadeOut 500ms ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+        0% {
+            opacity: 0.8;
+            margin-left: 44%;
+        }
+
+        50% {
+            opacity: 0.6;
+
+        }
+
+        100% {
+            opacity: 0;
+            margin-left: 0%;
+            display: none;
+        }
+    }
+
+    @keyframes fade {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
+
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        25% {
+            transform: translateY(-1px);
+        }
+
+        75% {
+            transform: translateY(1px);
+        }
+    }
+
+    .NewProduct {
+        background-color: #4bc639;
         color: #FFFFFF;
-        /* White text */
         padding: 0.25rem 0.5rem;
-        /* Adjust padding */
         border-radius: 0.25rem;
-        /* Rounded corners */
         font-size: 0.875rem;
-        /* Adjust font size */
         font-weight: 500;
-        /* Medium font weight */
         margin-top: 0.5rem;
-        /* Add some space at the top */
         display: inline-block;
-        /* Display as inline block */
         position: absolute;
         top: 0;
         right: 0;
         z-index: 1;
-        /* Ensure it's above the image */
+        /* Keeps an upper limit on width */
+        animation: fade 5s infinite, shake 1s infinite;
+        /* Apply both animations */
+    }
+
+
+
+
+    .visibility-status {
+        background-color: #EF4444;
+        color: #FFFFFF;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+        display: inline-block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 2;
     }
 
     .category-dropdown {

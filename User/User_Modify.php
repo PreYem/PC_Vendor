@@ -62,7 +62,8 @@
     }
 
     $User_ID = $_GET['id'];
-    $User_Query = "SELECT User_FirstName , User_Role, User_LastName , User_Phone , User_Country , User_Address , User_Email , User_Password FROM Users WHERE User_ID = :User_ID";
+    $User_Query = "SELECT User_FirstName , User_Role, User_LastName , User_Phone , User_Country , User_Address , User_Email , User_Password , Account_Status
+                    FROM Users WHERE User_ID = :User_ID";
     $User_Statement = $connexion->prepare($User_Query);
     $User_Statement->execute([':User_ID' => $User_ID]);
     $User_Data = $User_Statement->fetch(PDO::FETCH_ASSOC);
@@ -87,6 +88,7 @@
         $User_Country = $_POST['User_Country'];
         $User_Address = $_POST['User_Address'];
         $User_Email = $_POST['User_Email'];
+        $Account_Status = $_POST['Account_Status'];
         $User_Password = password_hash($_POST['User_Password'], PASSWORD_BCRYPT);
         if (empty($_POST['User_Role'])) {
             $User_Role = 'Owner';
@@ -98,7 +100,7 @@
         if (!empty($_POST['User_Password'])) {
             $User_Data_Update = "UPDATE Users SET User_FirstName = :User_FirstName, User_LastName = :User_LastName, User_Phone = :User_Phone, 
             User_Country = :User_Country, User_Address = :User_Address, User_Email = :User_Email, User_Password = :User_Password , User_Role = :User_Role
-            WHERE User_ID = :User_ID";
+            , Account_Status = :Account_Status WHERE User_ID = :User_ID";
 
             $User_Statement_Update = $connexion->prepare($User_Data_Update);
             $User_Statement_Update->execute([
@@ -110,12 +112,13 @@
                 ':User_Address' => $User_Address,
                 ':User_Email' => $User_Email,
                 ':User_Password' => $User_Password,
-                ':User_Role' => $User_Role
+                ':User_Role' => $User_Role,
+                ':Account_Status' => $Account_Status
             ]);
 
         } else {
             $User_Data_Update = "UPDATE Users SET User_FirstName = :User_FirstName, User_LastName = :User_LastName, User_Phone = :User_Phone, 
-            User_Country = :User_Country, User_Address = :User_Address, User_Email = :User_Email , User_Role = :User_Role
+            User_Country = :User_Country, User_Address = :User_Address, User_Email = :User_Email , User_Role = :User_Role , Account_Status = :Account_Status
             WHERE User_ID = :User_ID";
 
             $User_Statement_Update = $connexion->prepare($User_Data_Update);
@@ -127,10 +130,12 @@
                 ':User_Country' => $User_Country,
                 ':User_Address' => $User_Address,
                 ':User_Email' => $User_Email,
-                ':User_Role' => $User_Role
+                ':User_Role' => $User_Role,
+                ':Account_Status' => $Account_Status
             ]);
         }
 
+        $_SESSION['User_Add/Update'] = $User_Data['User_LastName'] . " Information Updated Successfully";
 
         header("Location: User_Management.php");
         exit();
@@ -151,7 +156,7 @@
             <a href=".././"><img src="../Logo.png" alt="Logo" id="Logo"></a>
 
             <!-- Category Links -->
-            <div class="flex flex-wrap space-x-4">
+            <div class="flex grid-cols-4 gap-1">
                 <?php foreach ($Categories as $Category): ?>
                     <?php if ($Category['Category_Name'] !== 'Unspecified'):
                         ?>
@@ -184,6 +189,7 @@
 
                     <?php endif; ?>
                 <?php endforeach; ?>
+                <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
             </div>
 
             <!-- User Links -->
@@ -229,7 +235,7 @@
                         <div class="space-y-1">
                             <a href="../Product/Products_List.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
-                                Product List</a>
+                                Product List (Old)</a>
                             <a href="../Product/Products_Add.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Product</a>
@@ -258,13 +264,25 @@
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                 New Manufacturer</a>
                         </div>
-                        <?php if ($User['User_Role'] === 'Owner') { ?>
-                            <div class="space-y-1">
+                        <div class="space-y-1">
+                            <?php if ($User['User_Role'] === 'Owner') { ?>
+
                                 <a href="../User/User_Management.php"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
                                     Users Dashboard</a>
-                            </div>
-                        <?php } ?>
+                            <?php } ?>
+                            <a href="../User/User_GlobalOrders.php"
+                                class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
+                                Pending Orders <?php
+                                $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
+                                $pdostmt = $connexion->prepare($Order_Pending);
+                                $pdostmt->execute();
+
+                                $Order_Count = $pdostmt->rowCount();
+                                ?> <span style="color : red"><?php if ($Order_Count > 0) {
+                                     echo '(' . $Order_Count . ')';
+                                 } ?></span></a>
+                        </div>
                     </div>
                 </div>
             <?php } ?>
@@ -340,8 +358,9 @@
                                         class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">⚠️
                                         Privilige Warning :</span><br>
                                     <span class="text-yellow-800">There is currently only <b>1</b> user with <b>Owner</b> Level
-                                        Privilege. To be able to modify this Privilege Level, there should be at least <b>1 more</b>
-                                        user with Owner Level Privilege.</span>
+                                        Privilege. To be able to modify the Privilege Level for this user, there should be at
+                                        least <b>1 more</b>
+                                        user with 'Owner Level Privilege'.</span>
                                 </div>
 
                             <?php } ?>
@@ -369,6 +388,34 @@
                 </div>
                 <!-- Right Section -->
                 <div class="space-y-4">
+                    <?php if ($User_Data['User_Role'] !== 'Owner') { ?>
+
+                        <div>
+                            <label for="Account_Locked" class="block text-sm font-medium text-gray-700">Account Lock</label>
+                            <select name="Account_Status" id="Account_Status"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <?php
+                                $Account_Status = ['🔒 Locked', '✔️ Unlocked'];
+
+                                foreach ($Account_Status as $Status) {
+                                    if ($User_Data['Account_Status'] === $Status) {
+                                        echo '<option selected>' . $Status . '</option>';
+                                    } else {
+                                        echo '<option>' . $Status . '</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    <?php } else { ?>
+                        <div class="mt-1 block bg-red-200" id="privilegeWarning">
+                                    <span
+                                        class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">⚠️
+                                        Account Status Warning 🔒✔️ :</span><br>
+                                    <span class="text-yellow-800">Unable to Lock Accounts with <b>Owner Level Privilege</b> until their Privilige is downgraded first.</span>
+                                </div>
+                    <?php } ?>
+
 
                     <div>
                         <label for="User_Address" class="block text-sm font-medium text-gray-700">Your Address:</label>
@@ -583,7 +630,7 @@
         z-index: 1000;
 
         margin-bottom: auto;
-        opacity: 95%;
+        opacity: 99%;
     }
 
     body {
