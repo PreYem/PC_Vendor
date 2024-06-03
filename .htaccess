@@ -3,5 +3,5 @@ RewriteEngine On
 # Redirect all non-existent files and directories to 404.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /PC_Vendor/User/User_Unauthorized.html [L]
+RewriteRule . http://localhost:8080/PC_Vendor_Project/PC_Vendor/Redirect.php [L]
 ErrorDocument 404 /path/to/custom-404-page.php
