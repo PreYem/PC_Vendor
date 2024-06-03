@@ -8,7 +8,6 @@ $password = 'Junkyard010';
 
 try {
     
-    // $connexion = new PDO("mysql:host = $host;dbname = $dbname" , $username , $password);
     $connexion = new PDO("mysql:host = $host;dbname=$dbname", $username, $password);
 
 } catch (PDOException $e) //
@@ -37,9 +36,5 @@ try {
 </body>
 
 </html>
-
-<style>
-    
-</style>
 
 
