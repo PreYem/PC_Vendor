@@ -45,5 +45,5 @@ Set up your local server and start the project:
     - Move your cloned project to the appropriate directory in your XAMPP folder (`htdocs` for XAMPP or `www` for WAMP).
 
 3. **Access the Website:**
-    - Open your browser and go to `http://localhost/PC_Vendor`, which will take you directly to the `index.php` page by default.
+    - Open your browser and go to `http://localhost/PC_Vendor` or whichever localhost port you have depending on the servers on your machine, and it will take you directly to the `index.php` page by default.
 
