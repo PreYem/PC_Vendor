@@ -10,7 +10,7 @@
 
     <?php
     session_start();
-    include_once ("C:\wamp64\www\PC_Vendor_Project\PC_Vendor/DB_Connexion.php");
+    include_once ("DB_Connexion.php");
 
     function formatNumber($number)
     {
@@ -28,146 +28,16 @@
     // 1 Month = 43800 Minutes
     
     #--------------------------------------------------------------
-    if (isset($_GET['id'])) {
-
-        $Target_ID = $_GET['id'];
-        $Target_Type = $_GET['Type']; // 'Category' or 'SubCategory'
     
-        if (isset($_SESSION['User_ID'])) {
-            $User_ID = $_SESSION['User_ID'];
-            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
-            $pdoUsers = $connexion->prepare($Users);
-            $pdoUsers->execute([':User_ID' => $User_ID]);
-            $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-            $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
-            $User_Role = $User['User_Role'];
-        } else {
-            $User_Role = 'Client';
-        }
-
-        if ($Target_Type === 'Category') {
-            $condition = "Category_ID = :Target_ID";
-            $Target_Category_Name = "SELECT Category_Name FROM Categories WHERE $condition";
-            $pdoTarget_Category_Name = $connexion->prepare($Target_Category_Name);
-            $pdoTarget_Category_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_Category_Name->fetchColumn();
-
-        } elseif ($Target_Type === 'SubCategory') {
-            $condition = "SubCategory_ID = :Target_ID";
-            $Target_SubCategory_Name = "SELECT SubCategory_Name FROM SubCategories WHERE $condition";
-            $pdoTarget_SubCategory_Name = $connexion->prepare($Target_SubCategory_Name);
-            $pdoTarget_SubCategory_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_SubCategory_Name->fetchColumn();
-
-        }
-
-        $visibilityCondition = ($User_Role === 'Client') ? "AND Product_Visibility = :Visible" : '';
-
-        $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                                FROM Products WHERE $condition $visibilityCondition ORDER BY Product_ID DESC";
-
-        $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-        $params = [':Target_ID' => $Target_ID];
-        if ($User_Role === 'Client') {
-            $params[':Visible'] = $Visible;
-        }
-        $pdoGeneralProductQuery->execute($params);
-        $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        if (isset($_SESSION['User_ID'])) {
-            $User_ID = $_SESSION['User_ID'];
-            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
-            $pdoUsers = $connexion->prepare($Users);
-            $pdoUsers->execute([':User_ID' => $User_ID]);
-            $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
-            $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
-            $User_Role = $User['User_Role'];
-
-            if ($User_Role !== 'Client') {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                                        FROM Products ORDER BY Product_ID DESC";
-            } else {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                                        FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
-            }
-        } else {
-            $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                                    FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
-        }
-
-        $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-
-
-        if (!isset($User_Role) || $User_Role === 'Client') {
-            $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
-            $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-        }
-
-
-
-        if (isset($_GET['Status'])) {
-
-            $currentDate = new DateTime();
-            $Limit_Minutes = $thresholdMinutes + 60;
-            $currentDate->modify("-$Limit_Minutes minutes");
-            $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
-
-            if (isset($_SESSION['User_Role'])) {
-
-                if ($_SESSION['User_Role'] !== 'Client') {
-                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                    FROM Products WHERE Date_Created > :thresholdDateString ORDER BY Product_ID DESC";
-
-
-                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
-                    $pdoGeneralProductQuery->execute();
-                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-                } else {
-                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                    FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
-                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
-                    $pdoGeneralProductQuery->execute();
-                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-                }
-                ;
-            } else {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-            }
-
-
-        } else {
-
-            if (!isset($_SESSION['User_Role'])) {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                FROM Products WHERE Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-
-            } elseif ($_SESSION['User_Role'] === 'Client') {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                FROM Products WHERE Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-
-            } else {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                FROM Products ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-            }
-        }
-    }
-    ;
+    if (isset($_SESSION['User_ID'])) {
+        $User_ID = $_SESSION['User_ID'];
+        $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
+        $pdoUsers = $connexion->prepare($Users);
+        $pdoUsers->execute([':User_ID' => $User_ID]);
+        $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
+        $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
+        $User_Role = $User['User_Role'];
+    } ;
 
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
@@ -231,6 +101,7 @@
                     <?php endif; ?>
                 <?php endforeach; ?>
                 <div><a href="./?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
+                <div><a href="./?Status=Discount" class="px-2 py-2 hover:bg-yellow-700">🏷️On Sale🏷️</a></div>
             </div>
 
             <!-- User Links -->
@@ -336,7 +207,7 @@
 
     <div class="outer-container">
         <div class="container" style=>
-            <div class="content-wrapper pt-16 mt-6" >
+            <div class="content-wrapper pt-16 mt-6">
                 <h1 class="text-xl text-gray-700" id="PageNotFound" style="font-size: 3rem;">
                     404 Error<br><br>Page Not Found
                 </h1>
@@ -385,7 +256,7 @@
         margin-top: 15%;
         margin-left: 28%;
         position: absolute;
-        
+
 
     }
 

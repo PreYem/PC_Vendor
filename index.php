@@ -18,18 +18,9 @@
     }
 
     $Visible = 'Visible';
+    $thresholdMinutes = 10;
 
-    #--------------------------------------------------------------
-    
-    $thresholdMinutes = 5;
-    // 1 Hour = 60 Minutes
-    // 1 Day = 720 Minutes
-    // 1 Week = 10080 Minutes
-    // 1 Month = 43800 Minutes
-    
-    #--------------------------------------------------------------
     if (isset($_GET['id'])) {
-
         $Target_ID = $_GET['id'];
         $Target_Type = $_GET['Type']; // 'Category' or 'SubCategory'
     
@@ -47,25 +38,19 @@
 
         if ($Target_Type === 'Category') {
             $condition = "Category_ID = :Target_ID";
-            $Target_Category_Name = "SELECT Category_Name FROM Categories WHERE $condition";
-            $pdoTarget_Category_Name = $connexion->prepare($Target_Category_Name);
-            $pdoTarget_Category_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_Category_Name->fetchColumn();
-
+            $Target_Name = "SELECT Category_Name FROM Categories WHERE $condition";
         } elseif ($Target_Type === 'SubCategory') {
             $condition = "SubCategory_ID = :Target_ID";
-            $Target_SubCategory_Name = "SELECT SubCategory_Name FROM SubCategories WHERE $condition";
-            $pdoTarget_SubCategory_Name = $connexion->prepare($Target_SubCategory_Name);
-            $pdoTarget_SubCategory_Name->execute([':Target_ID' => $Target_ID]);
-            $Target_Name = $pdoTarget_SubCategory_Name->fetchColumn();
-
+            $Target_Name = "SELECT SubCategory_Name FROM SubCategories WHERE $condition";
         }
 
+        $pdoTarget_Name = $connexion->prepare($Target_Name);
+        $pdoTarget_Name->execute([':Target_ID' => $Target_ID]);
+        $Target_Name = $pdoTarget_Name->fetchColumn();
+
         $visibilityCondition = ($User_Role === 'Client') ? "AND Product_Visibility = :Visible" : '';
-
-        $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                                FROM Products WHERE $condition $visibilityCondition ORDER BY Product_ID DESC";
-
+        $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                            FROM Products WHERE $condition $visibilityCondition ORDER BY Product_ID DESC";
         $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
         $params = [':Target_ID' => $Target_ID];
         if ($User_Role === 'Client') {
@@ -74,6 +59,7 @@
         $pdoGeneralProductQuery->execute($params);
         $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
     } else {
+
         if (isset($_SESSION['User_ID'])) {
             $User_ID = $_SESSION['User_ID'];
             $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
@@ -82,93 +68,55 @@
             $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
             $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
             $User_Role = $User['User_Role'];
-
-            if ($User_Role !== 'Client') {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                                        FROM Products ORDER BY Product_ID DESC";
-            } else {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                                        FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
-            }
         } else {
-            $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                                    FROM Products WHERE Product_Visibility = :Visible ORDER BY Product_ID DESC";
+            $User_Role = 'Client';
         }
 
+        $visibilityCondition = ($User_Role === 'Client') ? "WHERE Product_Visibility = :Visible" : '';
+        $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                            FROM Products $visibilityCondition ORDER BY Product_ID DESC";
         $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-
-
-        if (!isset($User_Role) || $User_Role === 'Client') {
+        if ($User_Role === 'Client') {
             $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
-            $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
         }
-
+        $pdoGeneralProductQuery->execute();
+        $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
 
 
         if (isset($_GET['Status'])) {
+            if ($_GET['Status'] == 'New') {
+                $currentDate = new DateTime();
+                $Limit_Minutes = $thresholdMinutes + 60;
+                $currentDate->modify("-$Limit_Minutes minutes");
+                $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
 
-            $currentDate = new DateTime();
-            $Limit_Minutes = $thresholdMinutes + 60;
-            $currentDate->modify("-$Limit_Minutes minutes");
-            $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
-
-            if (isset($_SESSION['User_Role'])) {
-
-                if ($_SESSION['User_Role'] !== 'Client') {
-                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                    FROM Products WHERE Date_Created > :thresholdDateString ORDER BY Product_ID DESC";
-
-
-                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
-                    $pdoGeneralProductQuery->execute();
-                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-                } else {
-                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                    FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
-                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
-                    $pdoGeneralProductQuery->execute();
-                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-                }
-                ;
-            } else {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                                    FROM Products WHERE Date_Created > :thresholdDateString $visibilityCondition ORDER BY Product_ID DESC";
                 $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
                 $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
+                if ($User_Role === 'Client') {
+                    $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
+                }
                 $pdoGeneralProductQuery->execute();
                 $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-            }
-
-
-        } else {
-
-            if (!isset($_SESSION['User_Role'])) {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                FROM Products WHERE Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+            } elseif ($_GET['Status'] == 'Discount') {
+                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                FROM Products WHERE Selling_Price > Discount_Price AND Discount_Price > 0 $visibilityCondition ORDER BY Product_ID DESC";
                 $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                if ($User_Role === 'Client') {
+                    if (!empty($visibilityCondition)) {
+                        $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
+                    }
+                }
                 $pdoGeneralProductQuery->execute();
                 $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
 
-            } elseif ($_SESSION['User_Role'] === 'Client') {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                FROM Products WHERE Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
 
-            } else {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created
-                FROM Products ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+
             }
         }
-    }
-    ;
 
+    }
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
     $pdoCategories = $connexion->prepare($Categories);
@@ -231,6 +179,7 @@
                     <?php endif; ?>
                 <?php endforeach; ?>
                 <div><a href="./?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
+                <div><a href="./?Status=Discount" class="px-2 py-2 hover:bg-yellow-700">🏷️On Sale🏷️</a></div>
             </div>
 
             <!-- User Links -->
@@ -357,6 +306,8 @@
                                 $Product_Date = new DateTime($Product["Date_Created"]);
                                 $interval = $CurrentDate->diff($Product_Date);
 
+
+
                                 $Product_Age_Minute = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i - 60;
 
                                 $Date_Created = date('Y-m-d', strtotime($Product["Date_Created"])) . '<b> at </b>' . date('H:i:s', strtotime($Product["Date_Created"]));
@@ -365,12 +316,32 @@
                                 if ($Product['Product_Visibility'] === 'Invisible') {
                                     $Visibility = 'Status : OFF';
 
-                                } ?>
+                                }
+                                $Discount = false;
+
+                                if ($Product['Selling_Price'] == $Product['Discount_Price']) {
+                                    $Discount = false;
+
+                                } elseif ($Product['Selling_Price'] > $Product['Discount_Price'] && $Product['Discount_Price'] > 0) {
+                                    $Discount = true;
+                                    $SaveAmount = $Product['Selling_Price'] - $Product['Discount_Price'];
+                                    $SavePercent = intval($SaveAmount / $Product['Selling_Price'] * 100);
+
+                                }
+
+
+                                ?>
                                 <div
                                     class="bg-white rounded-lg overflow-hidden shadow-lg card relative w-full sm:w-full md:w-full lg:w-full">
                                     <?php if ($Visibility) { ?>
                                         <span
                                             class="visibility-status bg-red-500 text-white px-2 py-1 rounded absolute top-2 right-2"><?php echo $Visibility ?></span>
+
+                                    <?php } ?>
+                                    <?php if ($Discount == true) { ?>
+                                        <span class="discount-status text-white px-2 py-1 rounded absolute  top-2 left-1">-
+                                            <?php echo $SaveAmount ?> Dhs <br> <?php echo $SavePercent ?>% OFF</span>
+
                                     <?php } ?>
 
                                     <?php
@@ -381,19 +352,38 @@
                                     if (isset($thresholdMinutes)) {
                                         if ($Product_Age_Minute < $thresholdMinutes) { ?>
                                             <span
-                                                class="NewProduct bg-red-500 text-white px-2 py-1 rounded absolute top-2 right-2"><?php echo '✨NEW✨' ?></span>
+                                                class="NewProduct text-white px-2 py-1 rounded absolute top-2 right-2"><?php echo '✨NEW✨' ?></span>
                                         <?php }
                                     } ?>
                                     <a href="#">
                                         <img class="w-full h-32 object-cover object-center" style="width: auto; height: auto;"
                                             src="Product/<?php echo $Product['Product_Picture']; ?>" alt="Product Image">
                                     </a>
+
+
                                     <div class="p-2">
                                         <h2 class="product-name font-bold text-base mb-1">
                                             <?php echo $Product['Product_Name']; ?>
                                         </h2>
-                                        <p class="text-blue-500 mb-1 font-bold"><?php echo formatNumber($Product['Selling_Price']); ?> Dhs
-                                        </p>
+                                        <?php if ($Discount == false) { ?>
+                                            <p class="text-blue-500 mb-1 font-bold">
+                                                <?php echo formatNumber($Product['Selling_Price']); ?> Dhs
+                                            </p>
+                                        <?php } else { ?>
+                                            <p class="text-gray-500 mb-1">
+                                                <span
+                                                    class="line-through italic"><?php echo formatNumber($Product['Selling_Price']); ?>
+                                                    Dhs</span>
+                                                <span
+                                                    class="text-green-500 font-bold"><?php echo formatNumber($Product['Discount_Price']); ?>
+                                                    Dhs</span>
+
+
+                                            </p>
+
+                                        <?php } ?>
+
+
                                         <p class="text-gray-700 mb-1">
                                             <?php if ($Product['Product_Quantity'] > 0) { ?>
                                                 <span
@@ -499,6 +489,14 @@
 
 </html>
 <style>
+    .discount-status {
+        margin-right: 5%;
+        background-color: orange;
+        width : auto ;
+
+
+    }
+
     #UpdatedProduct {
         margin-left: 44%;
         border: round;
@@ -589,14 +587,16 @@
         color: #FFFFFF;
         padding: 0.25rem 0.5rem;
         border-radius: 0.25rem;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         font-weight: 500;
-        margin-top: 0.5rem;
+        margin-top: 0rem;
         display: inline-block;
         position: absolute;
         top: 0;
         right: 0;
         z-index: 2;
+        margin-right: 33%;
+
     }
 
     .category-dropdown {

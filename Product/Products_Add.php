@@ -79,6 +79,12 @@
                 $manufacturerName = $_POST['Manufacturer_Name'];
                 $SubCategory_Name = $_POST['SubCategory_Name'];
 
+                if (!empty($_POST['Discount_Price'])) {
+                    $Discount_Price = $_POST['Discount_Price'];
+                } else {
+                    $Discount_Price = 0;
+                }
+
                 $queryCategory = "SELECT Category_ID FROM Categories WHERE Category_Name = :categoryName";
                 $pdostmtCategory = $connexion->prepare($queryCategory);
                 $pdostmtCategory->execute(['categoryName' => $categoryName]);
@@ -117,7 +123,7 @@
                     if (move_uploaded_file($uploadedFileTmpName, $targetFilePath)) {
                         $productPicture = $targetFilePath;
                     } else {
-                        $Error_Message = 'Failed to upload image. Please try again.';
+                        $Error_Message = '⚠️ Failed to upload image. Please try again.';
                     }
                 } else {
 
@@ -139,62 +145,67 @@
 
                 $detailedDateTimeForDisplay = $currentDateTimeUTC->format('Y-m-d \a\t H:i:s');
 
-                $insertProductQuery = "INSERT INTO Products (Product_Name, Category_ID, SubCategory_ID, Manufacturer_ID, Selling_Price, Buying_Price, Product_Quantity, Product_Picture, 
-                       Product_Desc, Product_Visibility, Date_Created) 
-                       VALUES (:Product_Name, :Category_ID, :SubCategory_ID, :Manufacturer_ID, :Selling_Price, :Buying_Price, :Product_Quantity, :Product_Picture, :Product_Desc, 
-                       :Product_Visibility, :Date_Created)";
+                if ($_POST['Buying_Price'] <= $_POST['Selling_Price']) {
+                    $insertProductQuery = "INSERT INTO Products (Product_Name, Category_ID, SubCategory_ID, Manufacturer_ID, Selling_Price, Buying_Price, Product_Quantity, 
+                                        Discount_Price ,Product_Picture, Product_Desc, Product_Visibility, Date_Created) 
+                                        VALUES (:Product_Name, :Category_ID, :SubCategory_ID, :Manufacturer_ID, :Selling_Price, :Buying_Price, :Product_Quantity, 
+                                        :Discount_Price ,:Product_Picture, :Product_Desc, :Product_Visibility, :Date_Created)";
 
-                $pdostmtProduct = $connexion->prepare($insertProductQuery);
-                $pdostmtProduct->execute([
-                    'Product_Name' => $_POST['Product_Name'],
-                    'Category_ID' => $_POST['Category_ID'],
-                    'SubCategory_ID' => $_POST['SubCategory_ID'],
-                    'Manufacturer_ID' => $_POST['Manufacturer_ID'],
-                    'Selling_Price' => $_POST['Selling_Price'],
-                    'Buying_Price' => $_POST['Buying_Price'],
-                    'Product_Quantity' => $_POST['Product_Quantity'],
-                    'Product_Picture' => $productPicture, // Set the product picture column to the file path
-                    'Product_Desc' => $_POST['Product_Desc'],
-                    'Product_Visibility' => $_POST['Product_Visibility'],
+                    $pdostmtProduct = $connexion->prepare($insertProductQuery);
+                    $pdostmtProduct->execute([
+                        'Product_Name' => $_POST['Product_Name'],
+                        'Category_ID' => $_POST['Category_ID'],
+                        'SubCategory_ID' => $_POST['SubCategory_ID'],
+                        'Manufacturer_ID' => $_POST['Manufacturer_ID'],
+                        'Selling_Price' => $_POST['Selling_Price'],
+                        'Buying_Price' => $_POST['Buying_Price'],
+                        'Product_Quantity' => $_POST['Product_Quantity'],
+                        'Product_Picture' => $productPicture,
+                        'Product_Desc' => $_POST['Product_Desc'],
+                        'Product_Visibility' => $_POST['Product_Visibility'],
+                        'Discount_Price' => $Discount_Price,
+                        'Date_Created' => $detailedDateTimeForDB
+                    ]);
 
-                    'Date_Created' => $detailedDateTimeForDB
-                ]);
-
-
-
-
-
-                $productId = $connexion->lastInsertId();
+                    $productId = $connexion->lastInsertId();
 
 
-                if (!empty($_POST['Specification_Name']) && !empty($_POST['Specification_Value'])) {
+                    if (!empty($_POST['Specification_Name']) && !empty($_POST['Specification_Value'])) {
 
-                    $specificationNames = $_POST['Specification_Name'];
-                    $specificationValues = $_POST['Specification_Value'];
-
-
-                    foreach ($specificationNames as $index => $specificationName) {
-                        $specificationValue = $specificationValues[$index];
+                        $specificationNames = $_POST['Specification_Name'];
+                        $specificationValues = $_POST['Specification_Value'];
 
 
-                        $insertSpecificationQuery = "INSERT INTO ProductSpecifications (Product_ID, Specification_Name, Specification_Value) 
+                        foreach ($specificationNames as $index => $specificationName) {
+                            $specificationValue = $specificationValues[$index];
+
+
+                            $insertSpecificationQuery = "INSERT INTO ProductSpecifications (Product_ID, Specification_Name, Specification_Value) 
                                               VALUES (:productId, :specificationName, :specificationValue)";
 
 
-                        $pdostmtSpecification = $connexion->prepare($insertSpecificationQuery);
-                        $pdostmtSpecification->execute([
-                            'productId' => $productId,
-                            'specificationName' => $specificationName,
-                            'specificationValue' => $specificationValue
-                        ]);
+                            $pdostmtSpecification = $connexion->prepare($insertSpecificationQuery);
+                            $pdostmtSpecification->execute([
+                                'productId' => $productId,
+                                'specificationName' => $specificationName,
+                                'specificationValue' => $specificationValue
+                            ]);
+                        }
                     }
+
+                    $_SESSION['Product_Add/Update'] = "Product Added Successfully";
+
+                    header("Location: ../.");
+
+
+
+                } else {
+                    $Error_Message = "⚠️ Error-Price : Buying Price cannot be higher than Selling price, ";
                 }
 
-                $_SESSION['Product_Add/Update'] = "Product Added Successfully";
 
-                header("Location: ../.");
             } else {
-                $Error_Message = 'A Product with that name already exists, try again!';
+                $Error_Message = '⚠️ Error-Name : A Product with that name already exists, try again!';
             }
         }
     }
@@ -242,6 +253,7 @@
                     <?php endif; ?>
                 <?php endforeach; ?>
                 <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
+                <div><a href="./../?Status=Discount" class="px-2 py-2 hover:bg-yellow-700">🏷️On Sale🏷️</a></div>
             </div>
 
 
@@ -348,12 +360,64 @@
                 <div class="flex space-x-6">
                     <div class="w-1/3">
 
+                        <?php if ($Error_Message !== '') { ?>
+                            <span
+                                class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">
+                                <?php echo $Error_Message; ?></span>
+                        <?php } ?>
+
+
+
                         <!-- Add more fields as needed -->
                         <div class="mb-4">
                             <label for="Product_Name" class="block text-sm font-medium text-gray-700">Product
                                 Name:</label>
                             <input type="text" name="Product_Name" placeholder="Example: RTX 2060" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="Buying_Price" class="block text-sm font-medium text-gray-700">Buying
+                                Price:</label>
+                            <input type="number" name="Buying_Price" placeholder="In Dhs" value="1" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="mb-4">
+                            <label for="Selling_Price" class="block text-sm font-medium text-gray-700">Selling
+                                Price:</label>
+                            <input type="number" name="Selling_Price" placeholder="In Dhs" value="1" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="mb-4"><label for="Discount_Price"
+                                class="block text-sm font-medium text-gray-700">Price after Discount:</label><input
+                                type="number" name="Discount_Price" value=""
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Leave this field empty or 0 for no discount."></div>
+
+                        <div class="mb-4">
+                            <label for="Product_Quantity"
+                                class="block text-sm font-medium text-gray-700">Quantity:</label>
+                            <input type="number" name="Product_Quantity" placeholder="How many in stock" value="1"
+                                required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="mb-4">
+                            <label for="Product_Picture" class="block text-sm font-medium text-gray-700">Product
+                                Picture:</label>
+                            <input type="file" name="Product_Picture" accept="image/*"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+
+
+                    </div>
+                    <div class="w-1/3">
+                        <div class="mb-4">
+                            <label for="Product_Desc" class="block text-sm font-medium text-gray-700">Product
+                                Description:</label>
+                            <textarea name="Product_Desc" id="Product_Desc" cols="30" rows="5"
+                                placeholder="Write a brief description about this product"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
                         </div>
                         <div class="mb-4">
                             <label for="Category_Name" class="block text-sm font-medium text-gray-700">Category:</label>
@@ -371,6 +435,7 @@
                                 ?>
                             </select>
                         </div>
+
                         <div class="mb-4">
                             <label for="SubCategory_Name" class="block text-sm font-medium text-gray-700">Sub
                                 Category:</label>
@@ -405,50 +470,21 @@
                                 ?>
                             </select>
                         </div>
-                        <div class="mb-4">
-                            <label for="Buying_Price" class="block text-sm font-medium text-gray-700">Buying Price:</label>
-                            <input type="number" name="Buying_Price" placeholder="In Dhs" value="1" required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </div>
-                        <div class="mb-4">
-                            <label for="Selling_Price" class="block text-sm font-medium text-gray-700">Selling
-                                Price:</label>
-                            <input type="number" name="Selling_Price" placeholder="In Dhs" value="1" required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </div>
-                        <div class="mb-4">
-                            <label for="Product_Quantity"
-                                class="block text-sm font-medium text-gray-700">Quantity:</label>
-                            <input type="number" name="Product_Quantity" placeholder="How many in stock" value="1"
-                                required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </div>
-                        <div class="mb-4">
-                            <label for="Product_Picture" class="block text-sm font-medium text-gray-700">Product
-                                Picture:</label>
-                            <input type="file" name="Product_Picture" accept="image/*"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </div>
 
-                    </div>
-                    <div class="w-1/3">
 
                         <div class="mb-4">
-                            <label for="Product_Desc" class="block text-sm font-medium text-gray-700">Product
-                                Description:</label>
-                            <textarea name="Product_Desc" id="Product_Desc" cols="30" rows="5"
-                                placeholder="Write a brief description about this product"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label for="Product_Visibility"
-                                class="block text-sm font-medium text-gray-700">Visibility:</label>
+                            <label for="Product_Visibility" class="block text-sm font-medium text-gray-700">👁️
+                                Visibility:</label>
                             <select name="Product_Visibility"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <option value="Visible">Visible</option>
                                 <option value="Invisible">Invisible</option>
                             </select>
+
                         </div>
+
+
+
                         <!-- Add more fields as needed -->
                     </div>
                     <div class="w-1/3">
@@ -463,15 +499,16 @@
                         <!-- Add more fields as needed -->
                     </div>
                 </div>
-                <button type="submit"
-                    class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block">Add
-                    Product</button>
-                <button type="reset"
-                    class="bg-gray-500 hover:bg-red-600 text-white py-2 px-4 rounded-md inline-block">Reset</button>
 
-                <span class="text-red-500 block mt-4">
-                    <?php echo $Error_Message ?>
-                </span>
+                <div id="AddProduct">
+                    <button type="submit"
+                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block">Add
+                        Product</button>
+                    <button type="reset"
+                        class="bg-gray-500 hover:bg-red-600 text-white py-2 px-4 rounded-md inline-block">Reset</button>
+                    <input type="hidden" id="deletedSpecs" name="deletedSpecs" value="">
+                </div>
+
             </form>
         </div>
     </div>

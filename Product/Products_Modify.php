@@ -107,6 +107,7 @@ if (!empty($_GET["id"])) {
         $Product_Quantity = $_POST['Product_Quantity']; // Product_Quantity
         $Product_Desc = $_POST['Product_Desc']; // Product_Desc
         $Product_Visibility = $_POST['Product_Visibility']; // Product_Visibility
+        $Discount_Price = $_POST['Discount_Price'];
     
         $Q_Category = "SELECT Category_ID FROM Categories WHERE Category_Name = :Category_Name";
         $pdoQ_Category = $connexion->prepare($Q_Category);
@@ -158,7 +159,7 @@ if (!empty($_GET["id"])) {
             $Update_Product = "UPDATE Products SET Product_Name = :Product_Name, Category_ID = :Category_ID, SubCategory_ID = :SubCategory_ID, 
                                 Manufacturer_ID = :Manufacturer_ID, Selling_Price = :Selling_Price, Buying_Price = :Buying_Price, 
                                 Product_Quantity = :Product_Quantity, Product_Desc = :Product_Desc, 
-                                Product_Visibility = :Product_Visibility 
+                                Product_Visibility = :Product_Visibility , Discount_Price = :Discount_Price
                                 WHERE Product_ID = :Product_ID";
             $pdoUpdate_Product = $connexion->prepare($Update_Product);
             $pdoUpdate_Product->execute([
@@ -171,7 +172,8 @@ if (!empty($_GET["id"])) {
                 ':Product_Quantity' => $Product_Quantity,
                 ':Product_Desc' => $Product_Desc,
                 ':Product_Visibility' => $Product_Visibility,
-                ':Product_ID' => $Product_ID
+                ':Product_ID' => $Product_ID,
+                ':Discount_Price' => $Discount_Price
             ]);
 
 
@@ -278,6 +280,7 @@ if (!empty($_GET["id"])) {
                     <?php endif; ?>
                 <?php endforeach; ?>
                 <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
+                <div><a href="./../?Status=Discount" class="px-2 py-2 hover:bg-yellow-700">🏷️On Sale🏷️</a></div>
             </div>
 
             <!-- User Links -->
@@ -390,7 +393,7 @@ if (!empty($_GET["id"])) {
                         <?php if ($Error_Message !== '') { ?>
                             <span
                                 class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">
-                                <?php echo $Error_Message; ?>
+                                ⚠️ <?php echo $Error_Message; ?>
                             </span>
                         <?php } ?>
 
@@ -402,6 +405,8 @@ if (!empty($_GET["id"])) {
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 value="<?php echo $Product_Display['Product_Name'] ?>">
                         </div>
+
+
                         <div class="mb-4">
                             <label for="Category_Name" class="block text-sm font-medium text-gray-700">Category:</label>
                             <select name="Category_Name" required
@@ -487,21 +492,23 @@ if (!empty($_GET["id"])) {
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
                         <div class="mb-4">
+                            <label for="Discount_Price" class="block text-sm font-medium text-gray-700">Price after
+                                Discount:</label>
+                            <input type="number" name="Discount_Price" value="<?php echo $Product_Display['Discount_Price'] ?>"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Leave this field empty or 0 for no discount.">
+                        </div>
+                        <div class="mb-4">
                             <label for="Product_Quantity"
                                 class="block text-sm font-medium text-gray-700">Quantity:</label>
                             <input type="number" name="Product_Quantity" placeholder="How many in stock"
                                 value="<?php echo $Product_Display['Product_Quantity']; ?>" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
-                        <div class="mb-4">
-                            <label for="Product_Picture" class="block text-sm font-medium text-gray-700">Product
-                                Picture:</label>
-                            <input type="file" name="Product_Picture" accept="image/*"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </div>
-                        <div style="position : fixed ; margin-top : 0px" class=>
+                        
+                        <div style="position : fixed ; margin-top : 0px">
                             <button type="submit"
-                                class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block">SaveChanges</button>
+                                class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block">Save Changes</button>
                             <button type="reset"
                                 class="bg-gray-500 hover:bg-red-600 text-white py-2 px-4 rounded-md inline-block">Reset</button>
                             <input type="hidden" id="deletedSpecs" name="deletedSpecs" value="">
@@ -528,6 +535,12 @@ if (!empty($_GET["id"])) {
                                 </option>
                             </select>
 
+                        </div>
+                        <div class="mb-4">
+                            <label for="Product_Picture" class="block text-sm font-medium text-gray-700">Product
+                                Picture:</label>
+                            <input type="file" name="Product_Picture" accept="image/*"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
                         <div class="mb-4">
                             <label for="Product_Picture" class="block mb-2 ">Current Product Picture</label>

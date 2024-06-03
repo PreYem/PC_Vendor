@@ -190,6 +190,7 @@
                     <?php endif; ?>
                 <?php endforeach; ?>
                 <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
+                <div><a href="./../?Status=Discount" class="px-2 py-2 hover:bg-yellow-700">🏷️On Sale🏷️</a></div>
             </div>
 
             <!-- User Links -->
@@ -389,31 +390,34 @@
                 <!-- Right Section -->
                 <div class="space-y-4">
                     <?php if ($User_Data['User_Role'] !== 'Owner') { ?>
+                        <?php if ($User_Role === 'Owner') { ?>
 
-                        <div>
-                            <label for="Account_Locked" class="block text-sm font-medium text-gray-700">Account Lock</label>
-                            <select name="Account_Status" id="Account_Status"
-                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                <?php
-                                $Account_Status = ['🔒 Locked', '✔️ Unlocked'];
+                            <div>
+                                <label for="Account_Locked" class="block text-sm font-medium text-gray-700">Account Lock</label>
+                                <select name="Account_Status" id="Account_Status"
+                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <?php
+                                    $Account_Status = ['🔒 Locked', '✔️ Unlocked'];
 
-                                foreach ($Account_Status as $Status) {
-                                    if ($User_Data['Account_Status'] === $Status) {
-                                        echo '<option selected>' . $Status . '</option>';
-                                    } else {
-                                        echo '<option>' . $Status . '</option>';
+                                    foreach ($Account_Status as $Status) {
+                                        if ($User_Data['Account_Status'] === $Status) {
+                                            echo '<option selected>' . $Status . '</option>';
+                                        } else {
+                                            echo '<option>' . $Status . '</option>';
+                                        }
                                     }
-                                }
-                                ?>
-                            </select>
-                        </div>
+                                    ?>
+                                </select>
+                            </div>
+                        <?php } ?>
                     <?php } else { ?>
                         <div class="mt-1 block bg-red-200" id="privilegeWarning">
-                                    <span
-                                        class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">⚠️
-                                        Account Status Warning 🔒✔️ :</span><br>
-                                    <span class="text-yellow-800">Unable to Lock Accounts with <b>Owner Level Privilege</b> until their Privilige is downgraded first.</span>
-                                </div>
+                            <span
+                                class="inline-block bg-yellow-200 text-yellow-800 rounded-full px-3 py-1 text-xs font-semibold mr-2">⚠️
+                                Account Status Warning 🔒✔️ :</span><br>
+                            <span class="text-yellow-800">Unable to Lock Accounts with <b>Owner Level Privilege</b> until
+                                their Privilige is downgraded first.</span>
+                        </div>
                     <?php } ?>
 
 

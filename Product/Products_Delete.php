@@ -29,25 +29,43 @@ if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
 ;
 
 if (!empty($_GET["id"])) {
+
     $productId = $_GET["id"];
+    try {
+        
+        $connexion->beginTransaction(); 
+        
+        $queryDeleteSpecs = "DELETE FROM ProductSpecifications WHERE Product_ID = :productId";
+        $pdostmtDeleteSpecs = $connexion->prepare($queryDeleteSpecs);
+        $pdostmtDeleteSpecs->execute(["productId" => $productId]);
 
+        $queryDeleteSpecs = "DELETE FROM ShoppingCart WHERE Product_ID = :productId";
+        $pdostmtDeleteSpecs = $connexion->prepare($queryDeleteSpecs);
+        $pdostmtDeleteSpecs->execute(["productId" => $productId]);
+    
+        
+        $Delete_From_Cart = "DELETE FROM ShoppingCart WHERE Product_ID = :productId";
+        $pdostmtDeleteCart = $connexion->prepare($Delete_From_Cart);
+        $pdostmtDeleteCart->execute(["productId" => $productId]);
+    
+        
+        $queryDeleteProduct = "DELETE FROM Products WHERE Product_ID = :productId";
+        $pdostmtDeleteProduct = $connexion->prepare($queryDeleteProduct);
+        $pdostmtDeleteProduct->execute(["productId" => $productId]);
+    
+        $connexion->commit(); 
 
-    $queryDeleteSpecs = "DELETE FROM ProductSpecifications WHERE Product_ID = :productId";
-    $pdostmtDeleteSpecs = $connexion->prepare($queryDeleteSpecs);
-    $pdostmtDeleteSpecs->execute(["productId" => $productId]);
+    
+        $_SESSION['Product_Delete'] = "Product Deleted Successfully";
 
+    } catch (PDOException $e) {
+        $connexion->rollBack();
 
-    $Delete_From_Cart = "DELETE FROM ShoppingCart WHERE Product_ID = :productId";
-    $pdostmtDeleteCart = $connexion->prepare($Delete_From_Cart);
-    $pdostmtDeleteCart->execute(["productId" => $productId]);
+        $_SESSION['Product_Delete'] = "Error : Product could not be deleted, check if a client order contains this product. ";
+    }
+    
 
-    // Then delete the product
-    $queryDeleteProduct = "DELETE FROM Products WHERE Product_ID = :productId";
-    $pdostmtDeleteProduct = $connexion->prepare($queryDeleteProduct);
-    $pdostmtDeleteProduct->execute(["productId" => $productId]);
-
-
-    $_SESSION['Product_Delete'] = "Product Deleted Successfully";
+    
     header("Location: ../.");
     exit();
 } else {

@@ -94,9 +94,9 @@
             $User_FullName = $User['User_FirstName'] . ' ' . $User['User_LastName'];
             $User_Role = $User['User_Role'];
 
-            
-            
-        } 
+
+
+        }
     }
 
 
@@ -113,9 +113,10 @@
         $pdostmt_shopping->execute([':User_ID' => $User_ID]);
         $Shopping_Cart = $pdostmt_shopping->fetchAll(PDO::FETCH_ASSOC);
         $Cart_Count = $pdostmt_shopping->rowCount();
-    };
+    }
+    ;
 
-    $Shopping_Query = " SELECT sc.CartItem_ID, sc.Product_ID, sc.Quantity, p.Product_Name, p.Selling_Price, p.Product_Picture
+    $Shopping_Query = " SELECT sc.CartItem_ID, sc.Product_ID, sc.Quantity, p.Product_Name, p.Selling_Price, p.Discount_Price, p.Product_Picture
                         FROM ShoppingCart sc
                         JOIN Products p ON sc.Product_ID = p.Product_ID
                         WHERE sc.User_ID = :User_ID";
@@ -123,12 +124,27 @@
     $pdostmt->execute([':User_ID' => $User_ID]);
     $Shopping_Cart = $pdostmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $totalAmount = 0;
 
     $totalAmount = 0;
+
     foreach ($Shopping_Cart as $item):
-        $totalAmount += $item['Selling_Price'] * $item['Quantity'];
+        $Discount = false;
+    
+        // Check if there's a discount
+        if ($item['Selling_Price'] > $item['Discount_Price'] && $item['Discount_Price'] > 0) {
+            $Discount = true;
+        }
+    
+        // Apply appropriate price to totalAmount based on discount
+        if ($Discount == false) {
+            $totalAmount += $item['Selling_Price'] * $item['Quantity'];
+        } else {
+            $totalAmount += $item['Discount_Price'] * $item['Quantity'];
+        }
     endforeach;
+    
+
+    
     if (!empty($_POST)) {
         $Order_Insert = " INSERT INTO Orders (User_ID, Order_TotalAmount, Order_ShippingAddress, Order_PaymentMethod, Order_PhoneNumber, Order_Notes) 
                           VALUES (:User_ID, :Order_TotalAmount, :Order_ShippingAddress, :Order_PaymentMethod, :Order_PhoneNumber, :Order_Notes)";
@@ -217,6 +233,7 @@
                     <?php endif; ?>
                 <?php endforeach; ?>
                 <div><a href="./../?Status=New" class="px-2 py-2 hover:bg-yellow-700">✨Newest Products✨</a></div>
+                <div><a href="./../?Status=Discount" class="px-2 py-2 hover:bg-yellow-700">🏷️On Sale🏷️</a></div>
             </div>
 
             <!-- User Links -->
@@ -321,14 +338,17 @@
         <div class="container mx-auto p-4 bg-white shadow-lg rounded-lg">
             <div class="content-wrapper pt-8">
                 <h1 class="text-3xl font-bold mb-6 text-blue-800">Your Shopping Cart</h1>
-                <a href="User_PendingOrders.php" class="text-blue-600 hover:underline mb-4 inline-block">Pending Orders <?php if ($Order_Count) { echo  '(' . $Order_Count . ')'; } ?></a>
+                <a href="User_PendingOrders.php" class="text-blue-600 hover:underline mb-4 inline-block">Pending Orders
+                    <?php if ($Order_Count) {
+                        echo '(' . $Order_Count . ')';
+                    } ?></a>
 
                 <?php if ($Shopping_Cart) { ?>
                     <section class="overflow-x-auto">
                         <table class="min-w-full bg-white border border-gray-300 rounded-lg">
                             <thead>
                                 <tr class="bg-gray-200 text-left">
-                                    <th class="px-6 py-3">Product</th>
+                                    <th class="px-6 py-3">Product Name</th>
                                     <th class="px-6 py-3">Price per Unit</th>
                                     <th class="px-6 py-3">Quantity</th>
                                     <th class="px-6 py-3">Picture</th>
@@ -336,10 +356,40 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($Shopping_Cart as $item): ?>
+                                <?php foreach ($Shopping_Cart as $item):
+                                    $Discount = false;
+
+                                    if ($item['Selling_Price'] == $item['Discount_Price']) {
+                                        $Discount = false;
+
+                                    } elseif ($item['Selling_Price'] > $item['Discount_Price'] && $item['Discount_Price'] > 0) {
+                                        $Discount = true;
+
+                                    } ?>
                                     <tr class="hover:bg-gray-100">
                                         <td class="px-6 py-4"><?php echo $item['Product_Name']; ?></td>
-                                        <td class="px-6 py-4"><?php echo formatNumber($item['Selling_Price']); ?> Dhs</td>
+
+                                        <td class="px-6 py-4">
+                                        <?php if ($Discount == false) { ?>
+                                            <p class=" mb-1 font-bold">
+                                                <?php echo formatNumber($item['Selling_Price']); ?> Dhs
+                                            </p>
+                                        <?php } else { ?>
+                                            <p class="text-gray-500 mb-1">
+                                                <span
+                                                    class="line-through italic"><?php echo formatNumber($item['Selling_Price']); ?>
+                                                    Dhs</span><br>
+                                                <span
+                                                    class="text-green-500 font-bold"><?php echo formatNumber($item['Discount_Price']); ?>
+                                                    Dhs</span>
+
+
+                                            </p>
+
+                                        <?php } ?>
+                                        </td>
+
+
                                         <td class="px-6 py-4"><b><?php echo $item['Quantity']; ?></b></td>
                                         <td class="px-6 py-4">
                                             <img src="../Product/<?php echo $item['Product_Picture']; ?>" alt="Product Image"
@@ -347,7 +397,8 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             <a href="User_Delete_Item_ShoppingCart.php?id=<?php echo $item["CartItem_ID"]; ?>"
-                                                class="text-red-600 hover:underline"><box-icon type='solid' color="#dd0d1e" name='trash-alt'></box-icon></a>
+                                                class="text-red-600 hover:underline"><box-icon type='solid' color="#dd0d1e"
+                                                    name='trash-alt'></box-icon></a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
