@@ -4,29 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../Logo.png" type="image/x-icon">
-    <title>Login 🔑 | PC Vendor</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-
-
+    <title>Reset Your Password | PC Vendor</title>
     <?php
-
     session_start();
     include_once ("../DB_Connexion.php");
-
-    function formatNumber($number)
-    {
-        return number_format($number, 0, '', ' ');
-    }
 
     $Categories = "SELECT Category_ID, Category_Name FROM Categories ORDER BY Category_ID ASC";
     $pdoCategories = $connexion->prepare($Categories);
     $pdoCategories->execute();
     $Categories = $pdoCategories->fetchAll(PDO::FETCH_ASSOC);
-
-    $loginError = '';
-
 
     if (isset($_SESSION['User_ID'])) {
 
@@ -35,51 +21,145 @@
     }
     ;
 
+    $loginError = '';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-        $User_Username = $_POST['User_Username'];
-        $password = $_POST['User_Password'];
+        $User_Email = $_POST['Email'];
 
 
-        $query = "SELECT * FROM Users WHERE User_Username = :User_Username";
-        $stmt = $connexion->prepare($query);
-        $stmt->execute(['User_Username' => $User_Username]);
 
-        $User = $stmt->fetch(PDO::FETCH_ASSOC);
+        $Select_Email = "SELECT User_ID, User_Username FROM Users WHERE User_Email = :User_Email";
+        $pdoSelect_Email = $connexion->prepare($Select_Email);
+        $pdoSelect_Email->execute(['User_Email' => $User_Email]);
+
+        $User = $pdoSelect_Email->fetch(PDO::FETCH_ASSOC);
+
+        $User_Username = $User['User_Username'];
 
 
-        if ($User && password_verify($password, $User['User_Password'])) {
+        if ($User) {
+            require ("../script.php");
 
-            if ($User['Account_Status'] !== '🔒 Locked') {
-                $_SESSION['User_ID'] = $User['User_ID'];
-                $_SESSION['User_Username'] = $User['User_Username'];
-                $_SESSION['User_Role'] = $User['User_Role'];
-
-                $_SESSION['Product_Add/Update'] = "Welcome Back " . $User['User_FirstName'];
-                header("Location: ../.");
-                exit;
-
-            } else {
-                $loginError = "Login Failed, Account is locked.";
+            function generateRandomString($length = 8)
+            {
+                $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                $charactersLength = strlen($characters);
+                $randomString = '';
+                for ($i = 0; $i < $length; $i++) {
+                    $randomString .= $characters[random_int(0, $charactersLength - 1)];
+                }
+                return $randomString;
             }
+
+            if (!empty($_POST['Email'])) {
+                $User_Email = $_POST['Email'];
+            }
+
+            // Generate a random code
+            $Reset_Code = generateRandomString(8);
+
+            $Email_Subject = "Password Reset | PC Vendor";
+
+            $Email_Message = "
+            <html>
+            <head>
+                <title>Password Reset</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 0;
+                    }
+            
+                    .container {
+                        max-width: 600px;
+                        margin: 50px auto;
+                        padding: 20px;
+                        background-color: #fff;
+                        border-radius: 10px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    }
+            
+                    h1 {
+                        color: #333;
+                        text-align: center;
+                    }
+            
+                    p {
+                        color: #666;
+                        line-height: 1.6;
+                    }
+            
+                    .highlight {
+                        color: red;
+                        font-weight: bold;
+                    }
+            
+                    .button {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #007bff;
+                        color: #fff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        transition: background-color 0.3s ease;
+                    }
+            
+                    .button:hover {
+                        background-color: #0056b3;
+                    }
+            
+                    .footer {
+                        text-align: center;
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+            
+            <div class='container'>
+                <h1>Password Reset</h1>
+                <p>Hello,</p>
+                <p>Your Username: <strong>$User_Username</strong></p>
+                <p>Your password reset code is: <span class='highlight'>$Reset_Code</span></p>
+                <p>Please click the button below to reset your password:</p>
+                <p><a class='button' href='http://localhost/PC_Vendor/User/User_ResetCode'>Reset Password</a></p>
+                <div class='footer'>
+                    <p>If you didn't request this, you can safely ignore this email.</p>
+                </div>
+            </div>
+            
+            </body>
+            </html>
+            ";
+
+
+
+
+            $response = sendMail($User_Email, $Email_Subject, $Email_Message);
+
+            session_start();
+            $_SESSION['Reset_Code'] = $Reset_Code;
+            $_SESSION['Reset_Email'] = $User_Email;
+
+            header("Location: User_ResetCode.php");
+            exit;
+
+
 
 
         } else {
 
-            $loginError = "Invalid username or password.";
+            $loginError = "Invalid Email";
         }
     }
-
-
 
     ?>
 </head>
 
-
-
-<body class="bg-gray-100">
-
+<body>
     <nav class="bg-blue-800 text-white">
         <div class="flex flex-wrap justify-between items-center p-4">
             <!-- Logo -->
@@ -131,62 +211,33 @@
                     class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
                 <a href="../User/User_SignUp.php"
                     class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Register</a>
-
             </div>
-
         </div>
-
-
     </nav>
-
 
     <div class="container">
         <div class="content-wrapper">
-            <h1 class="text-2xl font-bold mb-6 text-center">Sign in to your account</h1>
+            <h1 class="text-2xl font-bold mb-6 text-center">Verify Your Email Address</h1>
             <form action="" method="POST" class="max-w-md mx-auto bg-white p-8 rounded shadow-md space-y-4">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
-                    <label for="User_Username" class="block text-sm font-medium text-gray-700">Username:</label>
-                    <input type="text" name="User_Username" placeholder="Your Username"
+                    <label for="User_Username" class="block text-sm font-medium text-gray-700 mt-2">Your Email
+                        Addresse:</label>
+                    <input type="email" name="Email" placeholder="Email Address"
                         class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
-                    <label for="User_Password" class="block text-sm font-medium text-gray-700">Password:</label>
-                    <input type="password" name="User_Password" id="password" placeholder="Your Password"
-                        class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required>
-                    <span id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
-                        <i class="fas fa-eye"></i>
-                    </span>
-                </div>
 
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center ml-28">
                     <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Sign In
-                    </button>
-                    <button type="reset"
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">
-                        Reset
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">Reset
+                        Password
                     </button>
                 </div>
 
                 <span class="text-red-600 block"><?php echo $loginError ?></span>
 
-                <div class="text-center">
-                    <?php if ($loginError === "Invalid username or password.") { ?>
-                        <span class="text-sm"></span><a href="User_ForgotPassword.php"
-                            class="text-purple-500 hover:underline">Forgotten Password?</a><br>
-                    <?php } ?>
-                    <span class="text-sm">Don't have an account? </span><a href="User_SignUp.php"
-                        class="text-blue-500 hover:underline">Sign Up</a><br>
-                    <?php if (isset($_SESSION['Password_Reset'])) { ?>
-                        <span id="Password_Reset" ><?php echo $_SESSION['Password_Reset'];
-                        unset($_SESSION['Password_Reset']) ?></span>
-                    <?php } ?>
-                </div>
             </form>
 
             <!-- Include Font Awesome -->
@@ -197,42 +248,9 @@
 
 
 
-    <script>
-        window.addEventListener('DOMContentLoaded', function () {
-            adjustContentMargin();
-        });
-
-        window.addEventListener('resize', function () {
-            adjustContentMargin();
-        });
-
-        function adjustContentMargin() {
-            var navHeight = document.querySelector('nav').offsetHeight;
-            document.querySelector('.content-wrapper').style.marginTop = navHeight + 'px';
-        }
-
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
-
-        togglePassword.addEventListener('click', function () {
-            // Toggle the type attribute
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-
-            // Toggle the eye / eye-slash icon
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
-    </script>
 </body>
 
-</html>
 <style>
-    #Password_Reset{
-        color : green;
-    }
-
-
     /* Remove the .content-wrapper margin-top and padding-top */
     .content-wrapper {
         margin-top: 0;
@@ -382,3 +400,5 @@
 
     }
 </style>
+
+</html>

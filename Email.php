@@ -8,52 +8,38 @@
 <body>
 
     <?php
-    // Define variables and initialize with empty values
-    $email = "";
-    $email_err = "";
 
-    // Processing form data when form is submitted
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Validate email
-        if (empty(trim($_POST["email"]))) {
-            $email_err = "Please enter an email.";
-        } else {
-            $email = trim($_POST["email"]);
-        }
+    require ("script.php");
 
-        // If no errors, send the email
-    
-        try {
+    $response = "" ;
 
-            if (empty($email_err)) {
-                $to = $email;
-                $subject = 'Hello World';
-                $message = 'Hello World!';
-                $headers = 'From: your-email@example.com' . "\r\n" .
-                    'Reply-To: your-email@example.com' . "\r\n" .
-                    'X-Mailer: PHP/' . phpversion();
+    if (empty($_POST['email']) || empty($_POST['subject'] || empty($_POST['message']))) {
 
-                // Send the email
-                if (mail($to, $subject, $message, $headers)) {
-                    echo "<p>Email sent successfully to $email</p>";
-                } else {
-                    echo "<p>Failed to send email.</p>";
-                }
-            }
-
-        } catch (PDOException $e) {
-            $connexion->rollBack();
-            echo "<p>Failed to send email AFTER TRY CATCH.</p>";
-        }
+        $response = "All fields are required" ;
+    } else {
+        $response = sendMail($_POST['email'], $_POST['subject'] , $_POST['message']) ;
 
     }
+
+
+   
     ?>
 
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+    <form action="" method="post">
         <label>Email:</label>
-        <input type="text" name="email" value="<?php echo $email; ?>">
-        <span><?php echo $email_err; ?></span><br><br>
+        <input type="text" name="email" ><br>
+        <label>Subject : </label>
+        <input type="text" name="subject"><br>
+        <label>Message : </label>
+        <input type="text" name="message"><br>
+
         <input type="submit" value="Send Email">
+        <?php if(@$response == "success") {
+            echo "<p style='color:green'>Email Sent Successfully</p>";
+        } else {
+            echo "<p style='color:red'>$response</p>";
+        }
+            ?>
     </form>
 
 </body>
