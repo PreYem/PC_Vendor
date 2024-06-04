@@ -61,9 +61,9 @@
 
     $Current_User = $_SESSION['User_ID'];
 
-    $bigQuery = "SELECT p.Product_ID, p.Product_Name, p.Product_Picture, o.Order_ID, o.Order_Date, o.Order_TotalAmount, o.Order_Status, 
-                 oi.OrderItem_Quantity, oi.OrderItem_UnitPrice, u.User_ID , u.User_Username, u.User_FirstName , u.User_LastName
-                 FROM Orders o
+    $bigQuery = "SELECT p.Product_ID, p.Product_Name, p.Product_Picture, o.Order_ID, o.Order_ShippingAddress, o.Order_Date, o.Order_TotalAmount, o.Order_Status, 
+                 oi.OrderItem_Quantity, oi.OrderItem_UnitPrice, u.User_ID , u.User_Username, u.User_FirstName , u.User_LastName , o.Order_PhoneNumber , o.Order_Notes,
+                 o.Order_PaymentMethod FROM Orders o
                  INNER JOIN OrderItems oi ON o.Order_ID = oi.Order_ID
                  INNER JOIN Products p ON oi.Product_ID = p.Product_ID
                  INNER JOIN Users u ON o.User_ID = u.User_ID
@@ -85,6 +85,11 @@
         $orders[$Order['Order_ID']]['User_FirstName'] = $Order['User_FirstName'];
         $orders[$Order['Order_ID']]['User_LastName'] = $Order['User_LastName'];
         $orders[$Order['Order_ID']]['User_Username'] = $Order['User_Username'];
+        $orders[$Order['Order_ID']]['Order_ShippingAddress'] = $Order['Order_ShippingAddress'];
+        $orders[$Order['Order_ID']]['Order_PhoneNumber'] = $Order['Order_PhoneNumber'];
+        $orders[$Order['Order_ID']]['Order_PaymentMethod'] = $Order['Order_PaymentMethod'];
+        $orders[$Order['Order_ID']]['Order_Notes'] = $Order['Order_Notes'];
+
 
 
         $orders[$Order['Order_ID']]['Products'][] = [
@@ -337,9 +342,22 @@
                                 </p>
                                 <!-- Details section -->
                                 <div class="order-details">
-                                    <p class="text-gray-600 mt-4 status-paragraph">Username :
+                                    <p class="text-gray-600 mt-4 status-paragraph">Username:
                                         <b><?php echo $order['User_Username']; ?></b>
                                     </p>
+                                    <p class="text-gray-600 mt-4 status-paragraph">Client Phone:
+                                        <b><?php echo $order['Order_PhoneNumber']; ?></b>
+                                    </p>
+                                    <p class="text-gray-600 mt-4 status-paragraph">Address:
+                                        <b><?php echo $order['Order_ShippingAddress']; ?></b>
+                                    </p>
+                                    <p class="text-gray-600 mt-4 status-paragraph">PaymentMethod:
+                                        <b><?php echo $order['Order_PaymentMethod']; ?></b>
+                                    </p>
+                                    <p class="text-gray-600 mt-4 status-paragraph">Notes:
+                                        <b><?php echo $order['Order_Notes']; ?></b>
+                                    </p>
+
                                     <?php foreach ($order['Products'] as $product): ?>
                                         <div class="flex items-center border-b py-4">
                                             <div class="flex-shrink-0 mr-4">
@@ -368,8 +386,33 @@
 
 
 
-                                <p class="text-gray-600 status-paragraph"><b>Status : </b><?php echo $order['Order_Status']; ?>
+                                <p class="text-gray-600 status-paragraph"><b>Status : </b>
+                                    <?php
+                                    $statusStyles = [
+                                        'Completed' => ['bg-green-500', '✅'],
+                                        'Pending' => ['bg-yellow-500', '⏳'],
+                                        'Processing' => ['bg-blue-500', '🔄'],
+                                        'Shipped' => ['bg-purple-500', '📦'],
+                                        'Delivered' => ['bg-green-600', '📬'],
+                                        'On Hold' => ['bg-orange-500', '⏸️'],
+                                        'Refunded' => ['bg-red-500', '💸'],
+                                        'Returned' => ['bg-pink-500', '↩️'],
+                                        'Cancelled by User' => ['bg-red-600', '❌'],
+                                        'Cancelled by Management' => ['bg-red-700', '🚫']
+                                    ];
+
+                                    $orderStatus = $order['Order_Status'];
+
+                                    if (isset($statusStyles[$orderStatus])) {
+                                        $style = $statusStyles[$orderStatus][0];
+                                        $emoji = $statusStyles[$orderStatus][1];
+                                        echo "<span class=\"$style text-white p-1 rounded\">$orderStatus $emoji</span>";
+                                    } else {
+                                        echo "<span class=\"bg-gray-500 text-white p-1 rounded\">$orderStatus</span>";
+                                    }
+                                    ?>
                                 </p>
+
 
                                 <p class="text-gray-600"><b>Total Amount :
                                     </b><?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs</p>

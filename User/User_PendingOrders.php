@@ -329,8 +329,33 @@
                                     <?php endforeach; ?>
 
                                 </div>
-                                <p class="text-gray-600 mt-4 status-paragraph"><b>Status :
-                                    </b><?php echo $order['Order_Status']; ?></p>
+                                <p class="text-gray-600 mt-4 status-paragraph"><b>Status : </b>
+                                    <?php
+                                    $statusStyles = [
+                                        'Completed' => ['bg-green-500', '✅'],
+                                        'Pending' => ['bg-yellow-500', '⏳'],
+                                        'Processing' => ['bg-blue-500', '🔄'],
+                                        'Shipped' => ['bg-purple-500', '📦'],
+                                        'Delivered' => ['bg-green-600', '📬'],
+                                        'On Hold' => ['bg-orange-500', '⏸️'],
+                                        'Refunded' => ['bg-red-500', '💸'],
+                                        'Returned' => ['bg-pink-500', '↩️'],
+                                        'Cancelled by User' => ['bg-red-600', '❌'],
+                                        'Cancelled by Management' => ['bg-red-700', '🚫']
+                                    ];
+
+                                    $orderStatus = $order['Order_Status'];
+
+                                    if (isset($statusStyles[$orderStatus])) {
+                                        $style = $statusStyles[$orderStatus][0];
+                                        $emoji = $statusStyles[$orderStatus][1];
+                                        echo "<span class=\"$style text-white p-1 rounded\">$orderStatus $emoji</span>";
+                                    } else {
+                                        echo "<span class=\"bg-gray-500 text-white p-1 rounded\">$orderStatus</span>";
+                                    }
+                                    ?>
+                                </p>
+
                                 <p class="text-gray-600"><b>Total Amount :
                                     </b><?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs
                                 </p>

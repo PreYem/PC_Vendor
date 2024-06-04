@@ -129,22 +129,21 @@
 
     foreach ($Shopping_Cart as $item):
         $Discount = false;
-    
-        // Check if there's a discount
+
         if ($item['Selling_Price'] > $item['Discount_Price'] && $item['Discount_Price'] > 0) {
             $Discount = true;
         }
-    
-        // Apply appropriate price to totalAmount based on discount
+
+
         if ($Discount == false) {
             $totalAmount += $item['Selling_Price'] * $item['Quantity'];
         } else {
             $totalAmount += $item['Discount_Price'] * $item['Quantity'];
         }
     endforeach;
-    
 
-    
+
+
     if (!empty($_POST)) {
         $Order_Insert = " INSERT INTO Orders (User_ID, Order_TotalAmount, Order_ShippingAddress, Order_PaymentMethod, Order_PhoneNumber, Order_Notes) 
                           VALUES (:User_ID, :Order_TotalAmount, :Order_ShippingAddress, :Order_PaymentMethod, :Order_PhoneNumber, :Order_Notes)";
@@ -167,11 +166,25 @@
         $pdostmt = $connexion->prepare($orderItemInsertQuery);
 
         foreach ($Shopping_Cart as $item) {
+
+            $Discount = false;
+
+            if ($item['Selling_Price'] > $item['Discount_Price'] && $item['Discount_Price'] > 0) {
+                $Discount = true;
+            }
+
+
+            if ($Discount == false) {
+                $Actual_Price =  $item['Selling_Price'];
+            } else {
+                $Actual_Price = $item['Discount_Price'];
+            }
+
             $pdostmt->execute([
                 ':Order_ID' => $orderID,
                 ':Product_ID' => $item['Product_ID'],
                 ':OrderItem_Quantity' => $item['Quantity'],
-                ':OrderItem_UnitPrice' => $item['Selling_Price']
+                ':OrderItem_UnitPrice' => $Actual_Price
             ]);
         }
 
@@ -370,23 +383,23 @@
                                         <td class="px-6 py-4"><?php echo $item['Product_Name']; ?></td>
 
                                         <td class="px-6 py-4">
-                                        <?php if ($Discount == false) { ?>
-                                            <p class=" mb-1 font-bold">
-                                                <?php echo formatNumber($item['Selling_Price']); ?> Dhs
-                                            </p>
-                                        <?php } else { ?>
-                                            <p class="text-gray-500 mb-1">
-                                                <span
-                                                    class="line-through italic"><?php echo formatNumber($item['Selling_Price']); ?>
-                                                    Dhs</span><br>
-                                                <span
-                                                    class="text-green-500 font-bold"><?php echo formatNumber($item['Discount_Price']); ?>
-                                                    Dhs</span>
+                                            <?php if ($Discount == false) { ?>
+                                                <p class=" mb-1 font-bold">
+                                                    <?php echo formatNumber($item['Selling_Price']); ?> Dhs
+                                                </p>
+                                            <?php } else { ?>
+                                                <p class="text-gray-500 mb-1">
+                                                    <span
+                                                        class="line-through italic"><?php echo formatNumber($item['Selling_Price']); ?>
+                                                        Dhs</span><br>
+                                                    <span
+                                                        class="text-green-500 font-bold"><?php echo formatNumber($item['Discount_Price']); ?>
+                                                        Dhs</span>
 
 
-                                            </p>
+                                                </p>
 
-                                        <?php } ?>
+                                            <?php } ?>
                                         </td>
 
 
