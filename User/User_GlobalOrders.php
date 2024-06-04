@@ -308,10 +308,10 @@
                     <span class="rounded-full" id="UpdatedProduct"><b><?php echo $_SESSION['Order_Update'];
                     unset($_SESSION['Order_Update']) ?></b></span>
                 <?php } ?>
-                <?php if (isset($_SESSION['Product_Delete'])) { ?>
+                <?php if (isset($_SESSION['Order_Deleted'])) { ?>
                     <span class="rounded-full bg-red-600" style="background-color : red" id="UpdatedProduct">
-                        <?php echo $_SESSION['Product_Delete'];
-                        unset($_SESSION['Product_Delete']) ?>
+                        <?php echo $_SESSION['Order_Deleted'];
+                        unset($_SESSION['Order_Deleted']) ?>
                     </span>
 
                 <?php } ?>
@@ -382,10 +382,6 @@
 
                                 </div>
 
-
-
-
-
                                 <p class="text-gray-600 status-paragraph"><b>Status : </b>
                                     <?php
                                     $statusStyles = [
@@ -434,7 +430,8 @@
 
 
 
-
+                                <a href="User_DeleteOrder.php?id=<?php echo $orderId ?>" style="margin-left : 95%">
+                                    <box-icon name='trash-alt' type='solid' animation='tada' color='#c92828'></box-icon></a>
 
 
 

@@ -11,16 +11,16 @@ if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 }
 
 
-$userId = $_SESSION['User_ID'];
-$query = "SELECT User_Role FROM Users WHERE User_ID = :userId";
+$User_ID = $_SESSION['User_ID'];
+$query = "SELECT User_Role FROM Users WHERE User_ID = :User_ID";
 $pdostmt = $connexion->prepare($query);
-$pdostmt->execute([':userId' => $userId]);
+$pdostmt->execute([':User_ID' => $User_ID]);
 
-if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
-    $userRole = $row['User_Role'];
+if ($User = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
+    $User_Role = $User['User_Role'];
 
 
-    if ($userRole !== 'Owner' && $userRole !== 'Admin') {
+    if ($User_Role !== 'Owner' && $User_Role !== 'Admin') {
 
         header("Location: ../User/User_Unauthorized.html");
         exit;
@@ -52,11 +52,13 @@ if (!empty($_GET["id"])) {
         $queryDeleteProduct = "DELETE FROM Products WHERE Product_ID = :productId";
         $pdostmtDeleteProduct = $connexion->prepare($queryDeleteProduct);
         $pdostmtDeleteProduct->execute(["productId" => $productId]);
+
+        $_SESSION['Product_Delete'] = "Product Deleted Successfully";
     
         $connexion->commit(); 
 
     
-        $_SESSION['Product_Delete'] = "Product Deleted Successfully";
+        
 
     } catch (PDOException $e) {
         $connexion->rollBack();
