@@ -85,7 +85,7 @@
                     ]);
 
                     // Fetch the newly inserted user data
-                    $selectUser_ID = "SELECT User_ID, User_Username, User_Role FROM Users WHERE User_Username = :User_Username";
+                    $selectUser_ID = "SELECT User_ID, User_Username, User_Role, User_Email FROM Users WHERE User_Username = :User_Username";
                     $pdostmtUser_ID = $connexion->prepare($selectUser_ID);
                     $pdostmtUser_ID->execute(["User_Username" => $User_Username]);
                     $User = $pdostmtUser_ID->fetch(PDO::FETCH_ASSOC);
@@ -94,9 +94,101 @@
                     session_start();
                     $_SESSION['User_ID'] = $User['User_ID'];
                     $_SESSION['User_Username'] = $User['User_Username'];
+                    $User_Username = $User['User_Username'];
+                    $User_Email = $User['User_Email'];
                     $_SESSION['User_Role'] = $User['User_Role'];
 
+
+                    require ("../script.php");
+
+                    $Email_Subject = "Welcome | PC Vendor";
+
+                    $Email_Message = "
+                    <html>
+                    <head>
+                        <title>Account Created</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                background-color: #f4f4f4;
+                                margin: 0;
+                                padding: 0;
+                            }
+                    
+                            .container {
+                                max-width: 600px;
+                                margin: 50px auto;
+                                padding: 20px;
+                                background-color: #c2d1c6;
+                                border-radius: 10px;
+                                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            }
+                    
+                            h1 {
+                                color: #333;
+                                text-align: center;
+                            }
+                    
+                            p {
+                                color: #666;
+                                line-height: 1.6;
+                            }
+                    
+                            .highlight {
+                                color: red;
+                                font-weight: bold;
+                            }
+                    
+                            .button {
+                                display: inline-block;
+                                padding: 10px 20px;
+                                background-color: #007bff;
+                                color: black;
+                                text-decoration: underline;
+                                border-radius: 5px;
+                                transition: background-color 0.3s ease;
+                            }
+                    
+                            .button:hover {
+                                background-color: #0056b3;
+                            }
+                    
+                            .footer {
+                                text-align: center;
+                                margin-top: 20px;
+                            }
+
+                            h2 {
+                                color: blue;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                    
+                    <div class='container'>
+                        <h1>Welcome to PC Vendor</h1><br>
+
+                        <h2>Feel free to check out our shop</h2><p><a class='button' href='http://localhost/PC_Vendor/'>PC Vendor</a></p>
+                    
+
+                    </div>
+                    
+                    </body>
+                    </html>
+                    ";
+
+
+                    $response = sendMail($User_Email, $Email_Subject, $Email_Message);
+
+
+
+
+
+
+
+
                     // Redirect to homepage
+                    $_SESSION['Product_Add/Update'] = "Welcome " . $User_Username . ' , Feel free to shop!';
                     header("Location: ../.");
                     exit;
 
@@ -268,7 +360,8 @@
                                     onclick="resetForm()">Reset</button>
                                 <br>
                                 <?php if ($Error_Message != "") { ?>
-                                    <p class="text-red-600 text-xs">Username or Email already taken. <br>Try a different one.
+                                    <p class="text-red-600 text-xs">Username or Email already taken. <br>Try a different
+                                        one.
                                     </p>
 
                                 <?php } ?>

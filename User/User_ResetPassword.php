@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../Logo.png" type="image/x-icon">
     <title>Reset Your Password | PC Vendor</title>
+
     <?php
     session_start();
     include_once ("../DB_Connexion.php");
