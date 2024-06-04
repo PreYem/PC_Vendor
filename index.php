@@ -84,35 +84,53 @@
 
 
         if (isset($_GET['Status'])) {
-            if ($_GET['Status'] == 'New') {
+            if ($_GET['Status'] === 'New') {
                 $currentDate = new DateTime();
                 $Limit_Minutes = $thresholdMinutes + 60;
                 $currentDate->modify("-$Limit_Minutes minutes");
                 $thresholdDateString = $currentDate->format('Y-m-d H:i:s');
 
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                                    FROM Products WHERE Date_Created > :thresholdDateString $visibilityCondition ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
-                $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
                 if ($User_Role === 'Client') {
-                    $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
+
+                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                                    FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
+                    $pdoGeneralProductQuery->execute(['thresholdDateString' => $thresholdDateString]);
+                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+
+
+                } else {
+                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                                    FROM Products WHERE Date_Created > :thresholdDateString ORDER BY Product_ID DESC";
+                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                    $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
+                    $pdoGeneralProductQuery->execute(['thresholdDateString' => $thresholdDateString]);
+                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
                 }
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-            } elseif ($_GET['Status'] == 'Discount') {
-                $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                FROM Products WHERE Selling_Price > Discount_Price AND Discount_Price > 0 $visibilityCondition ORDER BY Product_ID DESC";
-                $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+
+
+
+
+            } elseif ($_GET['Status'] === 'Discount') {
+
                 if ($User_Role === 'Client') {
-                    if (!empty($visibilityCondition)) {
-                        $pdoGeneralProductQuery->bindParam(':Visible', $Visible, PDO::PARAM_STR);
-                    }
+
+                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                                    FROM Products WHERE Selling_Price > Discount_Price AND Discount_Price > 0 AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+
+                    $pdoGeneralProductQuery->execute();
+                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
+
+
+                } else {
+                    $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
+                    FROM Products WHERE Selling_Price > Discount_Price AND Discount_Price > 0  ORDER BY Product_ID DESC";
+                    $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
+                    $pdoGeneralProductQuery->execute();
+                    $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
                 }
-                $pdoGeneralProductQuery->execute();
-                $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
-
-
-
             }
         }
 
@@ -492,7 +510,7 @@
     .discount-status {
         margin-right: 5%;
         background-color: orange;
-        width : auto ;
+        width: auto;
 
 
     }
