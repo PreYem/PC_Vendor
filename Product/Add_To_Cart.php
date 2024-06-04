@@ -12,7 +12,7 @@ session_start();
 
 if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 
-    header("Location: ../.");
+    header("Location: ../User/User_SignIn");
     exit; 
 }
 
@@ -27,7 +27,7 @@ if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
 
     if ($userRole !== 'Owner' && $userRole !== 'Admin' && $userRole !== 'Client') {
 
-        header("Location: ../.");
+        header("Location: ../User/User_SignIn");
         exit;
     }
 }

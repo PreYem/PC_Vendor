@@ -65,7 +65,7 @@
         $Order_ID = $_GET['id'];
         $bigQuery = "SELECT p.Product_ID, p.Product_Name, p.Product_Picture, o.Order_ID, o.Order_Date, o.Order_TotalAmount, o.Order_Status, 
                     oi.OrderItem_Quantity, oi.OrderItem_UnitPrice, o.Order_ShippingAddress, o.Order_PaymentMethod, o.Order_PhoneNumber, o.Order_Notes,
-                    u.User_ID , u.User_Username, u.User_FirstName , u.User_LastName
+                    u.User_ID , u.User_Username, u.User_FirstName , u.User_LastName , u.User_Email
                  FROM Orders o
                  INNER JOIN OrderItems oi ON o.Order_ID = oi.Order_ID
                  INNER JOIN Products p ON oi.Product_ID = p.Product_ID
@@ -91,6 +91,7 @@
             $orders[$Order['Order_ID']]['Order_PaymentMethod'] = $Order['Order_PaymentMethod'];
             $orders[$Order['Order_ID']]['Order_PhoneNumber'] = $Order['Order_PhoneNumber'];
             $orders[$Order['Order_ID']]['Order_Notes'] = $Order['Order_Notes'];
+            $orders[$Order['Order_ID']]['User_Email'] = $Order['User_Email'];
 
 
             $orders[$Order['Order_ID']]['Products'][] = [
@@ -108,7 +109,43 @@
             $pdostmt = $connexion->prepare($Update_Status);
             $pdostmt->execute();
 
+
+            require ("../script.php");
+
+
+            $User_Email = $Order['User_Email'];
+            $Email_Subject = "Your Order Status has been updated | PC Vendor";
+
+            $Email_Message = "
+            <html>
+            <head>
+            <style>
+            .button {
+             display: inline-block;
+             padding: 10px 20px;
+             background-color: #007bff;
+             color: black;
+             text-decoration: underline;
+             border-radius: 5px;
+             transition: background-color 0.3s ease;
+            }
+ 
+            .button:hover {
+             background-color: #0056b3;
+             }
+             </style>
+                 <body>
+                 <h1>Your order number $Order_ID has been updated to : $Order_Status </h1>
+                 <h2>You can checkout your order status <p><a class='button' href='http://localhost/PC_Vendor/User/User_PendingOrders.php'>Here.</a></p></h2
+                 </body>";
+
+                 
+            $response = sendMail($User_Email, $Email_Subject, $Email_Message);
+
+
+
             $_SESSION['Order_Update'] = "Order number : (" . $Order_ID . ") Has been updated to " . $Order_Status;
+            
 
             header("Location: User_GlobalOrders.php");
             exit;

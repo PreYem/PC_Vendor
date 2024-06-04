@@ -13,6 +13,7 @@
     <?php
 
     include_once ("../DB_Connexion.php");
+    require ("../script.php");
     session_start();
     if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
 
@@ -21,7 +22,7 @@
     }
 
     $User_ID = $_SESSION['User_ID'];
-    $query = "SELECT User_Role, User_Username , User_FirstName , User_LastName FROM Users WHERE User_ID = :User_ID";
+    $query = "SELECT User_Role, User_Username , User_FirstName , User_LastName , User_Email FROM Users WHERE User_ID = :User_ID";
     $pdostmt = $connexion->prepare($query);
     $pdostmt->execute([':User_ID' => $User_ID]);
 
@@ -29,6 +30,7 @@
         $User_Role = $row['User_Role'];
         $User_Username = $row['User_Username'];
         $User_FullName = $row['User_FirstName'] . ' ' . $row['User_LastName'];
+        $User_Email = $row['User_Email'];
 
         if ($User_Role === 'Owner') {
             $showUserManagement = true;
@@ -57,7 +59,7 @@
     
         if (isset($_SESSION['User_ID'])) {
             $User_ID = $_SESSION['User_ID'];
-            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName FROM Users WHERE User_ID = :User_ID";
+            $Users = "SELECT User_ID, User_Role, User_FirstName, User_LastName , User_Email FROM Users WHERE User_ID = :User_ID";
             $pdoUsers = $connexion->prepare($Users);
             $pdoUsers->execute([':User_ID' => $User_ID]);
             $User = $pdoUsers->fetch(PDO::FETCH_ASSOC);
@@ -175,7 +177,7 @@
 
 
             if ($Discount == false) {
-                $Actual_Price =  $item['Selling_Price'];
+                $Actual_Price = $item['Selling_Price'];
             } else {
                 $Actual_Price = $item['Discount_Price'];
             }
@@ -186,7 +188,43 @@
                 ':OrderItem_Quantity' => $item['Quantity'],
                 ':OrderItem_UnitPrice' => $Actual_Price
             ]);
+
+
+            
+
+            $Email_Subject = "Your Order | PC Vendor";
+
+            $Email_Message = "
+           <html>
+           <head>
+           <style>
+           .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: black;
+            text-decoration: underline;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+        </style>
+                <body>
+                <h1>Your order number $orderID is now in progress </h1>
+                <h2>You can checkout your order status <p><a class='button' href='http://localhost/PC_Vendor/User/User_PendingOrders.php'>Here.</a></p></h2
+                </body>
+           ";
+
+
+           $response = sendMail($User_Email, $Email_Subject, $Email_Message);
+
+
+        }
+
+
 
         $removeAllFromCart = "DELETE FROM ShoppingCart WHERE User_ID = :User_ID";
         $pdostmt = $connexion->prepare($removeAllFromCart);

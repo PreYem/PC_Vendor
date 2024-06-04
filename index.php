@@ -131,6 +131,8 @@
                     $pdoGeneralProductQuery->execute();
                     $GeneralProducts = $pdoGeneralProductQuery->fetchAll(PDO::FETCH_ASSOC);
                 }
+
+
             }
         }
 
@@ -373,7 +375,7 @@
                                                 class="NewProduct text-white px-2 py-1 rounded absolute top-2 right-2"><?php echo '✨NEW✨' ?></span>
                                         <?php }
                                     } ?>
-                                    <a href="#">
+                                    <a href="Product/Product_Single.php?id=<?php echo $Product['Product_ID'] ?>&ProductName=<?php echo urlencode($Product['Product_Name']); ?>">
                                         <img class="w-full h-32 object-cover object-center" style="width: auto; height: auto;"
                                             src="Product/<?php echo $Product['Product_Picture']; ?>" alt="Product Image">
                                     </a>

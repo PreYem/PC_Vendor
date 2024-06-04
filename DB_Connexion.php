@@ -16,6 +16,8 @@ try {
     die("Database $dbname is not working correctly  :" . $e->getMessage());
 }
 
+
+
 ?>
 
 
