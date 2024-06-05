@@ -20,6 +20,7 @@ if (!empty($_GET["id"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title><?php echo $Title_Name . ' ' ?>| Edit | PC Vendor</title>
 
 
@@ -66,13 +67,12 @@ if (!empty($_GET["id"])) {
     if (!empty($_GET["id"])) {
         $Product_ID = $_GET["id"];
 
-        $Product_Display = "SELECT Products.*, Categories.Category_Name, SubCategories.SubCategory_Name , Manufacturers.Manufacturer_Name
+        $Product_Display = "SELECT Products.*, Categories.Category_Name, SubCategories.SubCategory_Name , SubCategories.SubCategory_ID , Manufacturers.Manufacturer_Name
             FROM Products
             INNER JOIN Categories ON Products.Category_ID = Categories.Category_ID
             INNER JOIN SubCategories ON Products.SubCategory_ID = SubCategories.SubCategory_ID
             INNER JOIN Manufacturers ON Products.Manufacturer_ID = Manufacturers.Manufacturer_ID
-            WHERE Products.Product_ID = :Product_ID
-        ";
+            WHERE Products.Product_ID = :Product_ID";
         $pdo_Product_Display = $connexion->prepare($Product_Display);
         $pdo_Product_Display->execute([':Product_ID' => $Product_ID]);
         $Product_Display = $pdo_Product_Display->fetch(PDO::FETCH_ASSOC);
@@ -108,7 +108,7 @@ if (!empty($_GET["id"])) {
         $Product_Desc = $_POST['Product_Desc']; // Product_Desc
         $Product_Visibility = $_POST['Product_Visibility']; // Product_Visibility
         $Discount_Price = $_POST['Discount_Price'];
-    
+
         $Q_Category = "SELECT Category_ID FROM Categories WHERE Category_Name = :Category_Name";
         $pdoQ_Category = $connexion->prepare($Q_Category);
         $pdoQ_Category->execute([':Category_Name' => $Category_Name]);
@@ -117,8 +117,16 @@ if (!empty($_GET["id"])) {
         $Q_SubCategory = "SELECT SubCategory_ID FROM SubCategories WHERE SubCategory_Name = :SubCategory_Name";
         $pdoQ_SubCategory = $connexion->prepare($Q_SubCategory);
         $pdoQ_SubCategory->execute([':SubCategory_Name' => $SubCategory_Name]);
-        $SubCategory_ID = $pdoQ_SubCategory->fetchColumn(); // SubCategory_ID
+
+        if (isset($_POST['SubCategory_Name'])) {
+            $SubCategory_ID = $pdoQ_SubCategory->fetchColumn(); // SubCategory_ID
     
+        } else {
+            $SubCategory_ID = $Product_Display['SubCategory_ID'];
+        }
+
+
+
         $Q_Manufacturer = "SELECT Manufacturer_ID FROM Manufacturers WHERE Manufacturer_Name = :Manufacturer_Name";
         $pdoQ_Manufacturer = $connexion->prepare($Q_Manufacturer);
         $pdoQ_Manufacturer->execute([':Manufacturer_Name' => $Manufacturer_Name]);
@@ -231,10 +239,16 @@ if (!empty($_GET["id"])) {
             $Error_Message = "A product with that name already exists, try a different name for your product.";
         }
     }
+
+
+    
     ?>
 
 
+
+
 </head>
+
 
 
 
@@ -409,7 +423,7 @@ if (!empty($_GET["id"])) {
 
                         <div class="mb-4">
                             <label for="Category_Name" class="block text-sm font-medium text-gray-700">Category:</label>
-                            <select name="Category_Name" required
+                            <select name="Category_Name" id="categorySelect" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <?php
                                 $queryCategories = "SELECT Category_Name FROM Categories ORDER BY Category_ID";
@@ -433,26 +447,9 @@ if (!empty($_GET["id"])) {
                         <div class="mb-4">
                             <label for="SubCategory_Name" class="block text-sm font-medium text-gray-700">Sub
                                 Category:</label>
-                            <select name="SubCategory_Name" required
+                            <select name="SubCategory_Name" id="subcategorySelect"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                <?php
-                                $querySubCategories = "SELECT SubCategory_Name FROM SubCategories ORDER BY SubCategory_ID";
-                                $pdostmtSubCategories = $connexion->prepare($querySubCategories);
-                                $pdostmtSubCategories->execute();
-                                $SubCategories = $pdostmtSubCategories->fetchAll(PDO::FETCH_COLUMN);
 
-                                foreach ($SubCategories as $SubCategory) {
-                                    $selected = '';
-                                    if ($SubCategory === $Product_Display['SubCategory_Name']) {
-                                        $selected = 'selected';
-
-                                    }
-
-                                    ?>
-                                    <option value="<?php echo $SubCategory; ?>" <?php echo $selected; ?>>
-                                        <?php echo $SubCategory; ?>
-                                    </option>
-                                <?php } ?>
                             </select>
                         </div>
                         <div class="mb-4">
@@ -494,7 +491,8 @@ if (!empty($_GET["id"])) {
                         <div class="mb-4">
                             <label for="Discount_Price" class="block text-sm font-medium text-gray-700">Price after
                                 Discount:</label>
-                            <input type="number" name="Discount_Price" value="<?php echo $Product_Display['Discount_Price'] ?>"
+                            <input type="number" name="Discount_Price"
+                                value="<?php echo $Product_Display['Discount_Price'] ?>"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 placeholder="Leave this field empty or 0 for no discount.">
                         </div>
@@ -505,10 +503,11 @@ if (!empty($_GET["id"])) {
                                 value="<?php echo $Product_Display['Product_Quantity']; ?>" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
-                        
+
                         <div style="position : fixed ; margin-top : 0px">
                             <button type="submit"
-                                class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block">Save Changes</button>
+                                class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md inline-block">Save
+                                Changes</button>
                             <button type="reset"
                                 class="bg-gray-500 hover:bg-red-600 text-white py-2 px-4 rounded-md inline-block">Reset</button>
                             <input type="hidden" id="deletedSpecs" name="deletedSpecs" value="">
@@ -593,6 +592,26 @@ if (!empty($_GET["id"])) {
 
 
     <script>
+
+$(document).ready(function () {
+    $('#categorySelect').change(function () {
+        var category = $(this).val();
+        $.ajax({
+            url: 'Subcat.php',
+            method: 'POST',
+            data: { Category_Name: category },
+            success: function (data) {
+                $('#subcategorySelect').html(data);
+            },
+            error: function(xhr, status, error) {
+                console.log("An error occurred while fetching subcategories: " + error);
+            }
+        });
+    });
+});
+
+
+        
         window.addEventListener('DOMContentLoaded', function () {
             adjustContentMargin();
         });

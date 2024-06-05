@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../Logo.png" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Add Product | PC Vendor</title>
     <?php
     function formatNumber($number)
@@ -101,7 +102,17 @@
                 $pdostmtSubCategory = $connexion->prepare($querySubCategory);
                 $pdostmtSubCategory->execute(['SubCategory_Name' => $SubCategory_Name]);
                 $subcategory = $pdostmtSubCategory->fetch(PDO::FETCH_ASSOC);
-                $subcategoryId = $subcategory['SubCategory_ID'];
+
+                if (isset($_POST['SubCategory_Name'])) {
+
+
+                    $subcategoryId = $subcategory['SubCategory_ID'];
+         
+                } else {
+                    $subcategoryId = 1 ;
+                }
+
+                
 
 
 
@@ -211,6 +222,25 @@
     }
     ?>
 </head>
+
+<?php
+// Separate PHP block for generating subcategory options
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['Category_Name'])) {
+    $Category_N = $_POST['Category_Name'];
+
+    $querySubCategories = "SELECT sub.SubCategory_Name FROM SubCategories sub JOIN Categories cat ON sub.Category_ID = cat.Category_ID
+                            WHERE cat.Category_Name = :Category_N";
+
+    $pdostmtSubCategories = $connexion->prepare($querySubCategories);
+    $pdostmtSubCategories->execute(['Category_N' => $Category_N]);
+    $subCategories = $pdostmtSubCategories->fetchAll(PDO::FETCH_COLUMN);
+    
+
+    foreach ($subCategories as $subCategory) {
+        echo "<option value=\"$subCategory\">$subCategory</option>";
+    }
+}
+?>
 
 
 
@@ -421,7 +451,7 @@
                         </div>
                         <div class="mb-4">
                             <label for="Category_Name" class="block text-sm font-medium text-gray-700">Category:</label>
-                            <select name="Category_Name" required
+                            <select id="categorySelect" name="Category_Name" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <?php
                                 $queryCategories = "SELECT Category_Name FROM Categories ORDER BY Category_ID";
@@ -439,18 +469,18 @@
                         <div class="mb-4">
                             <label for="SubCategory_Name" class="block text-sm font-medium text-gray-700">Sub
                                 Category:</label>
-                            <select name="SubCategory_Name" required
+                            <select name="SubCategory_Name" id="subcategorySelect"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <?php
-                                $querySubCategories = "SELECT SubCategory_Name FROM SubCategories ORDER BY SubCategory_ID";
-                                $pdostmtSubCategories = $connexion->prepare($querySubCategories);
-                                $pdostmtSubCategories->execute();
-                                $SubCategories = $pdostmtSubCategories->fetchAll(PDO::FETCH_COLUMN);
-
-                                foreach ($SubCategories as $SubCategory) {
-                                    echo "<option value=\"$SubCategory\">$SubCategory</option>";
-                                }
-                                ?>
+                                // $querySubCategories = "SELECT SubCategory_Name FROM SubCategories ORDER BY SubCategory_ID";
+                                // $pdostmtSubCategories = $connexion->prepare($querySubCategories);
+                                // $pdostmtSubCategories->execute();
+                                // $SubCategories = $pdostmtSubCategories->fetchAll(PDO::FETCH_COLUMN);
+                                
+                                // foreach ($SubCategories as $SubCategory) {
+                                //     echo "<option value=\"$SubCategory\">$SubCategory</option>";
+                                // }
+                                // ?>
                             </select>
                         </div>
                         <div class="mb-4">
@@ -514,7 +544,25 @@
     </div>
 
 
+
+
     <script>
+    $(document).ready(function () {
+        $('#categorySelect').change(function () {
+            var category = $(this).val();
+            $.ajax({
+                url: '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>', // Endpoint to same page
+                method: 'POST',
+                data: { Category_Name: category }, // Correct the key name to match the PHP code
+                success: function (data) {
+                    $('#subcategorySelect').html(data);
+                }
+            });
+        });
+    });
+
+
+
         window.addEventListener('DOMContentLoaded', function () {
             adjustContentMargin();
         });
@@ -549,6 +597,9 @@
     </script>
 
 </body>
+
+
+
 
 </html>
 <style>
