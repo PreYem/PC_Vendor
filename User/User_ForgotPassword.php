@@ -136,6 +136,29 @@
             </html>
             ";
 
+            $Email_Sig = "_________________________________________";
+            $Email_Sig = "";
+            $Email_Sig = "";
+            $Email_Sig .= "<table width='100%'>";
+            $Email_Sig .= "<tr>";
+            $Email_Sig .= "<td align='left'>";
+            $Email_Sig .= "<span style='font-weight: bold;'>Youssef EL MOUMEN</span><br>";
+            $Email_Sig .= "<span style='font-weight: bold;' >ISGI Intern - 2023/2024</span><br>";
+            $Email_Sig .= "<span><a href='https://github.com/PreYem'>Github</a></span>";
+            $Email_Sig .= "</td>";
+            $Email_Sig .= "</tr>";
+            $Email_Sig .= "<tr>"; 
+            $Email_Sig .= "<td align='right'>";
+            $Email_Sig .= "<a href=''>";
+            $Email_Sig .= "<img style='width : 40px ; margin-right : 100%' 
+                 src='https://ci3.googleusercontent.com/mail-sig/AIorK4xuBtBCLfFOevyA3PiA6NKXVfQZaPSR-iwntk76uICzUreeazPLJgSml6zxx0I__1MWdnm7Y9KcNAYi'>";
+            $Email_Sig .= "</a>";
+            $Email_Sig .= "</td>";
+            $Email_Sig .= "</tr>";
+            $Email_Sig .= "</table>";
+
+            $Email_Message .= $Email_Sig;
+
 
 
 
