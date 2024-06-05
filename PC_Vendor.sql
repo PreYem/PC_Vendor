@@ -85,7 +85,7 @@ CREATE TABLE `orderitems` (
   KEY `Product_ID` (`Product_ID`),
   CONSTRAINT `orderitems_ibfk_1` FOREIGN KEY (`Order_ID`) REFERENCES `orders` (`Order_ID`),
   CONSTRAINT `orderitems_ibfk_2` FOREIGN KEY (`Product_ID`) REFERENCES `products` (`Product_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,7 +94,7 @@ CREATE TABLE `orderitems` (
 
 LOCK TABLES `orderitems` WRITE;
 /*!40000 ALTER TABLE `orderitems` DISABLE KEYS */;
-INSERT INTO `orderitems` VALUES (133,112,23,1,52249.00);
+INSERT INTO `orderitems` VALUES (134,113,39,1,2999.00),(135,113,29,1,4199.00),(136,113,27,1,79.00),(137,114,29,1,4199.00),(138,114,27,1,79.00),(139,114,26,1,2199.00);
 /*!40000 ALTER TABLE `orderitems` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +118,7 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`Order_ID`),
   KEY `User_ID` (`User_ID`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,7 +127,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (112,'2024-06-04 20:18:45',52249.00,'Casa','Shipped','PayPal','0202020202','CASA',27);
+INSERT INTO `orders` VALUES (113,'2024-06-05 00:47:33',7277.00,'TEST','Pending','Bank Transfer','0636523432','TEST',27),(114,'2024-06-05 01:28:01',6477.00,'AAA','Pending','Credit Card','0202020202','',28);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -216,7 +216,7 @@ CREATE TABLE `shoppingcart` (
   KEY `Product_ID` (`Product_ID`),
   CONSTRAINT `shoppingcart_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`),
   CONSTRAINT `shoppingcart_ibfk_2` FOREIGN KEY (`Product_ID`) REFERENCES `products` (`Product_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=296 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=302 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -279,7 +279,7 @@ CREATE TABLE `users` (
   `Account_Status` varchar(255) DEFAULT 'Unlocked',
   PRIMARY KEY (`User_ID`),
   UNIQUE KEY `User_Username` (`User_Username`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -288,7 +288,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'yem0417','Youssef','EL MOUMEN','0636523432','Morocco','Casa, Bernoussi','dinactiprefected@gmail.com','$2y$10$1ODDWv1kBmnpcxsJH5aBFeiFyZDkdHE2/9UvqD7HHSrxG6D39YYJq','2024-05-02 16:11:44','Owner',NULL),(2,'Admin','Admin','Aura','0607302999','Morocco','Admin Address','heavenly.onyx401@gmail.com','$2y$10$VaZCjIQ.VL.szpKtWcLDIOqXZb2KYKULf4AvfR6dV4oRSEMKeH/h2','2024-05-25 16:57:29','Admin','✔️ Unlocked'),(27,'Client','Ali','Tazi','0607302999','Morocco','TEST','repliqua.destroyer@gmail.com','$2y$10$/xaZjuRh2136S47dGAw8E.2JF45/Ra5uEJ2k9UzpAKx/oN3td/bXe','2024-06-04 16:53:13','Client','Unlocked');
+INSERT INTO `users` VALUES (1,'yem0417','Youssef','EL MOUMEN','0636523432','Morocco','Casa, Bernoussi','dinactiprefected@gmail.com','$2y$10$1ODDWv1kBmnpcxsJH5aBFeiFyZDkdHE2/9UvqD7HHSrxG6D39YYJq','2024-05-02 16:11:44','Owner',NULL),(2,'Admin','Admin','Aura','0607302999','Morocco','Admin Address','heavenly.onyx401@gmail.com','$2y$10$VaZCjIQ.VL.szpKtWcLDIOqXZb2KYKULf4AvfR6dV4oRSEMKeH/h2','2024-05-25 16:57:29','Admin','✔️ Unlocked'),(27,'Client','Ali','Tazi','0607302999','Morocco','TEST','repliqua.destroyer@gmail.com','$2y$10$/xaZjuRh2136S47dGAw8E.2JF45/Ra5uEJ2k9UzpAKx/oN3td/bXe','2024-06-04 16:53:13','Client','Unlocked'),(28,'TEST','TEST1','TEST2','0607302999','Côte d\'Ivoire','Casa','youssef.elmoumen01@gmail.com','$2y$10$lEBi7GWbvPwtEvqFshbmYuBVZWvhcWq5nxhEX7Y0CbbFt3vGGFapC','2024-06-04 23:41:27','Client','Unlocked');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -301,4 +301,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-06-04 21:21:15
+-- Dump completed on 2024-06-05  2:30:25
