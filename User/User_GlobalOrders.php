@@ -390,7 +390,7 @@
                                         'Processing' => ['bg-blue-500', '🔄'],
                                         'Shipped' => ['bg-purple-500', '📦'],
                                         'Delivered' => ['bg-green-600', '📬'],
-                                        'On Hold' => ['bg-orange-500', '⏸️'],
+                                        'On Hold' => ['bg-yellow-500', '⏸️'],
                                         'Refunded' => ['bg-red-500', '💸'],
                                         'Returned' => ['bg-pink-500', '↩️'],
                                         'Cancelled by User' => ['bg-red-600', '❌'],
