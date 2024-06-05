@@ -359,19 +359,23 @@
                                 <p class="text-gray-600"><b>Total Amount :
                                     </b><?php echo formatNumber($order['Order_TotalAmount']); ?> Dhs
                                 </p>
-                                <?php if ($order['Order_Status'] == 'Pending') { ?>
+                                <div class="mt-4">
 
-                                    <a href="User_CancelOrder.php?id=<?php echo $orderId; ?>"
-                                        class="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
-                                        Cancel Order
+
+                                    <a href="../Order_PDF.php?id=<?php echo $orderId ?>"
+                                        class="inline-block mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+                                        Download Order PDF
                                     </a>
+                                    <?php if ($order['Order_Status'] == 'Pending'): ?>
+                                        <a href="User_CancelOrder.php?id=<?php echo $orderId; ?>"
+                                            class="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105 mt" style="margin-left : 90% ">
+                                            Cancel Order
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
 
 
-                                <?php } ?>
-                            </div>
-
-
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
                     </section>
                 <?php } else { ?>
                     <h1 class="text-xl text-gray-700 CC" id="Empty_Cart">You Do Not Have Any Peneding Orders <br>Check Out

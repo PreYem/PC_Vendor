@@ -369,9 +369,10 @@
                             <a href="../User/User_GlobalOrders.php"
                                 class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
                                 Pending Orders <?php
-                                $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
+                                $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') AND
+                                User_ID = :User_ID";
                                 $pdostmt = $connexion->prepare($Order_Pending);
-                                $pdostmt->execute();
+                                $pdostmt->execute(['User_ID' => $User_ID]);
 
                                 $Order_Count = $pdostmt->rowCount();
                                 ?> <span style="color : red"><?php if ($Order_Count > 0) {

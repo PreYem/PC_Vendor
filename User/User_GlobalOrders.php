@@ -427,6 +427,8 @@
                                         Order</a>
 
                                 <?php } ?>
+                                <a href="../Order_PDF.php?id=<?php echo $orderId ?>&Level=Staff"
+                                class="inline-block mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">Download Order PDF</a>
 
 
 
