@@ -223,24 +223,7 @@
     ?>
 </head>
 
-<?php
-// Separate PHP block for generating subcategory options
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['Category_Name'])) {
-    $Category_N = $_POST['Category_Name'];
 
-    $querySubCategories = "SELECT sub.SubCategory_Name FROM SubCategories sub JOIN Categories cat ON sub.Category_ID = cat.Category_ID
-                            WHERE cat.Category_Name = :Category_N";
-
-    $pdostmtSubCategories = $connexion->prepare($querySubCategories);
-    $pdostmtSubCategories->execute(['Category_N' => $Category_N]);
-    $subCategories = $pdostmtSubCategories->fetchAll(PDO::FETCH_COLUMN);
-    
-
-    foreach ($subCategories as $subCategory) {
-        echo "<option value=\"$subCategory\">$subCategory</option>";
-    }
-}
-?>
 
 
 
@@ -551,7 +534,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['Category_Name'])) {
         $('#categorySelect').change(function () {
             var category = $(this).val();
             $.ajax({
-                url: '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>', // Endpoint to same page
+                url: 'Subcat_Add.php', // Endpoint to same page
                 method: 'POST',
                 data: { Category_Name: category }, // Correct the key name to match the PHP code
                 success: function (data) {

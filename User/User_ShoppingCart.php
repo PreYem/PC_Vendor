@@ -194,53 +194,60 @@
 
             $Email_Subject = "Your Order | PC Vendor";
 
-            $Email_Message = "
-           <html>
-           <head>
-           <style>
-           .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: black;
-            text-decoration: underline;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
+            $Email_Message = "";
+            $Email_Message .= "<html>";
+            $Email_Message .= "<head>";
+            $Email_Message .= "<style>";
+            $Email_Message .= ".button {";
+            $Email_Message .= "    ";
+            $Email_Message .= "    padding: 2px 5px;";
+            $Email_Message .= "    background-color: white;";
+            $Email_Message .= "    color: black;";
+            $Email_Message .= "    text-decoration: underline;";
+            $Email_Message .= "    border-radius: 5px;";
+            $Email_Message .= "    transition: background-color 0.3s ease;";
+            $Email_Message .= "}";
+            $Email_Message .= ".h2 {";
+            $Email_Message .= "    ";
+            $Email_Message .= "    color: red;";
+            $Email_Message .= "}";
+            $Email_Message .= ".button:hover {";
+            $Email_Message .= "    background-color: #5294ff;";
+            $Email_Message .= "}";
+            $Email_Message .= "</style>";
+            $Email_Message .= "</head>";
+            $Email_Message .= "<body>";
+            $Email_Message .= "<h1>Your order number $Order_ID has been initiated.</h1>";
+            $Email_Message .= "<h2>You can check out your order status<a class='button' href='http://localhost/PC_Vendor/User/User_PendingOrders.php'>Here</a>.</h2>";
 
-        .button:hover {
-            background-color: #0056b3;
-        }
-        </style>
-                <body>
-                <h1>Your order number $orderID is now in progress </h1>
-                <h2>You can checkout your order status <p><a class='button' href='http://localhost/PC_Vendor/User/User_PendingOrders.php'>Here.</a></p></h2
-                </body>
-           ";
+            $Email_Message .= "</body>";
+            $Email_Message .= "</html>";
 
 
-           $Email_Sig = "_________________________________________";
-           $Email_Sig = "";
-           $Email_Sig = "";
-           $Email_Sig .= "<table width='100%'>";
-           $Email_Sig .= "<tr>";
-           $Email_Sig .= "<td align='left'>";
-           $Email_Sig .= "<span style='font-weight: bold;'>Youssef EL MOUMEN</span><br>";
-           $Email_Sig .= "<span style='font-weight: bold;' >ISGI Intern - 2023/2024</span><br>";
-           $Email_Sig .= "<span><a href='https://github.com/PreYem'>Github</a></span>";
-           $Email_Sig .= "</td>";
-           $Email_Sig .= "</tr>";
-           $Email_Sig .= "<tr>"; // Start a new row for the image
-           $Email_Sig .= "<td align='right'>";
-           $Email_Sig .= "<a href=''>";
-           $Email_Sig .= "<img style='width : 40px ; margin-right : 100%' 
-                src='https://ci3.googleusercontent.com/mail-sig/AIorK4xuBtBCLfFOevyA3PiA6NKXVfQZaPSR-iwntk76uICzUreeazPLJgSml6zxx0I__1MWdnm7Y9KcNAYi'>";
-           $Email_Sig .= "</a>";
-           $Email_Sig .= "</td>";
-           $Email_Sig .= "</tr>";
-           $Email_Sig .= "</table>";
+            $Email_Sig = "";
+            $Email_Sig .= "<table width='100%'>";
+            $Email_Sig .= "<tr>";
+            $Email_Sig .= "<td align='left'>";
+            $Email_Sig .= "<span style='font-weight: bold;'>Youssef EL MOUMEN</span><br>";
+            $Email_Sig .= "<span style='font-weight: bold;'>ISGI Intern - 2023/2024</span><br>";
+            $Email_Sig .= "<span><a href='https://github.com/PreYem'>";
+            $Email_Sig .= "<i style='color: #000000;' class='fab fa-github'></i> Github</a></span>";
+            $Email_Sig .= "</td>";
+            $Email_Sig .= "</tr>";
+            $Email_Sig .= "<tr>";
+            $Email_Sig .= "<td align='right'>";
+            $Email_Sig .= "<a href='http://localhost/PC_Vendor/'>";
+            $Email_Sig .= "<img style='width : 40px ; margin-right : 100%' 
+                     src='https://ci3.googleusercontent.com/mail-sig/AIorK4xuBtBCLfFOevyA3PiA6NKXVfQZaPSR-iwntk76uICzUreeazPLJgSml6zxx0I__1MWdnm7Y9KcNAYi'>";
+            $Email_Sig .= "</a>";
+            $Email_Sig .= "</td>";
+            $Email_Sig .= "</tr>";
+            $Email_Sig .= "</table>";
 
-           $Email_Message .= $Email_Sig;
+
+            $Email_Sig .= "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'>";
+
+            $Email_Message .= $Email_Sig;
 
 
 
