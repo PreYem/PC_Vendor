@@ -410,9 +410,6 @@
             });
         });
 
-    </script>
-
-    <script>
         window.addEventListener('DOMContentLoaded', function () {
             adjustContentMargin();
         });

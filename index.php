@@ -213,7 +213,7 @@
                         $Emoji = '💼';
                     }
                     ?>
-                    <a href="User/User_ShoppingCart.php"
+                    <a href="User/User_ShoppingCart"
                         class="flex items-center text-gray-300 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium">
                         🛒 Shopping Cart
                         <?php if ($Cart_Count > 0) { ?>
@@ -221,16 +221,16 @@
                         <?php } ?>
                     </a>
                     <a class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                        href="User/User_Modify.php?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
+                        href="User/User_Modify?id=<?php echo $User_ID; ?>&FullName=<?php echo urlencode($User_FullName); ?>">Currently
                         Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 
-                    <a href="User/User_Logout.php"
+                    <a href="User/User_Logout"
                         class="text-gray-300 hover:bg-red-700 px-4 py-4 rounded-md text-sm font-medium">Logout</a>
                 <?php else: ?>
-                    <a href="User/User_SignIn.php"
+                    <a href="User/User_SignIn"
                         class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                    <a href="User/User_SignUp.php"
+                    <a href="User/User_SignUp"
                         class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Register</a>
                 <?php endif; ?>
             </div>
@@ -243,34 +243,34 @@
                         <h6 class="text-sm font-medium text-gray-300 mb-1">Management Section</h6>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                             <div class="space-y-1">
-                                <a href="Product/Products_List.php"
+                                <a href="Product/Products_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Product List (Old)</a>
-                                <a href="Product/Products_Add.php"
+                                <a href="Product/Products_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Product</a>
                             </div>
                             <div class="space-y-1">
-                                <a href="Category/Categories_List.php"
+                                <a href="Category/Categories_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Category List</a>
-                                <a href="Category/Categories_Add.php"
+                                <a href="Category/Categories_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Category</a>
                             </div>
                             <div class="space-y-1">
-                                <a href="Category/SubCategories/SubCategories_List.php"
+                                <a href="Category/SubCategories/SubCategories_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Subcategory List</a>
-                                <a href="Category/SubCategories/SubCategories_Add.php"
+                                <a href="Category/SubCategories/SubCategories_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Subcategory</a>
                             </div>
                             <div class="space-y-1">
-                                <a href="Manufacturer/Manufacturers_List.php"
+                                <a href="Manufacturer/Manufacturers_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Manufacturer List</a>
-                                <a href="Manufacturer/Manufacturers_Add.php"
+                                <a href="Manufacturer/Manufacturers_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Manufacturer</a>
 
@@ -278,11 +278,11 @@
                             <div class="space-y-1">
                                 <?php if ($User['User_Role'] === 'Owner') { ?>
 
-                                    <a href="User/User_Management.php"
+                                    <a href="User/User_Management"
                                         class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
                                         Users Dashboard</a>
                                 <?php } ?>
-                                <a href="User/User_GlobalOrders.php"
+                                <a href="User/User_GlobalOrders"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
                                     Pending Orders <?php
                                     $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
@@ -375,7 +375,7 @@
                                                 class="NewProduct text-white px-2 py-1 rounded absolute top-2 right-2"><?php echo '✨NEW✨' ?></span>
                                         <?php }
                                     } ?>
-                                    <a href="Product/Product_Single.php?id=<?php echo $Product['Product_ID'] ?>&ProductName=<?php echo urlencode($Product['Product_Name']); ?>">
+                                    <a href="Product/Product_Single?id=<?php echo $Product['Product_ID'] ?>&ProductName=<?php echo urlencode($Product['Product_Name']); ?>">
                                         <img class="w-full h-32 object-cover object-center" style="width: auto; height: auto;"
                                             src="Product/<?php echo $Product['Product_Picture']; ?>" alt="Product Image">
                                     </a>
@@ -426,28 +426,29 @@
                                             </div>
                                             <div class="flex justify-between items-center space-x-2">
                                                 <?php if ($Visibility === '') { ?>
-                                                    <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
+                                                    <a href="Product/Add_To_Cart?id=<?php echo $Product['Product_ID']; ?>"
                                                         class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm flex-grow"
                                                         onclick="return alert('<?php echo $Product['Product_Name'] ?> has been added To Your Shopping Cart.')">Add
                                                         to Cart 🛒</a>
                                                 <?php } ?>
                                                 <div class="flex space-x-2">
-                                                    <a href="Product/Products_Modify.php?id=<?php echo $Product['Product_ID']; ?>"
+                                                    <a href="Product/Products_Modify?id=<?php echo $Product['Product_ID']; ?>&ProductName=<?php 
+                                                    echo urlencode($Product['Product_Name']); ?>"
                                                         class="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600 text-sm">
                                                         ⚙️</a>
-                                                    <a href="Product/Products_Delete.php?id=<?php echo $Product['Product_ID']; ?>"
+                                                    <a href="Product/Products_Delete?id=<?php echo $Product['Product_ID']; ?>"
                                                         class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 text-sm"
                                                         onclick="return confirm('Are you sure you want to delete this product?\n*Disclaimer* : This action is irreversible.')">
                                                         🗑️</a>
                                                 </div>
                                             </div>
                                         <?php } elseif (isset($_SESSION['User_ID']) && $User['User_Role'] === 'Client') { ?>
-                                            <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
+                                            <a href="Product/Add_To_Cart?id=<?php echo $Product['Product_ID']; ?>"
                                                 class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto"
                                                 onclick="return alert('<?php echo $Product['Product_Name'] . '\n' ?>has been added To Your Shopping Cart.')">Add
                                                 to Cart 🛒</a>
                                         <?php } elseif (!isset($_SESSION['User_ID'])) { ?>
-                                            <a href="Product/Add_To_Cart.php?id=<?php echo $Product['Product_ID']; ?>"
+                                            <a href="Product/Add_To_Cart?id=<?php echo $Product['Product_ID']; ?>"
                                                 class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto"
                                                 onclick="return alert('You must login before you can make a purchase')">Add
                                                 to Cart 🛒</a>

@@ -6,9 +6,9 @@ session_start();
 
 
 if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
-    // User is not logged in, redirect to login page
-    header("Location: ../User/User_SignIn.php");
-    exit;
+
+    header("Location: ../.");
+    exit();
 }
 
 
@@ -22,7 +22,7 @@ if ($row = $pdostmt->fetch(PDO::FETCH_ASSOC)) {
 
     if ($userRole !== 'Owner' && $userRole !== 'Admin' && $userRole !== 'Client') {
 
-        header("Location: ../User/User_Unauthorized.html");
+        header("Location: ../.");
         exit;
     }
 }
@@ -40,25 +40,34 @@ if (!empty($_GET['id'])) {
     $pdostmt->execute();
     $Who_Cancelled_ID = $pdostmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($Who_Cancelled_ID['User_ID'] == $User_ID) {
-        $Cancel_Order = "UPDATE Orders SET Order_Status = 'Cancelled by User' WHERE Order_ID = $Order_ID AND User_ID = :Who_Cancelled_ID";
-        $pdostmt = $connexion->prepare($Cancel_Order); 
-        $pdostmt->execute(['Who_Cancelled_ID' => $Who_Cancelled_ID['User_ID']]);
-    
-        header("Location: User_PendingOrders.php");
-        
+    try {
 
-    } else {
-        $Cancel_Order = "UPDATE Orders SET Order_Status = 'Cancelled by Management' WHERE Order_ID = $Order_ID AND User_ID = :Who_Cancelled_ID";
-        $pdostmt = $connexion->prepare($Cancel_Order); 
-        $pdostmt->execute(['Who_Cancelled_ID' => $Who_Cancelled_ID['User_ID']]);
-    
-        header("Location: User_GlobalOrders.php");
+        if ($Who_Cancelled_ID['User_ID'] == $User_ID) {
+            $Cancel_Order = "UPDATE Orders SET Order_Status = 'Cancelled by User' WHERE Order_ID = $Order_ID AND User_ID = :Who_Cancelled_ID";
+            $pdostmt = $connexion->prepare($Cancel_Order);
+            $pdostmt->execute(['Who_Cancelled_ID' => $Who_Cancelled_ID['User_ID']]);
+            header("Location: User_PendingOrders");
+            $_SESSION['Order_Cancelled'] = "Order has been cancelled!";
+
+
+        } else {
+            $Cancel_Order = "UPDATE Orders SET Order_Status = 'Cancelled by Management' WHERE Order_ID = $Order_ID AND User_ID = :Who_Cancelled_ID";
+            $pdostmt = $connexion->prepare($Cancel_Order);
+            $pdostmt->execute(['Who_Cancelled_ID' => $Who_Cancelled_ID['User_ID']]);
+
+            header("Location: User_GlobalOrders");
+            $_SESSION['Order_Cancelled'] = "Order has been cancelled!";
+        }
+
+    } catch (PDOException) {
+        $_SESSION['Order_Cancelled'] = "Error : Order could not be cancelled!";
+        header("Location: User_GlobalOrders");
     }
 
-
-
-
+} else {
+    $_SESSION['Product_Delete'] = "Error : Order invalid";
+    header("Location: ../.");
+    exit();
 }
 
 

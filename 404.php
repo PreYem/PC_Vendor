@@ -115,7 +115,7 @@
                         $Emoji = '💼';
                     }
                     ?>
-                    <a href="User/User_ShoppingCart.php"
+                    <a href="User/User_ShoppingCart"
                         class="flex items-center text-gray-300 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium">
                         🛒 Shopping Cart
                         <?php if ($Cart_Count > 0) { ?>
@@ -127,12 +127,12 @@
                         Logged in As : <br><span><?php echo $Emoji . ' ' . $User_FullName ?> -
                             <?php echo $User_Role ?></span></a>
 
-                    <a href="User/User_Logout.php"
+                    <a href="User/User_Logout"
                         class="text-gray-300 hover:bg-red-700 px-4 py-4 rounded-md text-sm font-medium">Logout</a>
                 <?php else: ?>
-                    <a href="User/User_SignIn.php"
+                    <a href="User/User_SignIn"
                         class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                    <a href="User/User_SignUp.php"
+                    <a href="User/User_SignUp"
                         class="text-gray-300 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Register</a>
                 <?php endif; ?>
             </div>
@@ -145,34 +145,34 @@
                         <h6 class="text-sm font-medium text-gray-300 mb-1">Management Section</h6>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                             <div class="space-y-1">
-                                <a href="Product/Products_List.php"
+                                <a href="Product/Products_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Product List (Old)</a>
-                                <a href="Product/Products_Add.php"
+                                <a href="Product/Products_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Product</a>
                             </div>
                             <div class="space-y-1">
-                                <a href="Category/Categories_List.php"
+                                <a href="Category/Categories_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Category List</a>
-                                <a href="Category/Categories_Add.php"
+                                <a href="Category/Categories_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Category</a>
                             </div>
                             <div class="space-y-1">
-                                <a href="Category/SubCategories/SubCategories_List.php"
+                                <a href="Category/SubCategories/SubCategories_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Subcategory List</a>
-                                <a href="Category/SubCategories/SubCategories_Add.php"
+                                <a href="Category/SubCategories/SubCategories_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Subcategory</a>
                             </div>
                             <div class="space-y-1">
-                                <a href="Manufacturer/Manufacturers_List.php"
+                                <a href="Manufacturer/Manufacturers_List"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">📋
                                     Manufacturer List</a>
-                                <a href="Manufacturer/Manufacturers_Add.php"
+                                <a href="Manufacturer/Manufacturers_Add"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">➕
                                     New Manufacturer</a>
 
@@ -180,11 +180,11 @@
                             <div class="space-y-1">
                                 <?php if ($User['User_Role'] === 'Owner') { ?>
 
-                                    <a href="User/User_Management.php"
+                                    <a href="User/User_Management"
                                         class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🔑
                                         Users Dashboard</a>
                                 <?php } ?>
-                                <a href="User/User_GlobalOrders.php"
+                                <a href="User/User_GlobalOrders"
                                     class="block bg-gray-700 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium text-gray-300 transition duration-300">🚨
                                     Pending Orders <?php
                                     $Order_Pending = "SELECT Order_ID FROM Orders WHERE  Order_Status NOT IN ('Cancelled By User', 'Cancelled by Management') ";
