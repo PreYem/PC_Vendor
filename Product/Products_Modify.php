@@ -597,7 +597,7 @@ $(document).ready(function () {
     $('#categorySelect').change(function () {
         var category = $(this).val();
         $.ajax({
-            url: 'Subcat.php',
+            url: 'Subcat_Modify.php',
             method: 'POST',
             data: { Category_Name: category },
             success: function (data) {

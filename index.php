@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
 
     <?php
+    date_default_timezone_set('Africa/Casablanca');
     session_start();
     include_once ("DB_Connexion.php");
 
@@ -328,7 +329,7 @@
 
 
 
-                                $Product_Age_Minute = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i - 60;
+                                $Product_Age_Minute = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i ;
 
                                 $Date_Created = date('Y-m-d', strtotime($Product["Date_Created"])) . '<b> at </b>' . date('H:i:s', strtotime($Product["Date_Created"]));
 
