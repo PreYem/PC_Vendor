@@ -13,6 +13,23 @@
     session_start();
     include_once ("DB_Connexion.php");
 
+
+    function dateMinFormat($DateMinute) {
+        if ($DateMinute < 59 ) {
+            $DateF = $DateMinute . ' Minutes';
+        } elseif ($DateMinute < 1440) {
+            $Hours = floor($DateMinute / 60) ;
+            $Minutes = $DateMinute % 60 ;
+            $DateF = $Hours . ' Hours ' . $Minutes . ' Minutes';
+        } else {
+            $Days = floor($DateMinute/1440) ;
+            $Hours = floor(($DateMinute % 1440) / 60) ;
+            $Minutes = $DateMinute % 60 ;
+            $DateF = $Days . ' Days ' . $Hours . ' Hours ' . $Minutes . ' Minutes';
+        } ;
+        return $DateF;
+    }
+
     function formatNumber($number)
     {
         return number_format($number, 0, '', ' ');
@@ -94,7 +111,7 @@
                 if ($User_Role === 'Client') {
 
                     $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                                    FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                                    FROM Products WHERE Date_Created > :thresholdDateString AND Product_Visibility = 'Visible' AND Category_ID != '1' ORDER BY Product_ID DESC";
                     $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
                     $pdoGeneralProductQuery->bindParam(':thresholdDateString', $thresholdDateString);
                     $pdoGeneralProductQuery->execute(['thresholdDateString' => $thresholdDateString]);
@@ -118,7 +135,8 @@
                 if ($User_Role === 'Client') {
 
                     $GeneralProductQuery = "SELECT Product_ID, Product_Name, Selling_Price, Discount_Price, Product_Quantity, Product_Visibility, Product_Picture, Date_Created 
-                                    FROM Products WHERE Selling_Price > Discount_Price AND Discount_Price > 0 AND Product_Visibility = 'Visible' ORDER BY Product_ID DESC";
+                                    FROM Products WHERE Selling_Price > Discount_Price AND Discount_Price > 0 AND Product_Visibility = 'Visible' AND Category_ID != '1' 
+                                    ORDER BY Product_ID DESC";
                     $pdoGeneralProductQuery = $connexion->prepare($GeneralProductQuery);
 
                     $pdoGeneralProductQuery->execute();
@@ -419,11 +437,11 @@
 
                                         <?php if (isset($_SESSION['User_ID']) && $User['User_Role'] !== 'Client') { ?>
                                             <div class="text-gray-700 font-semibold text-sm italic">Current threshold :
-                                                <?php echo $thresholdMinutes . ' minutes.' ?>
+                                                <?php echo '<b>' . $thresholdMinutes . ' minutes.</b>' ?>
                                             </div>
 
                                             <div class="text-gray-700 font-semibold text-sm italic">Created:
-                                                <?php echo $Date_Created . ' <br> ' . $Product_Age_Minute . ' Minutes old.' ?>
+                                                <?php echo $Date_Created . ' <br><b> ' . dateMinFormat($Product_Age_Minute) . ' old.</b>' ?>
                                             </div>
                                             <div class="flex justify-between items-center space-x-2">
                                                 <?php if ($Visibility === '') { ?>
