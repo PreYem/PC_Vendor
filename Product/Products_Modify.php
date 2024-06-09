@@ -1,4 +1,5 @@
 <?php
+session_start();
 include_once ("../DB_Connexion.php");
 if (!empty($_GET["id"])) {
     $Product_ID = $_GET["id"];
@@ -6,11 +7,19 @@ if (!empty($_GET["id"])) {
     $pdoTitle_Name = $connexion->prepare($Title_Name);
     $pdoTitle_Name->execute(['Product_ID' => $Product_ID]);
     $Title_Name = $pdoTitle_Name->fetch(PDO::FETCH_ASSOC);
-    $Title_Name = strlen($Title_Name['Product_Name']) > 10 ? substr($Title_Name['Product_Name'], 0, 20) . "..." : $Title_Name['Product_Name'];
+
+    if ($Title_Name) {
+        $Title_Name = strlen($Title_Name['Product_Name']) > 10 ? substr($Title_Name['Product_Name'], 0, 20) . "..." : $Title_Name['Product_Name'];
+    } else {
+        $_SESSION['Product_Delete'] = 'Error : Product ID [' . $Product_ID . '] is not found' ;
+        header("Location: ../.");
+        exit();
+    }
 } else {
+    $_SESSION['Product_Delete'] = 'Error : Unable to find product' ;
     header("Location: ../.");
-    exit;
-}
+    exit();
+};
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +35,7 @@ if (!empty($_GET["id"])) {
 
 
     <?php
-    session_start();
+    
     include_once ("../DB_Connexion.php");
 
 
@@ -241,7 +250,7 @@ if (!empty($_GET["id"])) {
     }
 
 
-    
+
     ?>
 
 
@@ -593,25 +602,25 @@ if (!empty($_GET["id"])) {
 
     <script>
 
-$(document).ready(function () {
-    $('#categorySelect').change(function () {
-        var category = $(this).val();
-        $.ajax({
-            url: 'Subcat_Modify.php',
-            method: 'POST',
-            data: { Category_Name: category },
-            success: function (data) {
-                $('#subcategorySelect').html(data);
-            },
-            error: function(xhr, status, error) {
-                console.log("An error occurred while fetching subcategories: " + error);
-            }
+        $(document).ready(function () {
+            $('#categorySelect').change(function () {
+                var category = $(this).val();
+                $.ajax({
+                    url: 'Subcat_Modify.php',
+                    method: 'POST',
+                    data: { Category_Name: category },
+                    success: function (data) {
+                        $('#subcategorySelect').html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("An error occurred while fetching subcategories: " + error);
+                    }
+                });
+            });
         });
-    });
-});
 
 
-        
+
         window.addEventListener('DOMContentLoaded', function () {
             adjustContentMargin();
         });
