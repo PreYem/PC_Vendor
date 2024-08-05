@@ -432,6 +432,7 @@
                                                 <span class="text-red-500 font-bold">Out of stock</span>
                                             <?php } ?>
                                         </p>
+   
 
 
 
@@ -462,11 +463,14 @@
                                                 </div>
                                             </div>
                                         <?php } elseif (isset($_SESSION['User_ID']) && $User['User_Role'] === 'Client') { ?>
-                                            <a href="Product/Add_To_Cart?id=<?php echo $Product['Product_ID']; ?>"
+                                            <?php if ($Product['Product_Quantity'] > 0) { ?>
+                                                <a href="Product/Add_To_Cart?id=<?php echo $Product['Product_ID']; ?>"
                                                 class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto"
                                                 onclick="return alert('<?php echo $Product['Product_Name'] . '\n' ?>has been added To Your Shopping Cart.')">Add
                                                 to Cart 🛒</a>
-                                        <?php } elseif (!isset($_SESSION['User_ID'])) { ?>
+                                                <?php } ?>
+                                            
+                                        <?php } elseif (!isset($_SESSION['User_ID']) && $Product['Product_Quantity'] > 0 ) { ?>
                                             <a href="Product/Add_To_Cart?id=<?php echo $Product['Product_ID']; ?>"
                                                 class="block bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 text-sm w-auto"
                                                 onclick="return alert('You must login before you can make a purchase')">Add
