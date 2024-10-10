@@ -12,11 +12,8 @@ try {
 
 } catch (PDOException $e) //
 {
-
     die("Database $dbname is not working correctly  :" . $e->getMessage());
 }
-
-
 
 ?>
 
@@ -34,9 +31,6 @@ try {
 
 <body>
 
-
 </body>
 
 </html>
-
-

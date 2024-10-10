@@ -11,21 +11,18 @@
     <title>List of Products (Old)</title>
     <?php
 
-
-
-    include_once ("../DB_Connexion.php"); // Include database connection at the beginning
+    include_once ("../DB_Connexion.php"); 
     
-    session_start(); // Start or resume existing session
+    session_start(); 
     
 
-    // Check if user is logged in and has the appropriate role
+
     if (!isset($_SESSION['User_ID']) || !isset($_SESSION['User_Role'])) {
-        // User is not logged in, redirect to login page
+
         header("Location: ../User/User_SignIn.php");
-        exit; // Ensure script stops after redirection
+        exit;
     }
 
-    // Retrieve the user's role from the database based on User_ID stored in session
     $userId = $_SESSION['User_ID'];
     $query = "SELECT User_Role, User_Username , User_FirstName , User_LastName FROM Users WHERE User_ID = :userId";
     $pdostmt = $connexion->prepare($query);
