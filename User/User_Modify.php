@@ -530,47 +530,40 @@
 
 
                 // Fetch country data and populate the select element
-                document.addEventListener('DOMContentLoaded', function () {
-                    const defaultCountry = "<?php echo htmlspecialchars($User_Data['User_Country'], ENT_QUOTES, 'UTF-8'); ?>"; // or use the embedded script's value
+                document.addEventListener('DOMContentLoaded', () => {
+            // Load the local JSON file
+            fetch('./countries.json') // Ensure the file is in the same directory as your script
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load countries.json: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const countrySelect = document.getElementById('User_Country');
 
-                    fetch('https://api.first.org/data/v1/countries')
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok ' + response.statusText);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            const countrySelect = document.getElementById('User_Country');
+                    if (!countrySelect) {
+                        throw new Error('Select element with ID "User_Country" not found.');
+                    }
 
-                            if (!countrySelect) {
-                                throw new Error('Select element with ID "User_Country" not found.');
-                            }
+                    // Log data to verify
+                    console.log(data);
 
-                            // Extract the countries object from the data
-                            const countries = data.data;
+                    // Filter countries based on name length
+                    const filteredCountries = data.filter(country => country.name.length < 30);
 
-                            // Filter countries based on name length (less than 30 characters)
-                            const filteredCountries = Object.values(countries).filter(country => country.country.length < 30);
-
-                            // Create and append options for filtered countries
-                            filteredCountries.forEach(country => {
-                                const option = document.createElement('option');
-                                option.value = country.country;
-                                option.textContent = country.country;
-
-                                // Set the selected attribute if the country matches the default country
-                                if (country.country === defaultCountry) {
-                                    option.selected = true;
-                                }
-
-                                countrySelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching country data:', error);
-                        });
+                    // Populate the select element
+                    filteredCountries.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.code; // Use the country code as value
+                        option.textContent = country.name; // Display the country name
+                        countrySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading countries:', error);
                 });
+        });
 
 
 

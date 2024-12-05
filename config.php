@@ -4,7 +4,7 @@ define('MAILHOST', "smtp.gmail.com");
 
 define('USERNAME', "dinactiprefected@gmail.com");
 
-define('PASSWORD', "fzjx feog hoyo ifdq");
+define('PASSWORD', "qmlc oktf rchb ruse ");
 
 define('SEND_FROM', "dinactiprefected@gmail.com");
 

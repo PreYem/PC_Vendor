@@ -9,15 +9,14 @@
 
     <?php
     session_start();
-    include_once ("../DB_Connexion.php");
+    include_once("../DB_Connexion.php");
 
 
     if (isset($_SESSION['User_ID'])) {
 
         header("Location: ../.");
         exit();
-    }
-    ;
+    };
 
     function formatNumber($number)
     {
@@ -99,7 +98,7 @@
                     $_SESSION['User_Role'] = $User['User_Role'];
 
 
-                    require ("../script.php");
+                    require("../script.php");
 
                     $Email_Subject = "Welcome | PC Vendor";
 
@@ -191,7 +190,6 @@
                     $_SESSION['Product_Add/Update'] = "Welcome " . $User_Username . ' , Feel free to shop!';
                     header("Location: ../.");
                     exit;
-
                 } catch (PDOException $e) {
                     // Detailed error message for debugging
                     error_log("Error inserting user: " . $e->getMessage());
@@ -219,7 +217,7 @@
             <div class="flex grid-cols-4 gap-1">
                 <?php foreach ($Categories as $Category): ?>
                     <?php if ($Category['Category_Name'] !== 'Unspecified'):
-                        ?>
+                    ?>
                         <?php
                         $Category_ID = $Category['Category_ID'];
                         $SubCategoriesQuery = "SELECT SubCategory_ID, SubCategory_Name FROM SubCategories WHERE Category_ID = :Category_ID ORDER BY SubCategory_ID ASC";
@@ -237,9 +235,9 @@
                                     <?php foreach ($SubCategories as $SubCategory): ?>
                                         <?php if ($SubCategory['SubCategory_Name'] !== 'Unspecified'):
 
-                                            ?>
+                                        ?>
                                             <a href=".././?id=<?php echo $SubCategory['SubCategory_ID'] ?>&Type=SubCategory&Name=<?php
-                                               echo str_replace(' ', '', $SubCategory['SubCategory_Name']) ?>"
+                                                                                                                                    echo str_replace(' ', '', $SubCategory['SubCategory_Name']) ?>"
                                                 class="block px-2 py-1 hover:bg-blue-600"><?php echo $SubCategory['SubCategory_Name']; ?></a>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
@@ -383,12 +381,12 @@
 
 
     <script>
-        window.addEventListener('DOMContentLoaded', function () {
+        window.addEventListener('DOMContentLoaded', function() {
             adjustContentMargin();
             resetForm();
         });
 
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', function() {
             adjustContentMargin();
         });
 
@@ -426,46 +424,40 @@
             checkForm(); // Ensure the form state is updated
 
         }
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load the local JSON file
+            fetch('./countries.json') // Ensure the file is in the same directory as your script
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load countries.json: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const countrySelect = document.getElementById('User_Country');
 
+                    if (!countrySelect) {
+                        throw new Error('Select element with ID "User_Country" not found.');
+                    }
 
+                    // Log data to verify
+                    console.log(data);
 
+                    // Filter countries based on name length
+                    const filteredCountries = data.filter(country => country.name.length < 30);
 
-
-
-
-        // Fetch country data and populate the select element
-        fetch('https://api.first.org/data/v1/countries')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const countrySelect = document.getElementById('User_Country');
-
-                if (!countrySelect) {
-                    throw new Error('Select element with ID "User_Country" not found.');
-                }
-
-                // Extract the countries object from the data
-                const countries = data.data;
-
-                // Filter countries based on name length (less than 30 characters)
-                const filteredCountries = Object.values(countries).filter(country => country.country.length < 30);
-
-                // Create and append options for filtered countries
-                filteredCountries.forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country.country;
-                    option.textContent = country.country;
-                    countrySelect.appendChild(option);
+                    // Populate the select element
+                    filteredCountries.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.code; // Use the country code as value
+                        option.textContent = country.name; // Display the country name
+                        countrySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading countries:', error);
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching country data:', error);
-            });
-
+        });
     </script>
 </body>
 
